@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { FaTimes, FaCode, FaAlignLeft, FaMoneyBill } from "react-icons/fa";
+import { createRevenue, updateRevenue } from "../apis/revenueApi";
 
 interface RevenueFormModalProps {
   isOpen: boolean;
@@ -32,14 +33,36 @@ const RevenueFormModal: React.FC<RevenueFormModalProps> = ({
     }
   }, [revenue]);
 
+
+  
+
   const handleChange = (e: any) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
-    onClose();
+  const handleSubmit = async () => {
+    // Prepare payload to match API field names
+    const payload = {
+      revenue_code: formData.revenueCode,
+      revenue_description: formData.description,
+      revenue_value: Number(formData.revenueValue),
+    };
+
+    try {
+      if (revenue && revenue.id) {
+        // Update
+        await updateRevenue(revenue.id, payload);
+      } else {
+        // Create
+        await createRevenue(payload);
+      }
+      onSubmit(payload); // Optionally pass data up
+      onClose();
+    } catch (error) {
+      // Handle error (show toast, etc.)
+      console.error("Failed to save revenue", error);
+    }
   };
 
   if (!isOpen) return null;
@@ -107,7 +130,14 @@ const RevenueFormModal: React.FC<RevenueFormModalProps> = ({
 export default RevenueFormModal;
 
 // 👇 Reusable Input Field Component
-const InputField = ({ icon, label, name, value, onChange, type = "text" }: any) => (
+const InputField = ({
+  icon,
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+}: any) => (
   <div>
     <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
       <span className="mr-2">{icon}</span>

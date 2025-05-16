@@ -1,5 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { FaTimes, FaSave, FaCalendarAlt, FaUserTie, FaFileAlt, FaClock } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  FaTimes,
+  FaSave,
+  FaCalendarAlt,
+  FaUserTie,
+  FaFileAlt,
+  FaClock,
+} from "react-icons/fa";
+import { Customer } from "../types/customerTypes";
+import { fetchCustomers } from "../apis/customerApi";
+import { fetchRevenues } from "../apis/revenueApi";
 
 type ProjectModalProps = {
   isOpen: boolean;
@@ -31,8 +41,43 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     staff: [],
     storeLocations: [],
   });
+  const dateInputRef = useRef<HTMLInputElement>(null);
+
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [revenueOptions, setRevenueOptions] = useState<Option[]>([]);
 
   // const [selectedValues, setSelectedValues] = useState<string[]>([]);
+
+  useEffect(() => {
+    const getCustomers = async () => {
+      try {
+        const data = await fetchCustomers();
+        setCustomers(data);
+      } catch (err) {
+        console.error("Error loading customers", err);
+      }
+    };
+
+    getCustomers();
+  }, []);
+
+  useEffect(() => {
+    const getRevenues = async () => {
+      try {
+        const revenues = await fetchRevenues();
+        setRevenueOptions(
+          revenues.map((rev) => ({
+            value: rev.id, // <-- This is the ID you will send
+            text: `${rev.revenue_code} - ${rev.revenue_description}`,
+            selected: false,
+          }))
+        );
+      } catch (err) {
+        console.error("Error loading revenues", err);
+      }
+    };
+    getRevenues();
+  }, []);
 
   // Update form data when project prop changes
   useEffect(() => {
@@ -63,13 +108,15 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     }
   }, [project]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleMultiSelectChange = (name: string, values: string[]) => {
-    setFormData(prev => ({ ...prev, [name]: values }));
+    setFormData((prev) => ({ ...prev, [name]: values }));
   };
 
   const dummyOptions = {
@@ -78,10 +125,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   };
 
   const multiOptions = {
-    revenueMaster: [
-      { value: "rev1", text: "Revenue A", selected: false },
-      { value: "rev2", text: "Revenue B", selected: false },
-    ],
+    revenueMaster: revenueOptions,
     equipments: [
       { value: "eq1", text: "Excavator", selected: false },
       { value: "eq2", text: "Bulldozer", selected: false },
@@ -109,9 +153,12 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           aria-label="Close modal"
         >
-          <FaTimes className="text-gray-500 hover:text-red-500 dark:text-gray-300" size={20} />
+          <FaTimes
+            className="text-gray-500 hover:text-red-500 dark:text-gray-300"
+            size={20}
+          />
         </button>
-        
+
         <div className="flex items-center mb-6">
           <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg mr-4">
             <FaFileAlt className="text-blue-600 dark:text-blue-300" size={24} />
@@ -121,7 +168,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
               {project ? "Edit Project" : "Add New Project"}
             </h2>
             <p className="text-gray-600 dark:text-gray-300">
-              {project ? `Editing ${project.projectNo}` : "Fill in the project details"}
+              {project
+                ? `Editing ${project.projectNo}`
+                : "Fill in the project details"}
             </p>
           </div>
         </div>
@@ -167,9 +216,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
                 >
                   <option value="">Select customer</option>
-                  {dummyOptions.customer.map((cust, idx) => (
-                    <option key={idx} value={cust}>
-                      {cust}
+                  {customers.map((cust) => (
+                    <option key={cust.id} value={cust.id}>
+                      {cust.partner_name}
                     </option>
                   ))}
                 </select>
@@ -202,15 +251,33 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Contract Start Date
               </label>
-              <div className="relative">
+              <div
+                className="relative"
+                onClick={() =>
+                  dateInputRef.current &&
+                  dateInputRef.current.showPicker &&
+                  dateInputRef.current.showPicker()
+                }
+                style={{ cursor: "pointer" }}
+              >
                 <input
                   type="date"
                   name="contractStartDate"
                   value={formData.contractStartDate}
                   onChange={handleChange}
                   className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  ref={dateInputRef}
+                  onClick={(e) => e.stopPropagation()} // Prevents double opening
                 />
-                <FaCalendarAlt className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
+                <FaCalendarAlt
+                  className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400"
+                  onClick={() =>
+                    dateInputRef.current &&
+                    dateInputRef.current.showPicker &&
+                    dateInputRef.current.showPicker()
+                  }
+                  style={{ cursor: "pointer" }}
+                />
               </div>
             </div>
 
@@ -246,7 +313,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 label="Revenue Master"
                 options={multiOptions.revenueMaster}
                 defaultSelected={formData.revenueMaster}
-                onChange={(values) => handleMultiSelectChange("revenueMaster", values)}
+                onChange={(values) =>
+                  handleMultiSelectChange("revenueMaster", values)
+                }
               />
             </div>
 
@@ -259,7 +328,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 label="Equipments"
                 options={multiOptions.equipments}
                 defaultSelected={formData.equipments}
-                onChange={(values) => handleMultiSelectChange("equipments", values)}
+                onChange={(values) =>
+                  handleMultiSelectChange("equipments", values)
+                }
               />
             </div>
 
@@ -285,7 +356,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 label="Store Locations"
                 options={multiOptions.storeLocations}
                 defaultSelected={formData.storeLocations}
-                onChange={(values) => handleMultiSelectChange("storeLocations", values)}
+                onChange={(values) =>
+                  handleMultiSelectChange("storeLocations", values)
+                }
               />
             </div>
           </div>
@@ -325,7 +398,8 @@ const MultiSelect = ({
   onChange: (values: string[]) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValues, setSelectedValues] = useState<string[]>(defaultSelected);
+  const [selectedValues, setSelectedValues] =
+    useState<string[]>(defaultSelected);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
@@ -333,14 +407,12 @@ const MultiSelect = ({
   }, [selectedValues, onChange]);
 
   const toggleOption = (value: string) => {
-    setSelectedValues(prev =>
-      prev.includes(value)
-        ? prev.filter(v => v !== value)
-        : [...prev, value]
+    setSelectedValues((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
     );
   };
 
-  const filteredOptions = options.filter(option =>
+  const filteredOptions = options.filter((option) =>
     option.text.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -352,8 +424,8 @@ const MultiSelect = ({
       >
         <div className="flex flex-wrap gap-1">
           {selectedValues.length > 0 ? (
-            selectedValues.map(value => {
-              const option = options.find(opt => opt.value === value);
+            selectedValues.map((value) => {
+              const option = options.find((opt) => opt.value === value);
               return (
                 <span
                   key={value}
@@ -362,7 +434,7 @@ const MultiSelect = ({
                   {option?.text}
                   <button
                     type="button"
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
                       toggleOption(value);
                     }}
@@ -374,16 +446,25 @@ const MultiSelect = ({
               );
             })
           ) : (
-            <span className="text-gray-400 dark:text-gray-400">Select {label}</span>
+            <span className="text-gray-400 dark:text-gray-400">
+              Select {label}
+            </span>
           )}
         </div>
         <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${isOpen ? "transform rotate-180" : ""}`}
+          className={`w-5 h-5 text-gray-400 transition-transform ${
+            isOpen ? "transform rotate-180" : ""
+          }`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
         </svg>
       </div>
 
@@ -400,10 +481,14 @@ const MultiSelect = ({
           </div>
           <div className="max-h-60 overflow-y-auto">
             {filteredOptions.length > 0 ? (
-              filteredOptions.map(option => (
+              filteredOptions.map((option) => (
                 <div
                   key={option.value}
-                  className={`px-3 py-2 cursor-pointer flex items-center hover:bg-gray-100 dark:hover:bg-gray-600 ${selectedValues.includes(option.value) ? "bg-blue-50 dark:bg-blue-900" : ""}`}
+                  className={`px-3 py-2 cursor-pointer flex items-center hover:bg-gray-100 dark:hover:bg-gray-600 ${
+                    selectedValues.includes(option.value)
+                      ? "bg-blue-50 dark:bg-blue-900"
+                      : ""
+                  }`}
                   onClick={() => toggleOption(option.value)}
                 >
                   <input
