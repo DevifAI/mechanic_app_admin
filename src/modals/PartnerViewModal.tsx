@@ -25,6 +25,17 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
 }) => {
   if (!isOpen || !partner) return null;
 
+  // Map backend keys to frontend keys for display
+  const displayPartner = {
+    name: partner.partner_name || partner.name || "",
+    address: partner.partner_address || partner.address || "",
+    gst: partner.partner_gst || partner.gst || "",
+    geoId: partner.partner_geo_id || partner.geoId || "",
+    isCustomer: partner.isCustomer ?? true,
+    linkedProjects: partner.linkedProjects ?? "",
+    isActive: partner.isActive ?? true,
+  };
+
   return (
     <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh] z-10 dark:bg-gray-800">
@@ -41,7 +52,7 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
             <FaBuilding className="text-blue-600 dark:text-blue-300" size={24} />
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{partner.name}</h2>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{displayPartner.name}</h2>
             <p className="text-gray-600 dark:text-gray-300">Partner Details</p>
           </div>
         </div>
@@ -52,7 +63,7 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
               <FaMapMarkerAlt className="text-gray-500 dark:text-gray-300 mr-2" />
               <h3 className="font-semibold text-gray-700 dark:text-white">Address</h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{partner.address}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">{displayPartner.address}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -60,7 +71,7 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
               <FaFileInvoice className="text-gray-500 dark:text-gray-300 mr-2" />
               <h3 className="font-semibold text-gray-700 dark:text-white">GST</h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{partner.gst}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">{displayPartner.gst}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -68,7 +79,7 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
               <FaGlobe className="text-gray-500 dark:text-gray-300 mr-2" />
               <h3 className="font-semibold text-gray-700 dark:text-white">Geo ID</h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{partner.geoId}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">{displayPartner.geoId}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
@@ -77,7 +88,7 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
               <h3 className="font-semibold text-gray-700 dark:text-white">Is Customer</h3>
             </div>
             <p className="text-gray-800 dark:text-gray-200 pl-6">
-              {partner.isCustomer ? "Yes" : "No"}
+              {displayPartner.isCustomer ? "Yes" : "No"}
             </p>
           </div>
 
@@ -86,12 +97,12 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
               <FaProjectDiagram className="text-gray-500 dark:text-gray-300 mr-2" />
               <h3 className="font-semibold text-gray-700 dark:text-white">Linked Projects</h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{partner.linkedProjects}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">{displayPartner.linkedProjects}</p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg col-span-1 md:col-span-2">
             <div className="flex items-center mb-3">
-              {partner.isActive ? (
+              {displayPartner.isActive ? (
                 <FaCheckCircle className="text-green-500 mr-2" />
               ) : (
                 <FaTimesCircle className="text-red-500 mr-2" />
@@ -99,7 +110,7 @@ const PartnerViewModal: React.FC<PartnerViewModalProps> = ({
               <h3 className="font-semibold text-gray-700 dark:text-white">Active</h3>
             </div>
             <p className="text-gray-800 dark:text-gray-200 pl-6">
-              {partner.isActive ? "Yes" : "No"}
+              {displayPartner.isActive ? "Yes" : "No"}
             </p>
           </div>
         </div>

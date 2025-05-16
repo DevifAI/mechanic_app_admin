@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { FaTimes, FaCogs, FaDollarSign, FaTag, FaCalendarAlt } from "react-icons/fa";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  FaTimes,
+  FaCogs,
+  FaDollarSign,
+  FaTag,
+  FaCalendarAlt,
+} from "react-icons/fa";
+import { createEquipment, updateEquipment } from "../apis/equipmentApi";
+import { EquipmentGroupOption } from "../types/equipmentGroupTypes";
 
 interface EquipmentFormModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (formData: any) => void;
   equipment?: any;
-  equipmentGroups: string[];  // List of equipment groups for the dropdown
+  equipmentGroups: EquipmentGroupOption[];
 }
 
 const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
@@ -29,6 +37,8 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
     projectTag: "",
     equipmentGroup: "",
   });
+
+  const dateInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (equipment) {
@@ -58,9 +68,40 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
     }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
-    onClose();
+  function safeParse(jsonString: string) {
+    try {
+      return jsonString ? JSON.parse(jsonString) : {};
+    } catch {
+      return {};
+    }
+  }
+
+  const handleSubmit = async () => {
+    const payload = {
+      equipment_name: formData.equipmentName,
+      equipment_sr_no: formData.serialNo,
+      additional_id: formData.additionalId,
+      purchase_date: formData.purchaseDate,
+      oem: formData.oem,
+      purchase_cost: Number(formData.purchaseCost),
+      equipment_manual: formData.equipmentManual,
+      maintenance_log: safeParse(formData.maintenanceLog),
+      other_log: safeParse(formData.otherLog),
+      project_tag: safeParse(formData.projectTag),
+      equipment_group_id: formData.equipmentGroup,
+    };
+
+    try {
+      if (equipment && equipment.id) {
+        await updateEquipment(equipment.id, payload);
+      } else {
+        await createEquipment(payload);
+      }
+      onSubmit(payload);
+      onClose();
+    } catch (error) {
+      console.error("Failed to save equipment", error);
+    }
   };
 
   if (!isOpen) return null;
@@ -104,14 +145,22 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
             onChange={handleChange}
           />
 
-          <InputField
-            icon={<FaCalendarAlt />}
-            label="Purchase Date"
-            name="purchaseDate"
-            value={formData.purchaseDate}
-            onChange={handleChange}
-            type="date"
-          />
+          <div className="relative">
+            <InputField
+              icon={<FaCalendarAlt />}
+              label="Purchase Date"
+              name="purchaseDate"
+              value={formData.purchaseDate}
+              onChange={handleChange}
+              type="date"
+              inputRef={dateInputRef}
+            />
+            <FaCalendarAlt
+              className="absolute right-3 top-9 text-gray-400 cursor-pointer"
+              onClick={() => dateInputRef.current?.showPicker?.()}
+              style={{ pointerEvents: "auto" }}
+            />
+          </div>
 
           <InputField
             icon={<FaCogs />}
@@ -203,7 +252,15 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
 
 export default EquipmentFormModal;
 
-const InputField = ({ icon, label, name, value, onChange, type = "text" }: any) => (
+const InputField = ({
+  icon,
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  inputRef,
+}: any) => (
   <div>
     <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
       <span className="mr-2">{icon}</span>
@@ -214,6 +271,7 @@ const InputField = ({ icon, label, name, value, onChange, type = "text" }: any) 
       name={name}
       value={value}
       onChange={onChange}
+      ref={inputRef}
       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
     />
   </div>
@@ -248,9 +306,9 @@ const SelectField = ({ icon, label, name, value, onChange, options }: any) => (
       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
     >
       <option value="">Select Group</option>
-      {options.map((group: string, index: number) => (
-        <option key={index} value={group}>
-          {group}
+      {options.map((group: { value: string; label: string }) => (
+        <option key={group.value} value={group.value}>
+          {group.label}
         </option>
       ))}
     </select>

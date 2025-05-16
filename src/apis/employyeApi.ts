@@ -1,0 +1,64 @@
+import { Employee, EmployeePayload } from "../types/employeeTypes";
+import axiosInstance from "../utils/axiosInstance";
+
+// Get all employees
+export const fetchEmployees = async (): Promise<Employee[]> => {
+  try {
+    const res = await axiosInstance.get("/employee/getAll");
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch employees", error);
+    throw error;
+  }
+};
+
+// Get employee by ID
+export const fetchEmployeeById = async (id: string): Promise<Employee> => {
+  try {
+    const res = await axiosInstance.get(`/employee/get/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error(`Failed to fetch employee with id ${id}`, error);
+    throw error;
+  }
+};
+
+// Create new employee
+export const createEmployee = async (
+  payload: EmployeePayload
+): Promise<Employee> => {
+  try {
+    const res = await axiosInstance.post("/employee/create", payload);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to create employee", error);
+    throw error;
+  }
+};
+
+// Update employee
+export const updateEmployee = async (
+  id: string,
+  payload: EmployeePayload
+): Promise<Employee> => {
+  try {
+    const res = await axiosInstance.patch(`/employee/update/${id}`, payload);
+    return res.data;
+  } catch (error) {
+    console.error(`Failed to update employee with id ${id}`, error);
+    throw error;
+  }
+};
+
+// Delete employee
+export const deleteEmployee = async (
+  id: string
+): Promise<{ message: string }> => {
+  try {
+    const res = await axiosInstance.delete(`/employee/delete/${id}`);
+    return res.data;
+  } catch (error) {
+    console.error(`Failed to delete employee with id ${id}`, error);
+    throw error;
+  }
+};

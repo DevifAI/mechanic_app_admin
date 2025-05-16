@@ -16,8 +16,25 @@ interface EquipmentViewModalProps {
   equipment: any;
 }
 
-const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({ isOpen, onClose, equipment }) => {
+const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({
+  isOpen,
+  onClose,
+  equipment,
+}) => {
   if (!isOpen || !equipment) return null;
+
+  if (!isOpen || !equipment) return null;
+
+  // Map backend keys to frontend keys for display
+  const displayEquipment = {
+    name: equipment.equipment_name || equipment.name || "",
+    serialNo: equipment.equipment_sr_no || equipment.serialNo || "",
+    additionalId: equipment.additional_id || equipment.additionalId || "",
+    purchaseDate: equipment.purchase_date || equipment.purchaseDate || "",
+    oem: equipment.oem || "",
+    purchaseCost: equipment.purchase_cost ?? equipment.purchaseCost ?? "",
+    group: equipment.equipment_group_name || equipment.group || "",
+  };
 
   return (
     <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
@@ -27,7 +44,10 @@ const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({ isOpen, onClose
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
           aria-label="Close modal"
         >
-          <FaTimes className="text-gray-500 hover:text-red-500 dark:text-gray-300" size={20} />
+          <FaTimes
+            className="text-gray-500 hover:text-red-500 dark:text-gray-300"
+            size={20}
+          />
         </button>
 
         <div className="flex items-center mb-6">
@@ -36,9 +56,11 @@ const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({ isOpen, onClose
           </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-              {equipment.name}
+              {displayEquipment.name}
             </h2>
-            <p className="text-gray-600 dark:text-gray-300">Equipment Details</p>
+            <p className="text-gray-600 dark:text-gray-300">
+              Equipment Details
+            </p>
           </div>
         </div>
 
@@ -46,49 +68,73 @@ const EquipmentViewModal: React.FC<EquipmentViewModalProps> = ({ isOpen, onClose
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <div className="flex items-center mb-3">
               <FaBarcode className="text-gray-500 dark:text-gray-300 mr-2" />
-              <h3 className="font-semibold text-gray-700 dark:text-white">Serial No</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-white">
+                Serial No
+              </h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.serialNo}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">
+              {displayEquipment.serialNo}
+            </p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <div className="flex items-center mb-3">
               <FaTag className="text-gray-500 dark:text-gray-300 mr-2" />
-              <h3 className="font-semibold text-gray-700 dark:text-white">Additional ID</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-white">
+                Additional ID
+              </h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.additionalId}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">
+              {displayEquipment.additionalId}
+            </p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <div className="flex items-center mb-3">
               <FaCalendarAlt className="text-gray-500 dark:text-gray-300 mr-2" />
-              <h3 className="font-semibold text-gray-700 dark:text-white">Purchase Date</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-white">
+                Purchase Date
+              </h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.purchaseDate}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">
+              {displayEquipment.purchaseDate}
+            </p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <div className="flex items-center mb-3">
               <FaIndustry className="text-gray-500 dark:text-gray-300 mr-2" />
-              <h3 className="font-semibold text-gray-700 dark:text-white">OEM</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-white">
+                OEM
+              </h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.oem}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">
+              {displayEquipment.oem}
+            </p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <div className="flex items-center mb-3">
               <FaRupeeSign className="text-gray-500 dark:text-gray-300 mr-2" />
-              <h3 className="font-semibold text-gray-700 dark:text-white">Purchase Cost</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-white">
+                Purchase Cost
+              </h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">₹{equipment.purchaseCost}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">
+              ₹{displayEquipment.purchaseCost}
+            </p>
           </div>
 
           <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
             <div className="flex items-center mb-3">
               <FaLayerGroup className="text-gray-500 dark:text-gray-300 mr-2" />
-              <h3 className="font-semibold text-gray-700 dark:text-white">Group</h3>
+              <h3 className="font-semibold text-gray-700 dark:text-white">
+                Group
+              </h3>
             </div>
-            <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.group}</p>
+            <p className="text-gray-800 dark:text-gray-200 pl-6">
+              {displayEquipment.group}
+            </p>
           </div>
         </div>
 

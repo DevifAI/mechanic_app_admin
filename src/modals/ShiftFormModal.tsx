@@ -30,6 +30,7 @@ const ShiftFormModal: React.FC<ShiftFormModalProps> = ({
     }
   }, [editingShift]);
 
+  
   const handleSubmit = () => {
     onSubmit({
       shiftCode,
@@ -42,9 +43,9 @@ const ShiftFormModal: React.FC<ShiftFormModalProps> = ({
   if (!isOpen) return null;
 
   return (
- <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh] z-10 dark:bg-gray-800">
-                <button
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 text-gray-500 hover:text-red-600 dark:text-gray-300"
         >

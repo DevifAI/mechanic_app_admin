@@ -30,7 +30,7 @@ const RoleFormModal: React.FC<RoleFormModalProps> = ({
   const handleSubmit = () => {
     onSubmit({
       code,
-      roleName,
+      name: roleName,
     });
     onClose();
   };

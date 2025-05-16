@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaUser, FaMapMarkerAlt, FaReceipt, FaGlobe } from "react-icons/fa";
+import {
+  FaTimes,
+  FaUser,
+  FaMapMarkerAlt,
+  FaReceipt,
+  FaGlobe,
+} from "react-icons/fa";
+import { createCustomer, updateCustomer } from "../apis/customerApi";
 
 interface PartnerFormModalProps {
   isOpen: boolean;
@@ -24,7 +31,13 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 
   useEffect(() => {
     if (partner) {
-      setFormData({ ...partner });
+      setFormData({
+        name: partner.partner_name || "",
+        address: partner.partner_address || "",
+        gst: partner.partner_gst || "",
+        geoId: partner.partner_geo_id || "",
+        isCustomer: partner.isCustomer ?? true,
+      });
     } else {
       setFormData({
         name: "",
@@ -44,15 +57,34 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
     }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
-    onClose();
+  const handleSubmit = async () => {
+    // Map formData to backend payload
+    const payload = {
+      partner_name: formData.name,
+      partner_address: formData.address,
+      partner_gst: formData.gst,
+      partner_geo_id: formData.geoId,
+      isCustomer: formData.isCustomer,
+    };
+
+    try {
+      if (partner && partner.id) {
+        await updateCustomer(partner.id, payload);
+      } else {
+        await createCustomer(payload);
+      }
+      onSubmit(payload);
+      onClose();
+    } catch (error) {
+      console.error("Failed to save partner", error);
+      // Optionally show a toast or error message here
+    }
   };
 
   if (!isOpen) return null;
 
   return (
-     <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative overflow-y-auto max-h-[90vh] z-10 dark:bg-gray-800">
         <button
           onClick={onClose}
@@ -102,7 +134,9 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
           </div>
 
           <div className="flex items-center space-x-4 md:col-span-2">
-            <label className="text-gray-700 dark:text-gray-200 font-medium">Is Customer</label>
+            <label className="text-gray-700 dark:text-gray-200 font-medium">
+              Is Customer
+            </label>
             <input
               type="checkbox"
               name="isCustomer"
@@ -134,7 +168,14 @@ const PartnerFormModal: React.FC<PartnerFormModalProps> = ({
 
 export default PartnerFormModal;
 
-const InputField = ({ icon, label, name, value, onChange, type = "text" }: any) => (
+const InputField = ({
+  icon,
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+}: any) => (
   <div>
     <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
       <span className="mr-2">{icon}</span>

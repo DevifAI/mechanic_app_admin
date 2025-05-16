@@ -10,6 +10,7 @@ import {
 import { Customer } from "../types/customerTypes";
 import { fetchCustomers } from "../apis/customerApi";
 import { fetchRevenues } from "../apis/revenueApi";
+import { fetchEquipments } from "../apis/equipmentApi";
 
 type ProjectModalProps = {
   isOpen: boolean;
@@ -46,8 +47,30 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [revenueOptions, setRevenueOptions] = useState<Option[]>([]);
 
+  const [equipmentOptions, setEquipmentOptions] = useState<Option[]>([]);
+
+  // Fetch equipments
+  useEffect(() => {
+    const getEquipments = async () => {
+      try {
+        const equipments = await fetchEquipments();
+        setEquipmentOptions(
+          equipments.map((eq: any) => ({
+            value: eq.id,
+            text: eq.equipment_name,
+            selected: false,
+          }))
+        );
+      } catch (err) {
+        console.error("Error loading equipments", err);
+      }
+    };
+    getEquipments();
+  }, []);
+
   // const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
+  // Fetch customers
   useEffect(() => {
     const getCustomers = async () => {
       try {
@@ -61,6 +84,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     getCustomers();
   }, []);
 
+  // Fetch revenues
   useEffect(() => {
     const getRevenues = async () => {
       try {
@@ -126,11 +150,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
 
   const multiOptions = {
     revenueMaster: revenueOptions,
-    equipments: [
-      { value: "eq1", text: "Excavator", selected: false },
-      { value: "eq2", text: "Bulldozer", selected: false },
-      { value: "eq3", text: "Crane", selected: false },
-    ],
+    equipments: equipmentOptions,
     staff: [
       { value: "emp1", text: "Alice", selected: false },
       { value: "emp2", text: "Bob", selected: false },
@@ -402,14 +422,18 @@ const MultiSelect = ({
     useState<string[]>(defaultSelected);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    onChange(selectedValues);
-  }, [selectedValues, onChange]);
+  // useEffect(() => {
+  //   onChange(selectedValues);
+  // }, [selectedValues, onChange]);
 
   const toggleOption = (value: string) => {
-    setSelectedValues((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    setSelectedValues((prev) => {
+      const newValues = prev.includes(value)
+        ? prev.filter((v) => v !== value)
+        : [...prev, value];
+      onChange(newValues); // Call onChange only here
+      return newValues;
+    });
   };
 
   const filteredOptions = options.filter((option) =>
