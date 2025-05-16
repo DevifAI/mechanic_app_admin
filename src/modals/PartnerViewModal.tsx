@@ -1,7 +1,7 @@
 import React from "react";
 import {
   FaTimes,
-  FaIdBadge,
+  // FaIdBadge,
   FaMapMarkerAlt,
   FaFileInvoice,
   FaGlobe,

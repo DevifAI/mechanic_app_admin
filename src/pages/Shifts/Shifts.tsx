@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import {  FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ShiftFormModal from "../../modals/ShiftFormModal";
 
@@ -32,9 +32,9 @@ export const Shifts = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingShift, setEditingShift] = useState<any>(null);
 
-  const handleView = (item: any) => {
-    console.log("Viewing:", item);
-  };
+  // const handleView = (item: any) => {
+  //   console.log("Viewing:", item);
+  // };
 
   const handleEdit = (item: any) => {
     setEditingShift(item);

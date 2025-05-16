@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaSave, FaCalendarAlt, FaUserTie, FaFileAlt, FaClock, FaMoneyBillWave, FaTools, FaUsers, FaStore } from "react-icons/fa";
+import { FaTimes, FaSave, FaCalendarAlt, FaUserTie, FaFileAlt, FaClock } from "react-icons/fa";
 
 type ProjectModalProps = {
   isOpen: boolean;
@@ -32,7 +32,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     storeLocations: [],
   });
 
-  const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  // const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // Update form data when project prop changes
   useEffect(() => {

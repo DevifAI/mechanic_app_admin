@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaEye } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import RoleFormModal from "../../modals/RoleFormModal";
 
@@ -38,9 +38,9 @@ export const Roles = () => {
     setRoles((prev) => prev.filter((r) => r.id !== role.id));
   };
 
-  const handleView = (role: any) => {
-    console.log("View role", role);
-  };
+  // const handleView = (role: any) => {
+  //   console.log("View role", role);
+  // };
 
   const handleSubmit = (formData: any) => {
     if (editingRole) {

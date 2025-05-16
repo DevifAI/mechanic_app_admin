@@ -1,4 +1,4 @@
-import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import RevenueFormModal from "../../modals/RevenueFormModal";
