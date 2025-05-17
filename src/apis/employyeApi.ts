@@ -6,6 +6,7 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
   try {
     const res = await axiosInstance.get("/employee/getAll");
     return res.data;
+    console.log({ res });
   } catch (error) {
     console.error("Failed to fetch employees", error);
     throw error;

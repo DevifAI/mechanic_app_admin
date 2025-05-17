@@ -1,108 +1,77 @@
-import { FaEye, FaEdit, FaTrash, FaPlus, FaDownload } from "react-icons/fa";
+import { FaDownload } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+import { handleExportEmployees } from "../../utils/helperFunctions/handleExportEmployees";
 import EmployeeViewModal from "../../modals/EmployeeViewModal";
-import EmployeeFormModal from "../../modals/EmployeeFormModal";
-import { createEmployee, fetchEmployees } from "../../apis/employyeApi";
-
+import { fetchEmployees } from "../../apis/employyeApi";
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+  const [originalEmployees, setOriginalEmployees] = useState<any[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    const fetchAndSetEmployees = async () => {
-      setLoading(true);
+    const fetchData = async () => {
+      setIsLoading(true);
       try {
         const data = await fetchEmployees();
-        setEmployees(data);
+        setOriginalEmployees(data);
+
+        const simplified = data.map((e: any) => ({
+          emp_id: e.emp_id || "N/A",
+          emp_name: e.emp_name || "N/A",
+          bloodGroup: e.blood_group || "N/A",
+          age: e.age || "N/A",
+          address: e.address || "N/A",
+          position: e.position || "N/A",
+          shift: e.shiftcode || "N/A",
+          role: e.role || "N/A",
+          active: e.active !== undefined ? e.active : "N/A",
+        }));
+
+        setEmployees(simplified);
       } catch (err) {
-        console.error("Failed to fetch employees", err);
+        console.error("Error loading employees", err);
+      } finally {
+        setIsLoading(false);
       }
-      setLoading(false);
     };
-    fetchAndSetEmployees();
+
+    fetchData();
   }, []);
 
-  const handleView = (emp: any) => {
-    setSelectedEmployee(emp);
+  const handleView = (employee: any) => {
+    setSelectedEmployee(employee);
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (employee: any) => {
-    setSelectedEmployee(employee);
-    setIsFormModalOpen(true);
-  };
-
   const handleDelete = (employee: any) => {
-    console.log("Deleting:", employee);
-    // Confirm & delete logic here
-  };
-
-  const handleFormSubmit = async (formData: any) => {
-    setIsFormModalOpen(false);
-    setSelectedEmployee(null);
-    setLoading(true);
-    try {
-      // Map form fields to backend payload
-      const payload = {
-        emp_id: formData.empId,
-        emp_name: formData.name,
-        blood_group: formData.bloodGroup,
-        age: Number(formData.age),
-        adress: formData.address,
-        position: formData.position,
-        is_active: formData.active,
-        shiftcode: formData.shift,
-        role_id: formData.role,
-      };
-      await createEmployee(payload);
-      // Refresh the list
-      const data = await fetchEmployees();
-      setEmployees(data);
-    } catch (err) {
-      console.error("Failed to create employee", err);
+    if (confirm(`Are you sure you want to delete ${employee.emp_name}?`)) {
+      // Handle delete logic here
     }
-    setLoading(false);
-  };
-
-  const handleAddEmployee = () => {
-    setSelectedEmployee(null); // clear selection
-    setIsFormModalOpen(true);
   };
 
   return (
     <>
-      <PageBreadcrumb pageTitle={"Employees"} />
+      <PageBreadcrumb pageTitle="Employees" />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
-        <div className="flex justify-end items-center mb-4 gap-2 ">
-          {/* <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
-            Employee List
-          </h2> */}
-          <button className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => handleExportEmployees(originalEmployees)}
+            className="flex items-center px-5 py-2 bg-white text-gray-700 border border-gray-300 rounded-md shadow-sm hover:border-black transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1 cursor-pointer"
+          >
             <FaDownload className="mr-2" />
             Export
-          </button>
-
-          <button
-            onClick={handleAddEmployee}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-          >
-            <FaPlus className="mr-2" />
-            Add Employee
           </button>
         </div>
 
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          {loading ? (
-            <div className="flex justify-center items-center py-10">
-              <span className="text-blue-600 font-semibold text-lg">
-                Loading...
-              </span>
+          {isLoading ? (
+            <div className="text-center py-10 text-gray-600 dark:text-gray-300">
+              Loading employees...
             </div>
           ) : (
             <table className="min-w-full text-base bg-white dark:bg-gray-800">
@@ -116,51 +85,49 @@ export const Employees = () => {
                   <th className="px-4 py-3">Shift</th>
                   <th className="px-4 py-3">Role</th>
                   <th className="px-4 py-3">Active</th>
-                  <th className="px-4 py-3">Actions</th>
+                  <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {employees.map((emp, idx) => (
+                {employees.map((employee, idx) => (
                   <tr
                     key={idx}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group cursor-pointer"
+                    onClick={() => handleView(employee)}
                   >
-                    <td className="px-4 py-3">{emp.emp_id}</td>
-                    <td className="px-4 py-3">{emp.emp_name}</td>
-                    <td className="px-4 py-3">{emp.age}</td>
-                    <td className="px-4 py-3">{emp.blood_group}</td>
-                    <td className="px-4 py-3">{emp.position}</td>
-                    <td className="px-4 py-3">{emp.shiftcode}</td>
-                    <td className="px-4 py-3">{emp.role_id}</td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          emp.is_active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {emp.is_active ? "Yes" : "No"}
-                      </span>
+                    <td className="px-4 py-2">{employee.emp_id}</td>
+                    <td className="px-4 py-2">{employee.emp_name}</td>
+                    <td className="px-4 py-2">{employee.age}</td>
+                    <td className="px-4 py-2">{employee.bloodGroup}</td>
+                    <td className="px-4 py-2">{employee.position}</td>
+                    <td className="px-4 py-2">{employee.shift}</td>
+                    <td className="px-4 py-2">{employee.role}</td>
+                    <td className="px-4 py-2">
+                      {employee.active ? "Yes" : "No"}
                     </td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
+                    <td className="px-4 py-2">
                       <button
-                        onClick={() => handleView(emp)}
-                        className="text-blue-600 hover:text-blue-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(employee);
+                        }}
+                        className="p-1.5 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
+                        title="Delete"
                       >
-                        <FaEye size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(emp)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(emp)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                          />
+                        </svg>
                       </button>
                     </td>
                   </tr>
@@ -170,13 +137,6 @@ export const Employees = () => {
           )}
         </div>
       </div>
-
-      <EmployeeFormModal
-        isOpen={isFormModalOpen}
-        onClose={() => setIsFormModalOpen(false)}
-        onSubmit={handleFormSubmit}
-        employee={selectedEmployee}
-      />
 
       <EmployeeViewModal
         isOpen={isViewModalOpen}

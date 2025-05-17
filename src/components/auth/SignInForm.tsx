@@ -15,7 +15,7 @@ export default function SignInForm() {
 
   const handleSubmit = (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    if (email === "devifai@gmail.com" && password === "123456") {
+    if (email === "admin@gmail.com" && password === "123456") {
      localStorage.setItem("user", JSON.stringify({ email }));
       navigate("/");
     } else {

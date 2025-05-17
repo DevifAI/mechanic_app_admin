@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import { ComponentChildren } from "preact";
 
 import SignIn from "./pages/AuthPages/SignIn";
@@ -29,6 +34,8 @@ import { StoreLocation } from "./pages/StoreLocation/StoreLocation";
 import { Consumable } from "./pages/Consumables/Consumable";
 import { Shifts } from "./pages/Shifts/Shifts";
 import { Roles } from "./pages/Roles/Roles";
+import { CreateProjectPage } from "./pages/Projects/CreateProject";
+import { CreateEmployeePage } from "./pages/Employees/CreateEmployeePage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -41,23 +48,32 @@ export default function App() {
       <ScrollToTop />
       <Routes>
         {/* Protected Routes wrapped inside ProtectedRoute */}
-        <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index path="/" element={<Home />} />
+          <Route index path="/dashboard" element={<Home />} />
 
           {/* Other Pages */}
           <Route path="/profile" element={<UserProfiles />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/blank" element={<Blank />} />
 
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/employees" element={<Employees />} />
-          <Route path="/partners" element={<Partners />} />
-          <Route path="/equipments" element={<Equipments />} />
-          <Route path="/revenues" element={<Revenue />} />
-          <Route path="/store-locations" element={<StoreLocation />} />
-          <Route path="/consumables" element={<Consumable />} />
-          <Route path="/shifts" element={<Shifts />} />
-          <Route path="/roles" element={<Roles />} />
+          <Route path="/projects/view" element={<Projects />} />
+          <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route path="/employees/view" element={<Employees />} />
+          <Route path="/employees/create" element={<CreateEmployeePage />} />
+          <Route path="/partners/create" element={<Partners />} />
+          <Route path="/equipments/create" element={<Equipments />} />
+          <Route path="/revenues/create" element={<Revenue />} />
+          <Route path="/store-locations/create" element={<StoreLocation />} />
+          <Route path="/consumables/create" element={<Consumable />} />
+          <Route path="/shifts/create" element={<Shifts />} />
+          <Route path="/roles/create" element={<Roles />} />
 
           {/* Forms */}
           <Route path="/form-elements" element={<FormElements />} />

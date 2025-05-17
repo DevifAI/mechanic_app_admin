@@ -6,17 +6,22 @@ import {
   FaUserTie,
   FaFileAlt,
   FaClock,
+  FaChevronLeft,
+  FaPrint,
+  FaShare,
+  FaEllipsisV,
+  FaPlus,
 } from "react-icons/fa";
 import { Customer } from "../types/customerTypes";
 import { fetchCustomers } from "../apis/customerApi";
 import { fetchRevenues } from "../apis/revenueApi";
 import { fetchEquipments } from "../apis/equipmentApi";
 
-type ProjectModalProps = {
-  isOpen: boolean;
+type ProjectViewProps = {
   onClose: () => void;
   onSubmit: (data: any) => void;
   project?: any;
+  mode?: "view" | "edit" | "create";
 };
 
 type Option = {
@@ -25,11 +30,11 @@ type Option = {
   selected: boolean;
 };
 
-export const ProjectModal: React.FC<ProjectModalProps> = ({
-  isOpen,
+export const ProjectView: React.FC<ProjectViewProps> = ({
   onClose,
   onSubmit,
   project,
+  mode = "view",
 }) => {
   const [formData, setFormData] = useState({
     projectNo: "",
@@ -42,11 +47,14 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     staff: [],
     storeLocations: [],
   });
-  const dateInputRef = useRef<HTMLInputElement>(null);
 
+  const [activeTab, setActiveTab] = useState("details");
+  const [editMode, setEditMode] = useState(
+    mode === "edit" || mode === "create"
+  );
+  const dateInputRef = useRef<HTMLInputElement>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [revenueOptions, setRevenueOptions] = useState<Option[]>([]);
-
   const [equipmentOptions, setEquipmentOptions] = useState<Option[]>([]);
 
   // Fetch equipments
@@ -67,8 +75,6 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     };
     getEquipments();
   }, []);
-
-  // const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // Fetch customers
   useEffect(() => {
@@ -91,7 +97,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         const revenues = await fetchRevenues();
         setRevenueOptions(
           revenues.map((rev) => ({
-            value: rev.id, // <-- This is the ID you will send
+            value: rev.id,
             text: `${rev.revenue_code} - ${rev.revenue_description}`,
             selected: false,
           }))
@@ -117,7 +123,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         staff: project.staff || [],
         storeLocations: project.storeLocations || [],
       });
-    } else {
+    } else if (mode === "create") {
       setFormData({
         projectNo: "",
         customer: "",
@@ -130,7 +136,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         storeLocations: [],
       });
     }
-  }, [project]);
+  }, [project, mode]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -163,172 +169,298 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     ],
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-999999 flex items-center justify-center px-4 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl p-6 relative overflow-y-auto max-h-[90vh] z-10 dark:bg-gray-800">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          aria-label="Close modal"
-        >
-          <FaTimes
-            className="text-gray-500 hover:text-red-500 dark:text-gray-300"
-            size={20}
-          />
-        </button>
-
-        <div className="flex items-center mb-6">
-          <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg mr-4">
-            <FaFileAlt className="text-blue-600 dark:text-blue-300" size={24} />
-          </div>
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-              {project ? "Edit Project" : "Add New Project"}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300">
-              {project
-                ? `Editing ${project.projectNo}`
-                : "Fill in the project details"}
-            </p>
-          </div>
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Left Sidebar */}
+      <div className="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onClose}
+            className="flex items-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          >
+            <FaChevronLeft className="mr-2" />
+            <span>Back to Projects</span>
+          </button>
         </div>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            onSubmit(formData);
-          }}
-          className="space-y-6"
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Project No */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Project No
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="projectNo"
-                  value={formData.projectNo}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="PRJ-001"
-                />
-                <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
-                  #
-                </span>
-              </div>
-            </div>
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+            {project ? project.projectNo : "New Project"}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {project ? "Project" : "Create new project"}
+          </p>
+        </div>
 
-            {/* Customer */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Customer
-              </label>
-              <div className="relative">
-                <select
-                  name="customer"
-                  value={formData.customer}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
-                >
-                  <option value="">Select customer</option>
-                  {customers.map((cust) => (
-                    <option key={cust.id} value={cust.id}>
-                      {cust.partner_name}
-                    </option>
-                  ))}
-                </select>
-                <FaUserTie className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
-              </div>
-            </div>
-
-            {/* Order No */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Order No
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  name="orderNo"
-                  value={formData.orderNo}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  placeholder="ORD-001"
-                />
-                <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
-                  #
-                </span>
-              </div>
-            </div>
-
-            {/* Contract Start Date */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Contract Start Date
-              </label>
-              <div
-                className="relative"
-                onClick={() =>
-                  dateInputRef.current &&
-                  dateInputRef.current.showPicker &&
-                  dateInputRef.current.showPicker()
-                }
-                style={{ cursor: "pointer" }}
+        <nav className="flex-1 overflow-y-auto">
+          <ul>
+            <li>
+              <button
+                onClick={() => setActiveTab("details")}
+                className={`w-full text-left px-4 py-3 flex items-center ${
+                  activeTab === "details"
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                }`}
               >
-                <input
-                  type="date"
-                  name="contractStartDate"
-                  value={formData.contractStartDate}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  ref={dateInputRef}
-                  onClick={(e) => e.stopPropagation()} // Prevents double opening
-                />
-                <FaCalendarAlt
-                  className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400"
-                  onClick={() =>
-                    dateInputRef.current &&
-                    dateInputRef.current.showPicker &&
-                    dateInputRef.current.showPicker()
-                  }
-                  style={{ cursor: "pointer" }}
-                />
-              </div>
-            </div>
+                <FaFileAlt className="mr-3" />
+                Details
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveTab("revenues")}
+                className={`w-full text-left px-4 py-3 flex items-center ${
+                  activeTab === "revenues"
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                }`}
+              >
+                <FaFileAlt className="mr-3" />
+                Revenues
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveTab("equipments")}
+                className={`w-full text-left px-4 py-3 flex items-center ${
+                  activeTab === "equipments"
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                }`}
+              >
+                <FaFileAlt className="mr-3" />
+                Equipments
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => setActiveTab("team")}
+                className={`w-full text-left px-4 py-3 flex items-center ${
+                  activeTab === "team"
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900 dark:text-blue-300"
+                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                }`}
+              >
+                <FaUserTie className="mr-3" />
+                Team
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </div>
 
-            {/* Contract Tenure */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Contract Tenure
-              </label>
-              <div className="relative">
-                <select
-                  name="contractTenure"
-                  value={formData.contractTenure}
-                  onChange={handleChange}
-                  className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
-                >
-                  <option value="">Select tenure</option>
-                  {dummyOptions.tenure.map((tenure, idx) => (
-                    <option key={idx} value={tenure}>
-                      {tenure}
-                    </option>
-                  ))}
-                </select>
-                <FaClock className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
-              </div>
-            </div>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header */}
+        <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-4 flex justify-between items-center">
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-white">
+            {mode === "create"
+              ? "Create New Project"
+              : `Project ${project?.projectNo}`}
+          </h1>
 
-            {/* Revenue Master */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Revenue Master
-              </label>
+          <div className="flex space-x-2">
+            {!editMode && (
+              <button
+                onClick={() => setEditMode(true)}
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
+              >
+                <FaSave className="mr-2" />
+                Edit
+              </button>
+            )}
+
+            <button className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <FaPrint className="text-gray-600 dark:text-gray-300" />
+            </button>
+
+            <button className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <FaShare className="text-gray-600 dark:text-gray-300" />
+            </button>
+
+            <button className="p-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+              <FaEllipsisV className="text-gray-600 dark:text-gray-300" />
+            </button>
+          </div>
+        </header>
+
+        {/* Content Area */}
+        <main className="flex-1 overflow-y-auto p-6 bg-white dark:bg-gray-900">
+          {activeTab === "details" && (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                onSubmit(formData);
+                if (mode === "create") onClose();
+              }}
+              className="space-y-6"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Project No */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Project No
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="projectNo"
+                      value={formData.projectNo}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="PRJ-001"
+                      disabled={!editMode}
+                    />
+                    <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
+                      #
+                    </span>
+                  </div>
+                </div>
+
+                {/* Customer */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Customer
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="customer"
+                      value={formData.customer}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
+                      disabled={!editMode}
+                    >
+                      <option value="">Select customer</option>
+                      {customers.map((cust) => (
+                        <option key={cust.id} value={cust.id}>
+                          {cust.partner_name}
+                        </option>
+                      ))}
+                    </select>
+                    <FaUserTie className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
+                  </div>
+                </div>
+
+                {/* Order No */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Order No
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="orderNo"
+                      value={formData.orderNo}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      placeholder="ORD-001"
+                      disabled={!editMode}
+                    />
+                    <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
+                      #
+                    </span>
+                  </div>
+                </div>
+
+                {/* Contract Start Date */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Contract Start Date
+                  </label>
+                  <div
+                    className="relative"
+                    onClick={() =>
+                      editMode && dateInputRef.current?.showPicker()
+                    }
+                    style={{ cursor: editMode ? "pointer" : "default" }}
+                  >
+                    <input
+                      type="date"
+                      name="contractStartDate"
+                      value={formData.contractStartDate}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                      ref={dateInputRef}
+                      onClick={(e) => e.stopPropagation()}
+                      disabled={!editMode}
+                    />
+                    <FaCalendarAlt
+                      className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400"
+                      onClick={() =>
+                        editMode && dateInputRef.current?.showPicker()
+                      }
+                      style={{ cursor: editMode ? "pointer" : "default" }}
+                    />
+                  </div>
+                </div>
+
+                {/* Contract Tenure */}
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Contract Tenure
+                  </label>
+                  <div className="relative">
+                    <select
+                      name="contractTenure"
+                      value={formData.contractTenure}
+                      onChange={handleChange}
+                      className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
+                      disabled={!editMode}
+                    >
+                      <option value="">Select tenure</option>
+                      {dummyOptions.tenure.map((tenure, idx) => (
+                        <option key={idx} value={tenure}>
+                          {tenure}
+                        </option>
+                      ))}
+                    </select>
+                    <FaClock className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
+                  </div>
+                </div>
+              </div>
+
+              {editMode && (
+                <div className="flex justify-end mt-6 space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (mode === "create") {
+                        onClose();
+                      } else {
+                        setEditMode(false);
+                      }
+                    }}
+                    className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
+                  >
+                    <FaSave className="mr-2" />
+                    {mode === "create" ? "Create Project" : "Save Changes"}
+                  </button>
+                </div>
+              )}
+            </form>
+          )}
+
+          {activeTab === "revenues" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Revenue Master
+                </h2>
+                {editMode && (
+                  <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center">
+                    <FaPlus className="mr-1" size={12} />
+                    Add Revenue
+                  </button>
+                )}
+              </div>
+
               <MultiSelect
                 label="Revenue Master"
                 options={multiOptions.revenueMaster}
@@ -336,14 +468,25 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 onChange={(values) =>
                   handleMultiSelectChange("revenueMaster", values)
                 }
+                disabled={!editMode}
               />
             </div>
+          )}
 
-            {/* Equipments */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Equipments
-              </label>
+          {activeTab === "equipments" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Equipments
+                </h2>
+                {editMode && (
+                  <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center">
+                    <FaPlus className="mr-1" size={12} />
+                    Add Equipment
+                  </button>
+                )}
+              </div>
+
               <MultiSelect
                 label="Equipments"
                 options={multiOptions.equipments}
@@ -351,189 +494,37 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
                 onChange={(values) =>
                   handleMultiSelectChange("equipments", values)
                 }
+                disabled={!editMode}
               />
             </div>
+          )}
 
-            {/* Staff */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Staff
-              </label>
+          {activeTab === "team" && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Team Members
+                </h2>
+                {editMode && (
+                  <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm flex items-center">
+                    <FaPlus className="mr-1" size={12} />
+                    Add Member
+                  </button>
+                )}
+              </div>
+
               <MultiSelect
                 label="Staff"
                 options={multiOptions.staff}
                 defaultSelected={formData.staff}
                 onChange={(values) => handleMultiSelectChange("staff", values)}
+                disabled={!editMode}
               />
             </div>
-
-            {/* Store Locations */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Store Locations
-              </label>
-              <MultiSelect
-                label="Store Locations"
-                options={multiOptions.storeLocations}
-                defaultSelected={formData.storeLocations}
-                onChange={(values) =>
-                  handleMultiSelectChange("storeLocations", values)
-                }
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end mt-6 space-x-3">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
-            >
-              <FaSave className="mr-2" />
-              Save Project
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
-
-// Modern MultiSelect Component
-const MultiSelect = ({
-  label,
-  options,
-  defaultSelected = [],
-  onChange,
-}: {
-  label: string;
-  options: Option[];
-  defaultSelected?: string[];
-  onChange: (values: string[]) => void;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedValues, setSelectedValues] =
-    useState<string[]>(defaultSelected);
-  const [searchTerm, setSearchTerm] = useState("");
-
-  // useEffect(() => {
-  //   onChange(selectedValues);
-  // }, [selectedValues, onChange]);
-
-  const toggleOption = (value: string) => {
-    setSelectedValues((prev) => {
-      const newValues = prev.includes(value)
-        ? prev.filter((v) => v !== value)
-        : [...prev, value];
-      onChange(newValues); // Call onChange only here
-      return newValues;
-    });
-  };
-
-  const filteredOptions = options.filter((option) =>
-    option.text.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return (
-    <div className="relative">
-      <div
-        className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 cursor-pointer flex items-center justify-between bg-white dark:bg-gray-700"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <div className="flex flex-wrap gap-1">
-          {selectedValues.length > 0 ? (
-            selectedValues.map((value) => {
-              const option = options.find((opt) => opt.value === value);
-              return (
-                <span
-                  key={value}
-                  className="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs px-2 py-1 rounded flex items-center"
-                >
-                  {option?.text}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleOption(value);
-                    }}
-                    className="ml-1 text-blue-500 hover:text-blue-700"
-                  >
-                    ×
-                  </button>
-                </span>
-              );
-            })
-          ) : (
-            <span className="text-gray-400 dark:text-gray-400">
-              Select {label}
-            </span>
           )}
-        </div>
-        <svg
-          className={`w-5 h-5 text-gray-400 transition-transform ${
-            isOpen ? "transform rotate-180" : ""
-          }`}
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M19 9l-7 7-7-7"
-          />
-        </svg>
+        </main>
       </div>
-
-      {isOpen && (
-        <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg">
-          <div className="p-2 border-b border-gray-200 dark:border-gray-600">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 dark:bg-gray-800 dark:text-white"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="max-h-60 overflow-y-auto">
-            {filteredOptions.length > 0 ? (
-              filteredOptions.map((option) => (
-                <div
-                  key={option.value}
-                  className={`px-3 py-2 cursor-pointer flex items-center hover:bg-gray-100 dark:hover:bg-gray-600 ${
-                    selectedValues.includes(option.value)
-                      ? "bg-blue-50 dark:bg-blue-900"
-                      : ""
-                  }`}
-                  onClick={() => toggleOption(option.value)}
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedValues.includes(option.value)}
-                    readOnly
-                    className="mr-2 h-4 w-4 text-blue-600 rounded focus:ring-blue-500 border-gray-300 dark:border-gray-600"
-                  />
-                  <span className="text-sm text-gray-700 dark:text-gray-300">
-                    {option.text}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                No options found
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
