@@ -132,7 +132,7 @@ const BulkUploadSection = () => {
           data.results[data.results.length - 1].status
         }:\n\n`;
 
-        data.results.forEach((item, index) => {
+        data.results.forEach((item: any, index: any) => {
           message += `${index + 1}. Project: ${item.projectNo}\n   Status: ${
             item.status
           }\n   Message: ${item.message}\n\n`;
