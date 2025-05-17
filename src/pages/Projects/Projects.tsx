@@ -2,7 +2,7 @@ import { FaDownload } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ProjectViewModal from "../../modals/ProjectViewModal";
-import { useNavigate } from "react-router";
+// import { useNavigate } from "react-router";
 import { fetchProjects } from "../../apis/projectsApi";
 import { handleExport } from "../../utils/helperFunctions/downloadExcel_forProjects";
 
@@ -12,7 +12,7 @@ export const Projects = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [original_projects, setOriginal_Projects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -51,9 +51,9 @@ export const Projects = () => {
     setIsViewModalOpen(true);
   };
 
-  const handleEdit = (project: any) => {
-    navigate(`/edit-project/${project.projectNo}`);
-  };
+  // const handleEdit = (project: any) => {
+  //   navigate(`/edit-project/${project.projectNo}`);
+  // };
 
   const handleDelete = (project: any) => {
     if (

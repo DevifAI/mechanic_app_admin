@@ -4,7 +4,6 @@ import { ProjectCreateForm } from "../../components/projects/ProjectCreateForm";
 import {
   FaUpload,
   FaPlus,
-  FaDownload,
   FaSpinner,
   FaFileExcel,
   FaTimes,

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { MultiSelect } from "../../components/projects/MultiSelect";
 import { fetchRoles } from "../../apis/roleApi";
 import { fetchShifts } from "../../apis/shiftApi";
 import { fetchEmpPositions } from "../../apis/empPositionApi";
@@ -78,12 +77,12 @@ export const EmployeeForm = ({
   };
 
   // Handle changes from MultiSelect component
-  const handleMultiSelectChange = (field: string, values: string[]) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: values,
-    }));
-  };
+//   const handleMultiSelectChange = (field: string, values: string[]) => {
+//     setFormData((prev) => ({
+//       ...prev,
+//       [field]: values,
+//     }));
+//   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

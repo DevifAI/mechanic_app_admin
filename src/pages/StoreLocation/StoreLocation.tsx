@@ -4,22 +4,7 @@ import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import StoreFormModal from "../../modals/StoreFormModal";
 import { createStore, fetchStores, updateStore } from "../../apis/storeApi";
 
-const dummyStores = [
-  {
-    id: 1,
-    storeCode: "STR-001",
-    storeName: "Main Store",
-    location: "123 Industrial Area, Sector 4, Mumbai",
-    linkedProjects: 2,
-  },
-  {
-    id: 2,
-    storeCode: "STR-002",
-    storeName: "Spare Store",
-    location: "Plot 56, Phase 2, Noida",
-    linkedProjects: 1,
-  },
-];
+
 
 export const StoreLocation = () => {
   const [stores, setStores] = useState<any[]>([]);

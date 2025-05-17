@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
-  FaTimes,
   FaSave,
   FaCalendarAlt,
   FaUserTie,
@@ -16,6 +15,7 @@ import { Customer } from "../types/customerTypes";
 import { fetchCustomers } from "../apis/customerApi";
 import { fetchRevenues } from "../apis/revenueApi";
 import { fetchEquipments } from "../apis/equipmentApi";
+import { MultiSelect } from "../components/projects/MultiSelect";
 
 type ProjectViewProps = {
   onClose: () => void;
@@ -465,7 +465,7 @@ export const ProjectView: React.FC<ProjectViewProps> = ({
                 label="Revenue Master"
                 options={multiOptions.revenueMaster}
                 defaultSelected={formData.revenueMaster}
-                onChange={(values) =>
+                onChange={(values :any) =>
                   handleMultiSelectChange("revenueMaster", values)
                 }
                 disabled={!editMode}
