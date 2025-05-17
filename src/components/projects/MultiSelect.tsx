@@ -140,7 +140,7 @@ export const MultiSelect = ({
           {/* Show options or fallback */}
           <div className="max-h-60 overflow-y-auto">
             {filteredOptions.length > 0 ? (
-              filteredOptions.slice(0, 1).map((option) => (
+              filteredOptions.map((option) => (
                 <div
                   key={option.value}
                   role="option"
