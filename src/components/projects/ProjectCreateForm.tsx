@@ -9,7 +9,6 @@ import { fetchEmployees } from "../../apis/employyeApi";
 import { fetchStores } from "../../apis/storeApi";
 import { Customer } from "../../types/customerTypes";
 
-
 type ProjectFormProps = {
   onClose: () => void;
   onSubmit: (data: any) => void;
@@ -56,6 +55,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
 
         //Fetch customer
         const employeesData = await fetchEmployees();
+        console.log({ employeesData });
         const emp_enhanced_data = employeesData.map((emp) => ({
           value: emp.id,
           text: emp.emp_name ?? "",

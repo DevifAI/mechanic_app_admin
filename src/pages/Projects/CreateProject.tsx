@@ -113,17 +113,36 @@ const BulkUploadSection = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      // Example API call — replace with your real endpoint and method
-      const response = await fetch("https://mechanic-app-backend.onrender.com/api/master/super/admin/project/bulk-upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://mechanic-app-backend.onrender.com/api/master/super/admin/project/bulk-upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Upload failed");
       }
 
-      alert("Bulk upload completed successfully!");
+      const data = await response.json();
+
+      if (data?.results && Array.isArray(data.results)) {
+        let message = `Bulk Upload ${
+          data.results[data.results.length - 1].status
+        }:\n\n`;
+
+        data.results.forEach((item, index) => {
+          message += `${index + 1}. Project: ${item.projectNo}\n   Status: ${
+            item.status
+          }\n   Message: ${item.message}\n\n`;
+        });
+
+        alert(message);
+      } else {
+        alert("Bulk upload completed successfully!");
+      }
+
       setFile(null);
     } catch (error) {
       console.error("Upload failed:", error);

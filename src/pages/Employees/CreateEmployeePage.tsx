@@ -169,7 +169,7 @@ const BulkUploadSection = () => {
           position: dummyData.position,
           is_active: dummyData.is_active ? "Yes" : "No",
           shiftcode: dummyData.shiftcode,
-          role_id: dummyData.role_name,
+          role_name: dummyData.role_name,
         },
       ];
 

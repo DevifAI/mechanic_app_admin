@@ -22,10 +22,10 @@ export default function DownloadTemplateButton() {
         "234",
         "2025-04-30",
         "6 months",
-        "REV-002, REV-001", ,
+        "REV-002, REV-001", 
         "hydraulic , motor",
         "Virat Singh,John Doe",
-        "Kolkata, Mumbai",
+        "ST001",
       ],
     ];
 

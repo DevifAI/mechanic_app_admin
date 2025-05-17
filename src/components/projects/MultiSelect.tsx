@@ -121,8 +121,9 @@ export const MultiSelect = ({
       {/* Dropdown */}
       {isOpen && !disabled && (
         <div
-          className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg"
+          className="absolute z-10 mt-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg"
           role="listbox"
+          style={{ width: 256, height: 200 }} // fixed width and height in px
         >
           {/* Search Input */}
           <div className="p-2">
@@ -137,8 +138,8 @@ export const MultiSelect = ({
             />
           </div>
 
-          {/* Show options or fallback */}
-          <div className="max-h-60 overflow-y-auto">
+          {/* Options list with scroll */}
+          <div className="overflow-y-auto" style={{ maxHeight: 140 }}>
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option) => (
                 <div

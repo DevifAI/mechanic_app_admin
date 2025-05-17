@@ -28,7 +28,9 @@ export const handleExport = (original_projects: any) => {
         revenues
           ?.map((r: any) => r.revenue_description || r.revenue_code)
           .join(", ") || "";
-      const storeCodes =
+      const storeNames =
+        store_locations?.map((s: any) => s.store_name).join(", ") || "";
+        const storeCodes =
         store_locations?.map((s: any) => s.store_code).join(", ") || "";
 
       return {
@@ -37,7 +39,8 @@ export const handleExport = (original_projects: any) => {
         staff: staffNames,
         equipments: equipmentNames,
         revenues: revenueDescriptions,
-        store_locations: storeCodes,
+        store_name:storeNames ,
+        store_code: storeCodes,
       };
     });
 

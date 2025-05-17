@@ -12,7 +12,7 @@ export const Partners = () => {
   const [editingPartner, setEditingPartner] = useState<any>(null);
   const [partners, setPartners] = useState<any[]>([]);
   const [loading, setLoading] = useState(false); // <-- Add loading state
-
+  console.log({ partners });
   useEffect(() => {
     const fetchAndSetPartners = async () => {
       setLoading(true); // Start loading
