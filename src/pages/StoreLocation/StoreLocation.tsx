@@ -3,14 +3,21 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import StoreFormModal from "../../modals/StoreFormModal";
 import { createStore, fetchStores, updateStore } from "../../apis/storeApi";
-
-
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
 
 export const StoreLocation = () => {
   const [stores, setStores] = useState<any[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingStore, setEditingStore] = useState<any>(null);
   const [loading, setLoading] = useState(false);
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedStores,
+    getPageNumbers,
+  } = usePagination(stores, 2);
 
   useEffect(() => {
     const fetchAndSetStores = async () => {
@@ -113,34 +120,42 @@ export const StoreLocation = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {stores.map((store) => (
-                  <tr
-                    key={store.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                  >
-                    <td className="px-4 py-3">{store.storeCode}</td>
-                    <td className="px-4 py-3">{store.storeName || "-"}</td>
-                    <td className="px-4 py-3">{store.location}</td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(store)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(store)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedStores &&
+                  paginatedStores.map((store) => (
+                    <tr
+                      key={store.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
+                      <td className="px-4 py-3">{store.storeCode}</td>
+                      <td className="px-4 py-3">{store.storeName || "-"}</td>
+                      <td className="px-4 py-3">{store.location}</td>
+                      <td className="px-4 py-3 flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(store)}
+                          className="text-yellow-600 hover:text-yellow-700"
+                        >
+                          <FaEdit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(store)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FaTrash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       {/* Add/Edit Modal */}

@@ -1,21 +1,30 @@
 import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import PartnerViewModal from "../../modals/PartnerViewModal";
-import PartnerFormModal from "../../modals/PartnerFormModal"; // 👈 Add this import
 import { deleteCustomer, fetchCustomers } from "../../apis/customerApi";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
 
 export const Partners = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<any>(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingPartner, setEditingPartner] = useState<any>(null);
   const [partners, setPartners] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false); // <-- Add loading state
-  console.log({ partners });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedPartners,
+    getPageNumbers,
+  } = usePagination(partners, 2);
+
   useEffect(() => {
     const fetchAndSetPartners = async () => {
-      setLoading(true); // Start loading
+      setLoading(true);
       try {
         const data = await fetchCustomers();
         setPartners(
@@ -32,7 +41,7 @@ export const Partners = () => {
       } catch (err) {
         console.error("Failed to fetch partners", err);
       }
-      setLoading(false); // End loading
+      setLoading(false);
     };
     fetchAndSetPartners();
   }, []);
@@ -40,40 +49,6 @@ export const Partners = () => {
   const handleView = (partner: any) => {
     setSelectedPartner(partner);
     setIsViewOpen(true);
-  };
-
-  const handleEdit = (partner: any) => {
-    setEditingPartner(partner);
-    setIsFormOpen(true);
-  };
-
-  const handleAdd = () => {
-    setEditingPartner(null);
-    setIsFormOpen(true);
-  };
-
-  const handleFormSubmit = async () => {
-    setIsFormOpen(false);
-    setEditingPartner(null);
-    setLoading(true);
-    try {
-      // After add/edit, refresh the list from backend
-      const data = await fetchCustomers();
-      setPartners(
-        data.map((item) => ({
-          id: item.id,
-          partner_name: item.partner_name,
-          partner_address: item.partner_address,
-          partner_gst: item.partner_gst,
-          partner_geo_id: item.partner_geo_id,
-          isCustomer: item.isCustomer,
-          isActive: true, // or item.isActive if available
-        }))
-      );
-    } catch (err) {
-      console.error("Failed to fetch partners", err);
-    }
-    setLoading(false);
   };
 
   const handleDelete = async (partner: any) => {
@@ -91,7 +66,7 @@ export const Partners = () => {
             partner_gst: item.partner_gst,
             partner_geo_id: item.partner_geo_id,
             isCustomer: item.isCustomer,
-            isActive: true, // or item.isActive if available
+            isActive: true,
           }))
         );
       } catch (err) {
@@ -106,16 +81,6 @@ export const Partners = () => {
       <PageBreadcrumb pageTitle={"Partners"} />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
-        <div className="flex justify-end items-center mb-4">
-          <button
-            onClick={handleAdd}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-          >
-            <FaPlus className="mr-2" />
-            Add Partner
-          </button>
-        </div>
-
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
           {loading ? (
             <div className="flex justify-center items-center py-10">
@@ -137,7 +102,7 @@ export const Partners = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {partners.map((partner) => (
+                {paginatedPartners.map((partner) => (
                   <tr
                     key={partner.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center"
@@ -149,7 +114,6 @@ export const Partners = () => {
                     <td className="px-4 py-3">
                       {partner.isCustomer ? "Yes" : "No"}
                     </td>
-
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-1 rounded text-xs font-semibold ${
@@ -169,7 +133,7 @@ export const Partners = () => {
                         <FaEye size={18} />
                       </button>
                       <button
-                        onClick={() => handleEdit(partner)}
+                        onClick={() => navigate(`/partners/edit/${partner.id}`)}
                         className="text-yellow-600 hover:text-yellow-700"
                       >
                         <FaEdit size={18} />
@@ -187,6 +151,13 @@ export const Partners = () => {
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       {/* View Modal */}
@@ -194,14 +165,6 @@ export const Partners = () => {
         isOpen={isViewOpen}
         onClose={() => setIsViewOpen(false)}
         partner={selectedPartner}
-      />
-
-      {/* Add/Edit Modal */}
-      <PartnerFormModal
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        partner={editingPartner}
       />
     </>
   );

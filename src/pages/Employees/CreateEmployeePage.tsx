@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import {
   FaUpload,
@@ -15,9 +17,12 @@ import { saveAs } from "file-saver";
 export const CreateEmployeePage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <ToastContainer position="bottom-right" autoClose={3000} />
+
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
@@ -62,9 +67,28 @@ export const CreateEmployeePage = () => {
           <div className="p-8">
             {activeTab === "form" ? (
               <EmployeeForm
+                loading={isLoading}
                 onSubmit={async (data) => {
-                  await createEmployee(data);
-                  navigate("/employees/view");
+                  try {
+                    setIsLoading(true); // <-- Add this line
+                    await createEmployee(data);
+                    toast.success("Employee created successfully!");
+                    // navigate("/employees/view");
+                  } catch (error: any) {
+                    if (
+                      error.response &&
+                      error.response.data &&
+                      error.response.data.message
+                    ) {
+                      toast.error(`Failed: ${error.response.data.message}`);
+                    } else if (error.message) {
+                      toast.error(`Failed: ${error.message}`);
+                    } else {
+                      toast.error("Failed to create employee.");
+                    }
+                  } finally {
+                    setIsLoading(false);
+                  }
                 }}
               />
             ) : (
@@ -80,7 +104,7 @@ export const CreateEmployeePage = () => {
 const BulkUploadSection = () => {
   const [file, setFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const dummyData = {
     emp_id: "EMP20704",
     emp_name: "Abir Roy",
@@ -119,7 +143,7 @@ const BulkUploadSection = () => {
       formData.append("file", file);
 
       const response = await fetch(
-        "https://mechanic-app-backend.onrender.com/api/master/super/admin/employee/bulk-upload",
+        "http://localhost:5000/api/master/super/admin/employee/bulk-upload",
         {
           method: "POST",
           body: formData,
@@ -128,29 +152,36 @@ const BulkUploadSection = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
-        // If errors array is present, format and show them
+      console.log("Upload response:", data);
+
+      if (response.ok) {
         if (data.errors && data.errors.length > 0) {
           const errorMessages = data.errors
-            .map((e: any) => `Row ${e.row}: ${e.message}`)
-            .join("\n");
-          alert("Upload failed:\n" + errorMessages);
+            .map((e: any) => `${e.row}: ${e.message}`)
+            .join("<br/>");
+          toast.error(
+            <div
+              dangerouslySetInnerHTML={{
+                __html: "Upload failed:<br/>" + errorMessages,
+              }}
+            />
+          );
         } else if (data.message) {
-          alert("Upload failed: " + data.message);
+          toast.error("Upload failed: " + data.message);
         } else {
-          alert("Upload failed");
+          toast.error("Upload failed");
         }
         return;
       }
 
-      alert(
+      toast.success(
         `Bulk upload completed successfully! Created ${data.createdCount} employees.`
       );
       setFile(null);
-      navigate("/employees/view");
+      // navigate("/employees/view");
     } catch (error) {
       console.error("Upload failed:", error);
-      alert("Upload failed. Please try again.");
+      toast.error("Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
     }

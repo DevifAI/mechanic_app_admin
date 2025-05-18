@@ -3,12 +3,21 @@ import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import RoleFormModal from "../../modals/RoleFormModal";
 import { createRole, fetchRoles, updateRole } from "../../apis/roleApi";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
 
 export const Roles = () => {
   const [roles, setRoles] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<any | null>(null);
   const [loading, setLoading] = useState(false); // <-- Add loading state
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedRoles,
+    getPageNumbers,
+  } = usePagination(roles, 2);
 
   useEffect(() => {
     const fetchAndSetRoles = async () => {
@@ -24,7 +33,7 @@ export const Roles = () => {
     fetchAndSetRoles();
   }, []);
 
-  console.log("Roles data", roles);
+  // console.log("Roles data", roles);
 
   const handleAdd = () => {
     setEditingRole(null); // No pre-filled data
@@ -97,39 +106,47 @@ export const Roles = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {roles.map((role) => (
-                  <tr
-                    key={role.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                  >
-                    <td className="px-4 py-3">{role.code}</td>
-                    <td className="px-4 py-3">{role.name}</td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      {/* <button
+                {paginatedRoles &&
+                  paginatedRoles.map((role) => (
+                    <tr
+                      key={role.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
+                      <td className="px-4 py-3">{role.code}</td>
+                      <td className="px-4 py-3">{role.name}</td>
+                      <td className="px-4 py-3 flex justify-center gap-2">
+                        {/* <button
                       onClick={() => handleView(role)}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <FaEye size={18} />
                     </button> */}
-                      <button
-                        onClick={() => handleEdit(role)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(role)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        <button
+                          onClick={() => handleEdit(role)}
+                          className="text-yellow-600 hover:text-yellow-700"
+                        >
+                          <FaEdit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(role)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FaTrash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       {/* Role Modal */}

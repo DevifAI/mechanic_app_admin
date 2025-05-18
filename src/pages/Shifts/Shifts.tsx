@@ -3,12 +3,21 @@ import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import ShiftFormModal from "../../modals/ShiftFormModal";
 import { createShift, fetchShifts, updateShift } from "../../apis/shiftApi";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
 
 export const Shifts = () => {
   const [shifts, setShifts] = useState<any[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingShift, setEditingShift] = useState<any>(null);
   const [loading, setLoading] = useState(false); // <-- Add loading state
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedShifts,
+    getPageNumbers,
+  } = usePagination(shifts, 2);
 
   useEffect(() => {
     const fetchAndSetShifts = async () => {
@@ -109,34 +118,42 @@ export const Shifts = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {shifts.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                  >
-                    <td className="px-4 py-3">{item.shiftCode}</td>
-                    <td className="px-4 py-3">{item.fromTime}</td>
-                    <td className="px-4 py-3">{item.toTime}</td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedShifts &&
+                  paginatedShifts.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
+                      <td className="px-4 py-3">{item.shiftCode}</td>
+                      <td className="px-4 py-3">{item.fromTime}</td>
+                      <td className="px-4 py-3">{item.toTime}</td>
+                      <td className="px-4 py-3 flex justify-center gap-2">
+                        <button
+                          onClick={() => handleEdit(item)}
+                          className="text-yellow-600 hover:text-yellow-700"
+                        >
+                          <FaEdit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(item)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FaTrash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       <ShiftFormModal

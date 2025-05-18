@@ -5,6 +5,8 @@ import ProjectViewModal from "../../modals/ProjectViewModal";
 // import { useNavigate } from "react-router";
 import { fetchProjects } from "../../apis/projectsApi";
 import { handleExport } from "../../utils/helperFunctions/downloadExcel_forProjects";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
 
 export const Projects = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
@@ -12,7 +14,13 @@ export const Projects = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [original_projects, setOriginal_Projects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // const navigate = useNavigate();
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedProjects,
+    getPageNumbers,
+  } = usePagination(projects, 10);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -124,8 +132,8 @@ export const Projects = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {projects &&
-                  projects.map((project, idx) => (
+                {paginatedProjects &&
+                  paginatedProjects.map((project, idx) => (
                     <tr
                       key={idx}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group cursor-pointer"
@@ -220,6 +228,13 @@ export const Projects = () => {
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       <ProjectViewModal

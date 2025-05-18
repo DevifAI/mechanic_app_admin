@@ -36,6 +36,7 @@ import { Shifts } from "./pages/Shifts/Shifts";
 import { Roles } from "./pages/Roles/Roles";
 import { CreateProjectPage } from "./pages/Projects/CreateProject";
 import { CreateEmployeePage } from "./pages/Employees/CreateEmployeePage";
+import PartnerFormPage from "./pages/Partners/PartnerFormPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -67,7 +68,8 @@ export default function App() {
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/employees/view" element={<Employees />} />
           <Route path="/employees/create" element={<CreateEmployeePage />} />
-          <Route path="/partners/create" element={<Partners />} />
+          <Route path="/partners/create" element={<PartnerFormPage />} />
+          <Route path="/partners/view" element={<Partners />} />
           <Route path="/equipments/create" element={<Equipments />} />
           <Route path="/revenues/create" element={<Revenue />} />
           <Route path="/store-locations/create" element={<StoreLocation />} />

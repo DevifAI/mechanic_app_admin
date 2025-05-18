@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { handleExportEmployees } from "../../utils/helperFunctions/handleExportEmployees";
 import EmployeeViewModal from "../../modals/EmployeeViewModal";
-import { fetchEmployees } from "../../apis/employyeApi";
+import { deleteEmployee, fetchEmployees } from "../../apis/employyeApi";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -11,6 +14,14 @@ export const Employees = () => {
   const [selectedEmployee, setSelectedEmployee] = useState<any>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedEmployees,
+    getPageNumbers,
+  } = usePagination(employees, 2);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,6 +31,7 @@ export const Employees = () => {
         setOriginalEmployees(data);
 
         const simplified = data.map((e: any) => ({
+          id: e.id || "N/A",
           emp_id: e.emp_id || "N/A",
           emp_name: e.emp_name || "N/A",
           bloodGroup: e.blood_group || "N/A",
@@ -47,14 +59,53 @@ export const Employees = () => {
     setIsViewModalOpen(true);
   };
 
-  const handleDelete = (employee: any) => {
-    if (confirm(`Are you sure you want to delete ${employee.emp_name}?`)) {
-      // Handle delete logic here
+  const handleDelete = async (employee: any) => {
+    if (
+      !window.confirm(`Are you sure you want to delete ${employee.emp_name}?`)
+    ) {
+      return;
+    }
+    setDeletingId(employee.id); // set loading for this row
+    try {
+      await deleteEmployee(employee.id);
+      const data = await fetchEmployees();
+      setOriginalEmployees(data);
+
+      const simplified = data.map((e: any) => ({
+        id: e.id || "N/A",
+        emp_id: e.emp_id || "N/A",
+        emp_name: e.emp_name || "N/A",
+        bloodGroup: e.blood_group || "N/A",
+        age: e.age || "N/A",
+        address: e.address || "N/A",
+        position: e.position || "N/A",
+        shift: e.shiftcode || "N/A",
+        role: e.role || "N/A",
+        active: e.active !== undefined ? e.active : "N/A",
+      }));
+
+      setEmployees(simplified);
+      toast.success("Employee deleted successfully!");
+    } catch (error: any) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(`Failed: ${error.response.data.message}`);
+      } else if (error.message) {
+        toast.error(`Failed: ${error.message}`);
+      } else {
+        toast.error("Failed to delete employee.");
+      }
+    } finally {
+      setDeletingId(null); // reset loading
     }
   };
 
   return (
     <>
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <PageBreadcrumb pageTitle="Employees" />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
@@ -89,53 +140,88 @@ export const Employees = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {employees.map((employee, idx) => (
-                  <tr
-                    key={idx}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group cursor-pointer"
-                    onClick={() => handleView(employee)}
-                  >
-                    <td className="px-4 py-2">{employee.emp_id}</td>
-                    <td className="px-4 py-2">{employee.emp_name}</td>
-                    <td className="px-4 py-2">{employee.age}</td>
-                    <td className="px-4 py-2">{employee.bloodGroup}</td>
-                    <td className="px-4 py-2">{employee.position}</td>
-                    <td className="px-4 py-2">{employee.shift}</td>
-                    <td className="px-4 py-2">{employee.role}</td>
-                    <td className="px-4 py-2">
-                      {employee.active ? "Yes" : "No"}
-                    </td>
-                    <td className="px-4 py-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDelete(employee);
-                        }}
-                        className="p-1.5 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
-                        title="Delete"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
+                {paginatedEmployees &&
+                  paginatedEmployees.map((employee, idx) => (
+                    <tr
+                      key={idx}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center group cursor-pointer"
+                      onClick={() => handleView(employee)}
+                    >
+                      <td className="px-4 py-2">{employee.emp_id}</td>
+                      <td className="px-4 py-2">{employee.emp_name}</td>
+                      <td className="px-4 py-2">{employee.age}</td>
+                      <td className="px-4 py-2">{employee.bloodGroup}</td>
+                      <td className="px-4 py-2">{employee.position}</td>
+                      <td className="px-4 py-2">{employee.shift}</td>
+                      <td className="px-4 py-2">{employee.role}</td>
+                      <td className="px-4 py-2">
+                        {employee.active ? "Yes" : "No"}
+                      </td>
+                      <td className="px-4 py-2">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(employee);
+                          }}
+                          className="p-1.5 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
+                          title="Delete"
+                          disabled={
+                            deletingId === (employee.id)
+                          }
                         >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                          />
-                        </svg>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                          {deletingId === (employee.id) ? (
+                            <svg
+                              className="animate-spin h-5 w-5 text-red-600"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                            >
+                              <circle
+                                className="opacity-25"
+                                cx="12"
+                                cy="12"
+                                r="10"
+                                stroke="currentColor"
+                                strokeWidth="4"
+                              />
+                              <path
+                                className="opacity-75"
+                                fill="currentColor"
+                                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                              />
+                            </svg>
+                          ) : (
+                            // ...your trash icon svg...
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="h-5 w-5"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                              />
+                            </svg>
+                          )}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       <EmployeeViewModal

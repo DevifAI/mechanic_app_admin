@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import RevenueFormModal from "../../modals/RevenueFormModal";
 import { deleteRevenue, fetchRevenues } from "../../apis/revenueApi";
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
 
 type RevenueRow = {
   id: string;
@@ -17,6 +19,13 @@ export const Revenue = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingRevenue, setEditingRevenue] = useState<any>(null);
   const [loading, setLoading] = useState(false); // <-- Add loading state
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedRevenues,
+    getPageNumbers,
+  } = usePagination(revenues, 2);
 
   const fetchAndSetRevenues = async () => {
     setLoading(true); // Start loading
@@ -122,42 +131,50 @@ export const Revenue = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {revenues.map((revenue) => (
-                  <tr
-                    key={revenue.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                  >
-                    <td className="px-4 py-3">{revenue.revenueCode}</td>
-                    <td className="px-4 py-3">{revenue.description}</td>
-                    <td className="px-4 py-3">₹{revenue.revenueValue}</td>
-                    <td className="px-4 py-3">{revenue.linkedProjects}</td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      {/* Optional view button */}
-                      {/* <button
+                {paginatedRevenues &&
+                  paginatedRevenues.map((revenue) => (
+                    <tr
+                      key={revenue.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
+                    >
+                      <td className="px-4 py-3">{revenue.revenueCode}</td>
+                      <td className="px-4 py-3">{revenue.description}</td>
+                      <td className="px-4 py-3">₹{revenue.revenueValue}</td>
+                      <td className="px-4 py-3">{revenue.linkedProjects}</td>
+                      <td className="px-4 py-3 flex justify-center gap-2">
+                        {/* Optional view button */}
+                        {/* <button
                       onClick={() => console.log("View clicked")}
                       className="text-blue-600 hover:text-blue-700"
                     >
                       <FaEye size={18} />
                     </button> */}
-                      <button
-                        onClick={() => handleEdit(revenue)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(revenue)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                        <button
+                          onClick={() => handleEdit(revenue)}
+                          className="text-yellow-600 hover:text-yellow-700"
+                        >
+                          <FaEdit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(revenue)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FaTrash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       {/* Add/Edit Modal */}

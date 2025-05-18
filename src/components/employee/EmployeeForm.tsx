@@ -7,8 +7,10 @@ type Option = { id: string; name: string };
 
 export const EmployeeForm = ({
   onSubmit,
+  loading = false, // add default value
 }: {
   onSubmit: (data: any) => void;
+  loading?: boolean;
 }) => {
   const [formData, setFormData] = useState({
     emp_id: "",
@@ -32,11 +34,11 @@ export const EmployeeForm = ({
       try {
         // Replace these with your actual fetch functions
         const fetchedRoles = await fetchRoles();
-        console.log({ fetchedRoles });
+        // console.log({ fetchedRoles });
         setRoles(fetchedRoles);
 
         const fetchedShifts = await fetchShifts();
-        console.log({ fetchedShifts });
+        // console.log({ fetchedShifts });
         const mappedShifts = fetchedShifts.map((shift) => ({
           id: shift.id,
           name: shift.shift_code, // adjust to your property
@@ -44,7 +46,7 @@ export const EmployeeForm = ({
         setShifts(mappedShifts);
 
         const fetchedPositions = await fetchEmpPositions();
-        console.log({ fetchedPositions });
+        // console.log({ fetchedPositions });
         const mappedPositions = fetchedPositions.map((pos) => ({
           id: pos.id,
           name: pos.designation, // replace with actual field name from your data
@@ -77,12 +79,12 @@ export const EmployeeForm = ({
   };
 
   // Handle changes from MultiSelect component
-//   const handleMultiSelectChange = (field: string, values: string[]) => {
-//     setFormData((prev) => ({
-//       ...prev,
-//       [field]: values,
-//     }));
-//   };
+  //   const handleMultiSelectChange = (field: string, values: string[]) => {
+  //     setFormData((prev) => ({
+  //       ...prev,
+  //       [field]: values,
+  //     }));
+  //   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,9 +199,34 @@ export const EmployeeForm = ({
       <div className="text-right">
         <button
           type="submit"
-          className="inline-flex items-center bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          disabled={loading}
+          className={`inline-flex items-center bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            loading ? "opacity-60 cursor-not-allowed" : ""
+          }`}
         >
-          Submit
+          {loading && (
+            <svg
+              className="animate-spin h-5 w-5 mr-2 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              />
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+              />
+            </svg>
+          )}
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </div>
     </form>

@@ -5,6 +5,8 @@ import EquipmentViewModal from "../../modals/EquipmentViewModal";
 import EquipmentFormModal from "../../modals/EquipmentFormModal";
 import { fetchEquipments, deleteEquipment } from "../../apis/equipmentApi"; // <-- Import API
 import { fetchEquipmentGroups } from "../../apis/equipmentGroupApi";
+import Pagination from "../../utils/Pagination";
+import { usePagination } from "../../hooks/usePagination";
 
 export const Equipments = () => {
   const [equipments, setEquipments] = useState<any[]>([]);
@@ -13,6 +15,13 @@ export const Equipments = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [equipmentGroups, setEquipmentGroups] = useState<any[]>([]);
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedEquipments,
+    getPageNumbers,
+  } = usePagination(equipments, 2);
 
   // Fetch all equipment groups
   const fetchAndSetEquipmentGroups = async () => {
@@ -116,46 +125,54 @@ export const Equipments = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {equipments.map((equipment) => (
-                  <tr
-                    key={equipment.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center"
-                  >
-                    <td className="px-4 py-3">{equipment.equipment_name}</td>
-                    <td className="px-4 py-3">{equipment.equipment_sr_no}</td>
-                    <td className="px-4 py-3">{equipment.additional_id}</td>
-                    <td className="px-4 py-3">{equipment.purchase_date}</td>
-                    <td className="px-4 py-3">{equipment.oem}</td>
-                    <td className="px-4 py-3">{equipment.purchase_cost}</td>
-                    <td className="px-4 py-3">
-                      {equipment.equipment_group_id}
-                    </td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
-                      <button
-                        onClick={() => handleView(equipment)}
-                        className="text-blue-600 hover:text-blue-700"
-                      >
-                        <FaEye size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(equipment)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(equipment)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {paginatedEquipments &&
+                  paginatedEquipments.map((equipment) => (
+                    <tr
+                      key={equipment.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center"
+                    >
+                      <td className="px-4 py-3">{equipment.equipment_name}</td>
+                      <td className="px-4 py-3">{equipment.equipment_sr_no}</td>
+                      <td className="px-4 py-3">{equipment.additional_id}</td>
+                      <td className="px-4 py-3">{equipment.purchase_date}</td>
+                      <td className="px-4 py-3">{equipment.oem}</td>
+                      <td className="px-4 py-3">{equipment.purchase_cost}</td>
+                      <td className="px-4 py-3">
+                        {equipment.equipment_group_id}
+                      </td>
+                      <td className="px-4 py-3 flex justify-center gap-2">
+                        <button
+                          onClick={() => handleView(equipment)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <FaEye size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(equipment)}
+                          className="text-yellow-600 hover:text-yellow-700"
+                        >
+                          <FaEdit size={18} />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(equipment)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <FaTrash size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
           )}
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          setCurrentPage={setCurrentPage}
+          getPageNumbers={getPageNumbers}
+          maxPages={4}
+        />
       </div>
 
       <EquipmentViewModal

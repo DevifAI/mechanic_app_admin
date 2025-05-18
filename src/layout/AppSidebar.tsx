@@ -55,7 +55,7 @@ const navItems: NavItem[] = [
     path: "/partners",
     subItems: [
       { name: "Create Partner", path: "/partners/create", icon: null },
-      // { name: "View Partners", path: "/partners/view", icon: null },
+      { name: "View Partners", path: "/partners/view", icon: null },
     ],
   },
   {
@@ -119,6 +119,17 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+
+  const isParentActive = (nav: NavItem, locationPath: string) => {
+    if (nav.path === "/dashboard") {
+      if (locationPath === "/" || locationPath === "/dashboard") return true;
+    }
+    if (locationPath === nav.path) return true;
+    if (nav.subItems) {
+      return nav.subItems.some((sub) => locationPath === sub.path);
+    }
+    return false;
+  };
 
   const toggleMenu = (menuName: string) => {
     setOpenMenu((prev) => (prev === menuName ? null : menuName));
@@ -184,11 +195,13 @@ const AppSidebar: React.FC = () => {
                     }}
                     className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
                     ${
-                      isActive(nav.path)
+                      isParentActive(nav, location.pathname)
                         ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
                         : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
                     }
-                    ${!shouldShowText ? "justify-center" : "justify-between"}`}
+                      ${
+                        !shouldShowText ? "justify-center" : "justify-between"
+                      }`}
                   >
                     <div className="flex items-center">
                       <span className="text-gray-500 dark:text-gray-400">

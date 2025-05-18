@@ -1,8 +1,14 @@
 // utils/axiosInstance.ts
 import axios from "axios";
 
+const url = {
+  production:
+    "https://mechanic-app-backend.onrender.com/api/master/super/admin",
+  development: "http://localhost:5000/api/master/super/admin",
+};
+
 const axiosInstance = axios.create({
-  baseURL: "https://mechanic-app-backend.onrender.com/api/master/super/admin", // Replace with your actual base URL
+  baseURL: url.development,
   headers: {
     "Content-Type": "application/json",
   },
