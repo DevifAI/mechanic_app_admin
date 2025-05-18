@@ -37,6 +37,8 @@ import { Roles } from "./pages/Roles/Roles";
 import { CreateProjectPage } from "./pages/Projects/CreateProject";
 import { CreateEmployeePage } from "./pages/Employees/CreateEmployeePage";
 import PartnerFormPage from "./pages/Partners/PartnerFormPage";
+import EquipmentFormPage from "./pages/Equipments/EquipmentFormPage";
+import RevenueFormPage from "./pages/Revenue/RevenueFormPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -58,31 +60,39 @@ export default function App() {
         >
           <Route index path="/" element={<Home />} />
           <Route index path="/dashboard" element={<Home />} />
-
           {/* Other Pages */}
           <Route path="/profile" element={<UserProfiles />} />
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/blank" element={<Blank />} />
-
           <Route path="/projects/view" element={<Projects />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/employees/view" element={<Employees />} />
           <Route path="/employees/create" element={<CreateEmployeePage />} />
           <Route path="/partners/create" element={<PartnerFormPage />} />
+          <Route path="/partners/edit/:id" element={<PartnerFormPage />} />
           <Route path="/partners/view" element={<Partners />} />
-          <Route path="/equipments/create" element={<Equipments />} />
-          <Route path="/revenues/create" element={<Revenue />} />
+          <Route path="/equipments/view" element={<Equipments />} />
+          // For create
+          <Route
+            path="/equipments/create"
+            element={<EquipmentFormPage/>}
+          />
+          // For edit
+          <Route
+            path="/equipments/edit/:id"
+            element={<EquipmentFormPage/>}
+          />
+          <Route path="/revenues/view" element={<Revenue />} />
+          <Route path="/revenues/create" element={<RevenueFormPage />} />
+          <Route path="/revenues/edit/:id" element={<RevenueFormPage />} />
           <Route path="/store-locations/create" element={<StoreLocation />} />
           <Route path="/consumables/create" element={<Consumable />} />
           <Route path="/shifts/create" element={<Shifts />} />
           <Route path="/roles/create" element={<Roles />} />
-
           {/* Forms */}
           <Route path="/form-elements" element={<FormElements />} />
-
           {/* Tables */}
           <Route path="/basic-tables" element={<BasicTables />} />
-
           {/* UI Elements */}
           <Route path="/alerts" element={<Alerts />} />
           <Route path="/avatars" element={<Avatars />} />
@@ -90,7 +100,6 @@ export default function App() {
           <Route path="/buttons" element={<Buttons />} />
           <Route path="/images" element={<Images />} />
           <Route path="/videos" element={<Videos />} />
-
           {/* Charts */}
           <Route path="/line-chart" element={<LineChart />} />
           <Route path="/bar-chart" element={<BarChart />} />

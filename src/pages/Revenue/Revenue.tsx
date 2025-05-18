@@ -1,24 +1,25 @@
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import RevenueFormModal from "../../modals/RevenueFormModal";
 import { deleteRevenue, fetchRevenues } from "../../apis/revenueApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
 
 type RevenueRow = {
   id: string;
-  revenueCode: string;
-  description: string;
-  revenueValue: number;
+  revenue_code: string;
+  revenue_description: string;
+  revenue_value: number;
   linkedProjects: number;
 };
 
 export const Revenue = () => {
   const [revenues, setRevenues] = useState<RevenueRow[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingRevenue, setEditingRevenue] = useState<any>(null);
-  const [loading, setLoading] = useState(false); // <-- Add loading state
+  const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const navigate = useNavigate();
+
   const {
     currentPage,
     setCurrentPage,
@@ -28,88 +29,64 @@ export const Revenue = () => {
   } = usePagination(revenues, 2);
 
   const fetchAndSetRevenues = async () => {
-    setLoading(true); // Start loading
+    setLoading(true);
     try {
       const data = await fetchRevenues();
       setRevenues(
         data.map((item: any) => ({
           id: item.id,
-          revenueCode: item.revenue_code,
-          description: item.revenue_description,
-          revenueValue: item.revenue_value,
+          revenue_code: item.revenue_code,
+          revenue_description: item.revenue_description,
+          revenue_value: item.revenue_value,
           linkedProjects: item.linkedProjects || 0,
         }))
       );
     } catch (err) {
       console.error("Failed to fetch revenues", err);
     }
-    setLoading(false); // End loading
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchAndSetRevenues();
   }, []);
 
-  const handleAdd = () => {
-    setEditingRevenue(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (revenue: any) => {
-    setEditingRevenue(revenue);
-    setIsFormOpen(true);
-  };
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(null);
+    if (dropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [dropdownOpen]);
 
   const handleDelete = async (revenue: RevenueRow) => {
     if (window.confirm("Are you sure you want to delete this revenue?")) {
       setLoading(true);
       try {
         await deleteRevenue(revenue.id);
-        await fetchAndSetRevenues(); // Refresh the list after deletion
+        await fetchAndSetRevenues();
+        toast.success("Revenue deleted successfully!");
       } catch (err) {
         console.error("Failed to delete revenue", err);
+        toast.error("Failed to delete revenue!");
       }
       setLoading(false);
     }
   };
 
-  const handleFormSubmit = async (formData: any) => {
-    if (editingRevenue) {
-      setLoading(true);
-      console.log("Updating Revenue:", formData);
-      setRevenues((prev) =>
-        prev.map((r) =>
-          r.id === editingRevenue.id ? { ...r, ...formData } : r
-        )
-      );
-    } else {
-      setLoading(true);
-      console.log("Adding Revenue:", formData);
-      const newRevenue = {
-        ...formData,
-        id: revenues.length + 1,
-        linkedProjects: 0,
-      };
-      setRevenues((prev) => [...prev, newRevenue]);
-    }
-    await fetchAndSetRevenues();
-    setIsFormOpen(false);
-    setLoading(false);
-  };
-
   return (
     <>
       <PageBreadcrumb pageTitle="Revenue" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
         <div className="flex justify-end items-center mb-4">
-          <button
-            onClick={handleAdd}
+          {/* <button
+            onClick={() => navigate("/revenues/create")}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
           >
-            <FaPlus className="mr-2" />
-            Add Revenue
-          </button>
+            + Add Revenue
+          </button> */}
         </div>
 
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
@@ -137,30 +114,46 @@ export const Revenue = () => {
                       key={revenue.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                     >
-                      <td className="px-4 py-3">{revenue.revenueCode}</td>
-                      <td className="px-4 py-3">{revenue.description}</td>
-                      <td className="px-4 py-3">₹{revenue.revenueValue}</td>
+                      <td className="px-4 py-3">{revenue.revenue_code}</td>
+                      <td className="px-4 py-3">{revenue.revenue_description}</td>
+                      <td className="px-4 py-3">₹{revenue.revenue_value}</td>
                       <td className="px-4 py-3">{revenue.linkedProjects}</td>
-                      <td className="px-4 py-3 flex justify-center gap-2">
-                        {/* Optional view button */}
-                        {/* <button
-                      onClick={() => console.log("View clicked")}
-                      className="text-blue-600 hover:text-blue-700"
-                    >
-                      <FaEye size={18} />
-                    </button> */}
+                      <td className="px-4 py-3 flex justify-center gap-2 relative">
                         <button
-                          onClick={() => handleEdit(revenue)}
-                          className="text-yellow-600 hover:text-yellow-700"
+                          onClick={e => {
+                            e.stopPropagation();
+                            setDropdownOpen(dropdownOpen === revenue.id ? null : revenue.id);
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                          title="Actions"
                         >
-                          <FaEdit size={18} />
+                          <span style={{ fontSize: 20, lineHeight: 1 }}>⋮</span>
                         </button>
-                        <button
-                          onClick={() => handleDelete(revenue)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <FaTrash size={18} />
-                        </button>
+                        {dropdownOpen === revenue.id && (
+                          <div
+                            className="absolute z-20 right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                            onClick={e => e.stopPropagation()}
+                          >
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                navigate(`/revenues/edit/${revenue.id}`);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                handleDelete(revenue);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -176,14 +169,6 @@ export const Revenue = () => {
           maxPages={4}
         />
       </div>
-
-      {/* Add/Edit Modal */}
-      <RevenueFormModal
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        revenue={editingRevenue}
-      />
     </>
   );
 };

@@ -12,8 +12,8 @@ import {
   MdAccessTime,
   MdSecurity,
   MdChevronRight,
-  MdSettings,
-  MdHelpOutline,
+  // MdSettings,
+  // MdHelpOutline,
 } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -64,7 +64,7 @@ const navItems: NavItem[] = [
     path: "/equipments",
     subItems: [
       { name: "Add Equipment", path: "/equipments/create", icon: null },
-      // { name: "View Equipments", path: "/equipments/view", icon: null },
+      { name: "View Equipments", path: "/equipments/view", icon: null },
     ],
   },
   {
@@ -73,7 +73,7 @@ const navItems: NavItem[] = [
     path: "/revenues",
     subItems: [
       { name: "Add Revenue", path: "/revenues/create", icon: null },
-      // { name: "View Revenues", path: "/revenues/view", icon: null },
+      { name: "View Revenues", path: "/revenues/view", icon: null },
     ],
   },
   {
@@ -135,12 +135,12 @@ const AppSidebar: React.FC = () => {
     setOpenMenu((prev) => (prev === menuName ? null : menuName));
   };
 
-  const isActive = (path: string) => {
-    if (path === "/dashboard") {
-      return location.pathname === "/" || location.pathname === "/dashboard";
-    }
-    return location.pathname === path;
-  };
+  // const isActive = (path: string) => {
+  //   if (path === "/dashboard") {
+  //     return location.pathname === "/" || location.pathname === "/dashboard";
+  //   }
+  //   return location.pathname === path;
+  // };
 
   const isSubItemActive = useCallback(
     (path: string) => location.pathname === path,
@@ -248,7 +248,7 @@ const AppSidebar: React.FC = () => {
         </nav>
 
         {/* Bottom */}
-        <div className="px-2 py-4 border-t border-gray-200 dark:border-gray-700">
+        {/* <div className="px-2 py-4 border-t border-gray-200 dark:border-gray-700">
           <ul className="space-y-1">
             <li>
               <Link
@@ -287,7 +287,7 @@ const AppSidebar: React.FC = () => {
               </Link>
             </li>
           </ul>
-        </div>
+        </div> */}
       </div>
     </aside>
   );

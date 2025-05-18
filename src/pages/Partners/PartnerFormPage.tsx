@@ -1,16 +1,18 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { createCustomer } from "../../apis/customerApi";
-import { toast } from "react-toastify";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  FaUser,
-  FaMapMarkerAlt,
-  FaReceipt,
-  FaGlobe,
-} from "react-icons/fa";
+  createCustomer,
+  fetchCustomerById,
+  updateCustomer,
+} from "../../apis/customerApi";
+import { toast, ToastContainer } from "react-toastify";
+import { FaUser, FaMapMarkerAlt, FaReceipt, FaGlobe } from "react-icons/fa";
 
 export default function PartnerFormPage() {
   const navigate = useNavigate();
+  const { id } = useParams(); // <-- get id from route
+  const isEdit = Boolean(id);
+
   const [formData, setFormData] = useState({
     partner_name: "",
     partner_address: "",
@@ -19,6 +21,26 @@ export default function PartnerFormPage() {
     isCustomer: true,
   });
   const [loading, setLoading] = useState(false);
+
+  // Fetch partner data if editing
+  useEffect(() => {
+    if (isEdit && id) {
+      // <-- check id is defined
+      setLoading(true);
+      fetchCustomerById(id)
+        .then((data) => {
+          setFormData({
+            partner_name: data.partner_name,
+            partner_address: data.partner_address,
+            partner_gst: data.partner_gst,
+            partner_geo_id: data.partner_geo_id,
+            isCustomer: data.isCustomer,
+          });
+        })
+        .catch(() => toast.error("Failed to load partner"))
+        .finally(() => setLoading(false));
+    }
+  }, [id, isEdit]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -35,12 +57,27 @@ export default function PartnerFormPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await createCustomer(formData);
-      toast.success("Partner created successfully!");
-      navigate("/partners/view");
+      if (isEdit) {
+        if (!id) throw new Error("Invalid partner ID");
+        await updateCustomer(id, {
+          ...formData,
+          partner_geo_id: Number(formData.partner_geo_id),
+        });
+        toast.success("Partner updated successfully!");
+      } else {
+        await createCustomer({
+          ...formData,
+          partner_geo_id: Number(formData.partner_geo_id),
+        });
+        toast.success("Partner created successfully!");
+      }
+      setTimeout(() => {
+        navigate("/partners/view");
+      }, 800); // 800ms delay so user sees the toast
     } catch (error: any) {
       toast.error(
-        error?.response?.data?.message || "Failed to create partner."
+        error?.response?.data?.message ||
+          (isEdit ? "Failed to update partner." : "Failed to create partner.")
       );
     } finally {
       setLoading(false);
@@ -49,8 +86,10 @@ export default function PartnerFormPage() {
 
   return (
     <div className="max-w-2xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-lg shadow">
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-        <FaUser className="text-blue-600" /> Create Partner
+        <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"}{" "}
+        Partner
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
@@ -97,7 +136,7 @@ export default function PartnerFormPage() {
           <div className="relative">
             <FaGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              type="text"
+              type="number"
               name="partner_geo_id"
               value={formData.partner_geo_id}
               onChange={handleChange}
@@ -146,7 +185,13 @@ export default function PartnerFormPage() {
             disabled={loading}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
-            {loading ? "Creating..." : "Create"}
+            {loading
+              ? isEdit
+                ? "Updating..."
+                : "Creating..."
+              : isEdit
+              ? "Update"
+              : "Create"}
           </button>
         </div>
       </form>

@@ -1,4 +1,3 @@
-import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
@@ -6,12 +5,14 @@ import PartnerViewModal from "../../modals/PartnerViewModal";
 import { deleteCustomer, fetchCustomers } from "../../apis/customerApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
 
 export const Partners = () => {
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [selectedPartner, setSelectedPartner] = useState<any>(null);
   const [partners, setPartners] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const {
@@ -46,6 +47,13 @@ export const Partners = () => {
     fetchAndSetPartners();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(null);
+    if (dropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [dropdownOpen]);
   const handleView = (partner: any) => {
     setSelectedPartner(partner);
     setIsViewOpen(true);
@@ -69,8 +77,10 @@ export const Partners = () => {
             isActive: true,
           }))
         );
+        toast.success("Partner deleted successfully!");
       } catch (err) {
         console.error("Failed to delete partner", err);
+        toast.error("Failed to delete partner!");
       }
       setLoading(false);
     }
@@ -79,6 +89,7 @@ export const Partners = () => {
   return (
     <>
       <PageBreadcrumb pageTitle={"Partners"} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
@@ -105,7 +116,8 @@ export const Partners = () => {
                 {paginatedPartners.map((partner) => (
                   <tr
                     key={partner.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center"
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center cursor-pointer"
+                    onClick={() => handleView(partner)}
                   >
                     <td className="px-4 py-3">{partner.partner_name}</td>
                     <td className="px-4 py-3">{partner.partner_address}</td>
@@ -125,25 +137,44 @@ export const Partners = () => {
                         {partner.isActive ? "Yes" : "No"}
                       </span>
                     </td>
-                    <td className="px-4 py-3 flex justify-center gap-2">
+                    <td className="px-4 py-3 flex justify-center gap-2 relative">
                       <button
-                        onClick={() => handleView(partner)}
-                        className="text-blue-600 hover:text-blue-700"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDropdownOpen(
+                            dropdownOpen === partner.id ? null : partner.id
+                          );
+                        }}
+                        className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                        title="Actions"
                       >
-                        <FaEye size={18} />
+                        <span style={{ fontSize: 20, lineHeight: 1 }}>⋮</span>
                       </button>
-                      <button
-                        onClick={() => navigate(`/partners/edit/${partner.id}`)}
-                        className="text-yellow-600 hover:text-yellow-700"
-                      >
-                        <FaEdit size={18} />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(partner)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <FaTrash size={18} />
-                      </button>
+                      {dropdownOpen === partner.id && (
+                        <div
+                          className="absolute z-20 right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => {
+                              setDropdownOpen(null);
+                              navigate(`/partners/edit/${partner.id}`);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            onClick={() => {
+                              setDropdownOpen(null);
+                              handleDelete(partner);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
                     </td>
                   </tr>
                 ))}
