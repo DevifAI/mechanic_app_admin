@@ -1,16 +1,24 @@
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import StoreFormModal from "../../modals/StoreFormModal";
-import { createStore, fetchStores, updateStore } from "../../apis/storeApi";
+import { fetchStores, deleteStore } from "../../apis/storeApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
+
+type StoreRow = {
+  id: string;
+  store_code: string;
+  store_name?: string;
+  store_location: string;
+};
 
 export const StoreLocation = () => {
-  const [stores, setStores] = useState<any[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingStore, setEditingStore] = useState<any>(null);
+  const [stores, setStores] = useState<StoreRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const navigate = useNavigate();
+
   const {
     currentPage,
     setCurrentPage,
@@ -19,89 +27,57 @@ export const StoreLocation = () => {
     getPageNumbers,
   } = usePagination(stores, 2);
 
-  useEffect(() => {
-    const fetchAndSetStores = async () => {
-      setLoading(true);
-      try {
-        const data = await fetchStores();
-        setStores(
-          data.map((item) => ({
-            id: item.id,
-            storeCode: item.store_code,
-            storeName: item.store_name || "-",
-            location: item.store_location,
-          }))
-        );
-      } catch (err) {
-        console.error("Failed to fetch stores", err);
-      }
-      setLoading(false);
-    };
-    fetchAndSetStores();
-  }, []);
-
-  const handleAdd = () => {
-    setEditingStore(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (store: any) => {
-    setEditingStore(store);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (store: any) => {
-    console.log("Deleting:", store);
-    setStores((prev) => prev.filter((s) => s.id !== store.id));
-  };
-
-  const handleFormSubmit = async (formData: any) => {
-    setIsFormOpen(false);
-    setEditingStore(null);
+  const fetchAndSetStores = async () => {
     setLoading(true);
     try {
-      // Map form fields to backend payload
-      const payload = {
-        store_code: formData.storeCode,
-        store_name: formData.storeName,
-        store_location: formData.location,
-      };
-      if (editingStore && editingStore.id) {
-        await updateStore(editingStore.id, payload);
-      } else {
-        await createStore(payload);
-      }
-      // Refresh the list
       const data = await fetchStores();
       setStores(
-        data.map((item) => ({
+        data.map((item: any) => ({
           id: item.id,
-          storeCode: item.store_code,
-          storeName: item.store_name || "-",
-          location: item.store_location,
+          store_code: item.store_code,
+          store_name: item.store_name,
+          store_location: item.store_location,
         }))
       );
     } catch (err) {
-      console.error("Failed to save store", err);
+      console.error("Failed to fetch stores", err);
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAndSetStores();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(null);
+    if (dropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [dropdownOpen]);
+
+  const handleDelete = async (store: StoreRow) => {
+    if (window.confirm("Are you sure you want to delete this store?")) {
+      setLoading(true);
+      try {
+        await deleteStore(store.id);
+        await fetchAndSetStores();
+        toast.success("Store deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete store", err);
+        toast.error("Failed to delete store!");
+      }
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <PageBreadcrumb pageTitle="Store Location" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
-        <div className="flex justify-end items-center mb-4">
-          <button
-            onClick={handleAdd}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-          >
-            <FaPlus className="mr-2" />
-            Add Store
-          </button>
-        </div>
-
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
           {loading ? (
             <div className="flex justify-center items-center py-10">
@@ -126,22 +102,47 @@ export const StoreLocation = () => {
                       key={store.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                     >
-                      <td className="px-4 py-3">{store.storeCode}</td>
-                      <td className="px-4 py-3">{store.storeName || "-"}</td>
-                      <td className="px-4 py-3">{store.location}</td>
-                      <td className="px-4 py-3 flex justify-center gap-2">
+                      <td className="px-4 py-3">{store.store_code}</td>
+                      <td className="px-4 py-3">{store.store_name || "-"}</td>
+                      <td className="px-4 py-3">{store.store_location}</td>
+                      <td className="px-4 py-3 flex justify-center gap-2 relative">
                         <button
-                          onClick={() => handleEdit(store)}
-                          className="text-yellow-600 hover:text-yellow-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDropdownOpen(
+                              dropdownOpen === store.id ? null : store.id
+                            );
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                          title="Actions"
                         >
-                          <FaEdit size={18} />
+                          <span style={{ fontSize: 20, lineHeight: 1 }}>⋮</span>
                         </button>
-                        <button
-                          onClick={() => handleDelete(store)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <FaTrash size={18} />
-                        </button>
+                        {dropdownOpen === store.id && (
+                          <div
+                            className="absolute z-20 right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                navigate(`/store-locations/edit/${store.id}`);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                handleDelete(store);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -157,14 +158,6 @@ export const StoreLocation = () => {
           maxPages={4}
         />
       </div>
-
-      {/* Add/Edit Modal */}
-      <StoreFormModal
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        store={editingStore}
-      />
     </>
   );
 };

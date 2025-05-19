@@ -82,7 +82,7 @@ const navItems: NavItem[] = [
     path: "/store-locations",
     subItems: [
       { name: "Add Store", path: "/store-locations/create", icon: null },
-      // { name: "View Stores", path: "/store-locations/view", icon: null },
+      { name: "View Stores", path: "/store-locations/view", icon: null },
     ],
   },
   {
