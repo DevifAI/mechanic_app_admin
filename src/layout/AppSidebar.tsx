@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   MdDashboard,
   MdWork,
@@ -11,8 +11,8 @@ import {
   MdInventory,
   MdAccessTime,
   MdSecurity,
-  MdChevronRight,
 } from "react-icons/md";
+import { AiFillPlusCircle } from "react-icons/ai";
 import { useSidebar } from "../context/SidebarContext";
 
 type NavItem = {
@@ -135,23 +135,12 @@ const AppSidebar: React.FC = () => {
     setOpenMenu((prev) => (prev === menuName ? null : menuName));
   };
 
-  // const isActive = (path: string) => {
-  //   if (path === "/dashboard") {
-  //     return location.pathname === "/" || location.pathname === "/dashboard";
-  //   }
-  //   return location.pathname === path;
-  // };
-
-  const isSubItemActive = useCallback(
-    (path: string) => location.pathname === path,
-    [location.pathname]
-  );
 
   const shouldShowText = isExpanded || isHovered || isMobileOpen;
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-white dark:bg-gray-800 text-gray-900 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-gray-800 text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
       ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-20"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0`}
@@ -169,8 +158,8 @@ const AppSidebar: React.FC = () => {
         </div>
         {shouldShowText && (
           <div className="ml-3">
-            <p className="text-sm font-medium dark:text-white">Super Admin</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Admin</p>
+            <p className="text-sm font-medium text-white">Super Admin</p>
+            <p className="text-xs text-white">Admin</p>
           </div>
         )}
       </div>
@@ -183,11 +172,23 @@ const AppSidebar: React.FC = () => {
               const isOpen = openMenu === nav.name;
               const hasSub = !!nav.subItems;
 
+              // Find "Create"/"Add" and "View" subItems if they exist
+              const createSub = nav.subItems?.find(
+                (sub) =>
+                  sub.name.toLowerCase().includes("create") ||
+                  sub.name.toLowerCase().includes("add")
+              );
+              const viewSub = nav.subItems?.find((sub) =>
+                sub.name.toLowerCase().includes("view")
+              );
+
               return (
                 <li key={nav.name}>
                   <div
                     onClick={() => {
-                      if (hasSub) {
+                      if (hasSub && viewSub) {
+                        navigate(viewSub.path);
+                      } else if (hasSub) {
                         toggleMenu(nav.name);
                       } else {
                         navigate(nav.path);
@@ -196,32 +197,37 @@ const AppSidebar: React.FC = () => {
                     className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
                     ${
                       isParentActive(nav, location.pathname)
-                        ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-                        : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+                        ? "bg-blue-500 text-white"
+                        : "text-white hover:bg-gray-600"
                     }
                       ${
                         !shouldShowText ? "justify-center" : "justify-between"
                       }`}
                   >
                     <div className="flex items-center">
-                      <span className="text-gray-500 dark:text-gray-400">
+                      <span className="text-white">
                         {nav.icon}
                       </span>
                       {shouldShowText && (
                         <span className="ml-3">{nav.name}</span>
                       )}
                     </div>
-                    {shouldShowText && hasSub && (
-                      <MdChevronRight
-                        className={`transform transition-transform duration-200 ${
+                    {shouldShowText && hasSub && createSub && (
+                      <AiFillPlusCircle 
+                        className={`transform text-white transition-transform duration-200 ${
                           isOpen ? "rotate-90" : ""
-                        }`}
+                        } cursor-pointer`}
                         size={16}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(createSub.path);
+                        }}
+                        title={createSub.name}
                       />
                     )}
                   </div>
 
-                  {/* Dropdown */}
+                  {/* Dropdown (optional, can be enabled if you want submenus visible)
                   {shouldShowText && hasSub && isOpen && (
                     <ul className="ml-8 mt-1 space-y-1 transition-all duration-200 ease-in-out">
                       {nav.subItems?.map((subItem) => (
@@ -241,6 +247,7 @@ const AppSidebar: React.FC = () => {
                       ))}
                     </ul>
                   )}
+                  */}
                 </li>
               );
             })}

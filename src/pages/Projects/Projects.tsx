@@ -14,13 +14,14 @@ export const Projects = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [original_projects, setOriginal_Projects] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedProjects,
-    getPageNumbers,
-  } = usePagination(projects, 10);
+  } = usePagination(projects, rowsPerPage);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -99,36 +100,16 @@ export const Projects = () => {
             <table className="min-w-full text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-center ">
-                    Project No
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Customer
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Order No
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Contract Start
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Tenure
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Revenues
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Equipments
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Staff
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Locations
-                  </th>
-                  <th className="px-4 py-3 text-center">
-                    Actions
-                  </th>
+                  <th className="px-4 py-3 text-center ">Project No</th>
+                  <th className="px-4 py-3 text-center">Customer</th>
+                  <th className="px-4 py-3 text-center">Order No</th>
+                  <th className="px-4 py-3 text-center">Contract Start</th>
+                  <th className="px-4 py-3 text-center">Tenure</th>
+                  <th className="px-4 py-3 text-center">Revenues</th>
+                  <th className="px-4 py-3 text-center">Equipments</th>
+                  <th className="px-4 py-3 text-center">Staff</th>
+                  <th className="px-4 py-3 text-center">Locations</th>
+                  <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-[13px]">
@@ -141,33 +122,15 @@ export const Projects = () => {
                         handleView(project);
                       }}
                     >
-                      <td className="px-4 py-3 ">
-                        {project.projectNo}
-                      </td>
-                      <td className="px-4 py-3 ">
-                        {project.customer}
-                      </td>
-                      <td className="px-4 py-3">
-                        {project.orderNo}
-                      </td>
-                      <td className="px-4 py-3">
-                        {project.contractStart}
-                      </td>
-                      <td className="px-4 py-3">
-                        {project.tenure}
-                      </td>
-                      <td className="px-4 py-3 ">
-                        {project.revenues}
-                      </td>
-                      <td className="px-4 py-3 ">
-                        {project.equipments}
-                      </td>
-                      <td className="px-4 py-3">
-                        {project.staff}
-                      </td>
-                      <td className="px-4 py-3 ">
-                        {project.locations}
-                      </td>
+                      <td className="px-4 py-3 ">{project.projectNo}</td>
+                      <td className="px-4 py-3 ">{project.customer}</td>
+                      <td className="px-4 py-3">{project.orderNo}</td>
+                      <td className="px-4 py-3">{project.contractStart}</td>
+                      <td className="px-4 py-3">{project.tenure}</td>
+                      <td className="px-4 py-3 ">{project.revenues}</td>
+                      <td className="px-4 py-3 ">{project.equipments}</td>
+                      <td className="px-4 py-3">{project.staff}</td>
+                      <td className="px-4 py-3 ">{project.locations}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-center space-x-2">
                           {/* Edit Button */}
@@ -228,13 +191,13 @@ export const Projects = () => {
             </table>
           )}
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          setCurrentPage={setCurrentPage}
-          getPageNumbers={getPageNumbers}
-          maxPages={4}
-        />
+         <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+          />
       </div>
 
       <ProjectViewModal

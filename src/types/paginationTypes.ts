@@ -1,7 +1,8 @@
-export type PaginationProps = {
+export interface PaginationProps {
   currentPage: number;
   totalPages: number;
   setCurrentPage: (page: number) => void;
-  getPageNumbers: (maxPages?: number) => number[];
-  maxPages?: number;
-};
+  // ...other props...
+  rowsPerPage: number;
+  setRowsPerPage: (n: number) => void;
+}
