@@ -20,13 +20,16 @@ export const Revenue = () => {
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedRevenues,
-    getPageNumbers,
-  } = usePagination(revenues, 2);
+  } = usePagination(revenues, rowsPerPage);
+
+
 
   const fetchAndSetRevenues = async () => {
     setLoading(true);
@@ -165,8 +168,8 @@ export const Revenue = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          getPageNumbers={getPageNumbers}
-          maxPages={4}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
         />
       </div>
     </>

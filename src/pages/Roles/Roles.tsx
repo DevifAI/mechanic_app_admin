@@ -18,13 +18,14 @@ export const Roles = () => {
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedRoles,
-    getPageNumbers,
-  } = usePagination(roles, 2);
+  } = usePagination(roles, rowsPerPage);
 
   const fetchAndSetRoles = async () => {
     setLoading(true);
@@ -159,8 +160,8 @@ export const Roles = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          getPageNumbers={getPageNumbers}
-          maxPages={4}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
         />
       </div>
     </>

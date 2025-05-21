@@ -15,13 +15,15 @@ export const Employees = () => {
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedEmployees,
-    getPageNumbers,
-  } = usePagination(employees, 2);
+  } = usePagination(employees, rowsPerPage);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,11 +167,9 @@ export const Employees = () => {
                           }}
                           className="p-1.5 rounded-md text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/30 transition-colors"
                           title="Delete"
-                          disabled={
-                            deletingId === (employee.id)
-                          }
+                          disabled={deletingId === employee.id}
                         >
-                          {deletingId === (employee.id) ? (
+                          {deletingId === employee.id ? (
                             <svg
                               className="animate-spin h-5 w-5 text-red-600"
                               xmlns="http://www.w3.org/2000/svg"
@@ -219,8 +219,8 @@ export const Employees = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          getPageNumbers={getPageNumbers}
-          maxPages={4}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
         />
       </div>
 

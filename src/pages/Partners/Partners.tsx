@@ -15,13 +15,14 @@ export const Partners = () => {
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedPartners,
-    getPageNumbers,
-  } = usePagination(partners, 2);
+  } = usePagination(partners, rowsPerPage);
 
   useEffect(() => {
     const fetchAndSetPartners = async () => {
@@ -186,8 +187,8 @@ export const Partners = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          getPageNumbers={getPageNumbers}
-          maxPages={4}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
         />
       </div>
 

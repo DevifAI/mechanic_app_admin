@@ -19,13 +19,14 @@ export const Shifts = () => {
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedShifts,
-    getPageNumbers,
-  } = usePagination(shifts, 2);
+  } = usePagination(shifts, rowsPerPage);
 
   const fetchAndSetShifts = async () => {
     setLoading(true);
@@ -163,8 +164,8 @@ export const Shifts = () => {
           currentPage={currentPage}
           totalPages={totalPages}
           setCurrentPage={setCurrentPage}
-          getPageNumbers={getPageNumbers}
-          maxPages={4}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
         />
       </div>
     </>
