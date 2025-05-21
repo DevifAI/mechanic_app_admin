@@ -40,6 +40,8 @@ import PartnerFormPage from "./pages/Partners/PartnerFormPage";
 import EquipmentFormPage from "./pages/Equipments/EquipmentFormPage";
 import RevenueFormPage from "./pages/Revenue/RevenueFormPage";
 import StoreFormPage from "./pages/StoreLocation/StoreFormPage";
+import ShiftFormPage from "./pages/Shifts/ShiftFormPage";
+import RoleFormPage from "./pages/Roles/RoleFormPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -90,8 +92,12 @@ export default function App() {
           <Route path="/store-locations/create" element={<StoreFormPage />} />
           <Route path="/store-locations/edit/:id" element={<StoreFormPage />} />
           <Route path="/consumables/create" element={<Consumable />} />
-          <Route path="/shifts/create" element={<Shifts />} />
-          <Route path="/roles/create" element={<Roles />} />
+          <Route path="/shifts/view" element={<Shifts />} />
+          <Route path="/shifts/create" element={<ShiftFormPage />} />
+          <Route path="/shifts/edit/:id" element={<ShiftFormPage />} />
+          <Route path="/roles/view" element={<Roles />} />
+          <Route path="/roles/create" element={<RoleFormPage />} />
+          <Route path="/roles/edit/:id" element={<RoleFormPage />} />
           {/* Forms */}
           <Route path="/form-elements" element={<FormElements />} />
           {/* Tables */}

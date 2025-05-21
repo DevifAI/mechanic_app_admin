@@ -1,16 +1,24 @@
 import { useEffect, useState } from "react";
-import { FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import ShiftFormModal from "../../modals/ShiftFormModal";
-import { createShift, fetchShifts, updateShift } from "../../apis/shiftApi";
+import { fetchShifts, deleteShift } from "../../apis/shiftApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
+
+type ShiftRow = {
+  id: string;
+  shift_code: string;
+  shift_from_time: string;
+  shift_to_time: string;
+};
 
 export const Shifts = () => {
-  const [shifts, setShifts] = useState<any[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingShift, setEditingShift] = useState<any>(null);
-  const [loading, setLoading] = useState(false); // <-- Add loading state
+  const [shifts, setShifts] = useState<ShiftRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const navigate = useNavigate();
+
   const {
     currentPage,
     setCurrentPage,
@@ -19,86 +27,65 @@ export const Shifts = () => {
     getPageNumbers,
   } = usePagination(shifts, 2);
 
-  useEffect(() => {
-    const fetchAndSetShifts = async () => {
-      setLoading(true); // Start loading
-      try {
-        const data = await fetchShifts();
-        setShifts(
-          data.map((item) => ({
-            id: item.id,
-            shiftCode: item.shift_code,
-            fromTime: item.shift_from_time,
-            toTime: item.shift_to_time,
-          }))
-        );
-      } catch (err) {
-        console.error("Failed to fetch shifts", err);
-      }
-      setLoading(false); // End loading
-    };
-    fetchAndSetShifts();
-  }, []);
-
-  const handleEdit = (item: any) => {
-    setEditingShift(item);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (item: any) => {
-    setShifts((prev) => prev.filter((s) => s.id !== item.id));
-  };
-
-  const handleAdd = () => {
-    setEditingShift(null); // Reset form
-    setIsFormOpen(true);
-  };
-
-  const handleFormSubmit = async (formData: any) => {
-    setIsFormOpen(false);
-    setEditingShift(null);
+  const fetchAndSetShifts = async () => {
     setLoading(true);
     try {
-      const payload = {
-        shift_code: formData.shiftCode,
-        shift_from_time: formData.fromTime,
-        shift_to_time: formData.toTime,
-      };
-      if (editingShift && editingShift.id) {
-        await updateShift(editingShift.id, payload);
-      } else {
-        await createShift(payload);
-      }
-      // Refresh the list from backend
       const data = await fetchShifts();
       setShifts(
-        data.map((item) => ({
+        data.map((item: any) => ({
           id: item.id,
-          shiftCode: item.shift_code,
-          fromTime: item.shift_from_time,
-          toTime: item.shift_to_time,
+          shift_code: item.shift_code,
+          shift_from_time: item.shift_from_time,
+          shift_to_time: item.shift_to_time,
         }))
       );
     } catch (err) {
-      console.error("Failed to save shift", err);
+      console.error("Failed to fetch shifts", err);
     }
     setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAndSetShifts();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(null);
+    if (dropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [dropdownOpen]);
+
+  const handleDelete = async (shift: ShiftRow) => {
+    if (window.confirm("Are you sure you want to delete this shift?")) {
+      setLoading(true);
+      try {
+        await deleteShift(shift.id);
+        await fetchAndSetShifts();
+        toast.success("Shift deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete shift", err);
+        toast.error("Failed to delete shift!");
+      }
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <PageBreadcrumb pageTitle="Shifts" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
-        <div className="flex justify-end items-center mb-4">
+        {/* <div className="flex justify-end items-center mb-4">
           <button
-            onClick={handleAdd}
+            onClick={() => navigate("/shifts/create")}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
           >
-            <FaPlus className="mr-2" />
-            Add Shift
+            + Add Shift
           </button>
-        </div>
+        </div> */}
 
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
           {loading ? (
@@ -119,27 +106,52 @@ export const Shifts = () => {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
                 {paginatedShifts &&
-                  paginatedShifts.map((item) => (
+                  paginatedShifts.map((shift) => (
                     <tr
-                      key={item.id}
+                      key={shift.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
                     >
-                      <td className="px-4 py-3">{item.shiftCode}</td>
-                      <td className="px-4 py-3">{item.fromTime}</td>
-                      <td className="px-4 py-3">{item.toTime}</td>
-                      <td className="px-4 py-3 flex justify-center gap-2">
+                      <td className="px-4 py-3">{shift.shift_code}</td>
+                      <td className="px-4 py-3">{shift.shift_from_time}</td>
+                      <td className="px-4 py-3">{shift.shift_to_time}</td>
+                      <td className="px-4 py-3 flex justify-center gap-2 relative">
                         <button
-                          onClick={() => handleEdit(item)}
-                          className="text-yellow-600 hover:text-yellow-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDropdownOpen(
+                              dropdownOpen === shift.id ? null : shift.id
+                            );
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                          title="Actions"
                         >
-                          <FaEdit size={18} />
+                          <span style={{ fontSize: 20, lineHeight: 1 }}>⋮</span>
                         </button>
-                        <button
-                          onClick={() => handleDelete(item)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <FaTrash size={18} />
-                        </button>
+                        {dropdownOpen === shift.id && (
+                          <div
+                            className="absolute z-20 right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                navigate(`/shifts/edit/${shift.id}`);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                handleDelete(shift);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -155,13 +167,6 @@ export const Shifts = () => {
           maxPages={4}
         />
       </div>
-
-      <ShiftFormModal
-        isOpen={isFormOpen}
-        onClose={() => setIsFormOpen(false)}
-        onSubmit={handleFormSubmit}
-        editingShift={editingShift}
-      />
     </>
   );
 };

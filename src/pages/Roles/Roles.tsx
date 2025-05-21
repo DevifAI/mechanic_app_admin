@@ -1,16 +1,23 @@
 import { useEffect, useState } from "react";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import RoleFormModal from "../../modals/RoleFormModal";
-import { createRole, fetchRoles, updateRole } from "../../apis/roleApi";
+import { fetchRoles, deleteRole } from "../../apis/roleApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
+
+type RoleRow = {
+  id: string;
+  code: string;
+  name: string;
+};
 
 export const Roles = () => {
-  const [roles, setRoles] = useState<any[]>([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingRole, setEditingRole] = useState<any | null>(null);
-  const [loading, setLoading] = useState(false); // <-- Add loading state
+  const [roles, setRoles] = useState<RoleRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const navigate = useNavigate();
+
   const {
     currentPage,
     setCurrentPage,
@@ -19,75 +26,64 @@ export const Roles = () => {
     getPageNumbers,
   } = usePagination(roles, 2);
 
+  const fetchAndSetRoles = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchRoles();
+      setRoles(
+        data.map((item: any) => ({
+          id: item.id,
+          code: item.code,
+          name: item.name,
+        }))
+      );
+    } catch (err) {
+      console.error("Failed to fetch roles", err);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchAndSetRoles = async () => {
-      setLoading(true); // Start loading
-      try {
-        const data = await fetchRoles();
-        setRoles(data);
-      } catch (err) {
-        console.error("Failed to fetch roles", err);
-      }
-      setLoading(false); // End loading
-    };
     fetchAndSetRoles();
   }, []);
 
-  // console.log("Roles data", roles);
-
-  const handleAdd = () => {
-    setEditingRole(null); // No pre-filled data
-    setIsModalOpen(true);
-  };
-
-  const handleEdit = (role: any) => {
-    setEditingRole(role);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = (role: any) => {
-    setRoles((prev) => prev.filter((r) => r.id !== role.id));
-  };
-
-  // const handleView = (role: any) => {
-  //   console.log("View role", role);
-  // };
-
-  const handleSubmit = async (formData: any) => {
-    setIsModalOpen(false);
-    setEditingRole(null);
-    setLoading(true);
-    try {
-      if (editingRole && editingRole.id) {
-        // Edit
-        await updateRole(editingRole.id, formData);
-      } else {
-        // Create
-        await createRole(formData);
-      }
-      // Refresh the list from backend
-      const data = await fetchRoles();
-      setRoles(data);
-    } catch (err) {
-      console.error("Failed to save role", err);
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(null);
+    if (dropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
     }
-    setLoading(false);
+  }, [dropdownOpen]);
+
+  const handleDelete = async (role: RoleRow) => {
+    if (window.confirm("Are you sure you want to delete this role?")) {
+      setLoading(true);
+      try {
+        await deleteRole(role.id);
+        await fetchAndSetRoles();
+        toast.success("Role deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete role", err);
+        toast.error("Failed to delete role!");
+      }
+      setLoading(false);
+    }
   };
 
   return (
     <>
       <PageBreadcrumb pageTitle="Roles" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="p-6 dark:bg-gray-900 min-h-screen">
-        <div className="flex justify-end items-center mb-4">
+        {/* <div className="flex justify-end items-center mb-4">
           <button
-            onClick={handleAdd}
+            onClick={() => navigate("/roles/create")}
             className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
           >
-            <FaPlus className="mr-2" />
-            Add Role
+            + Add Role
           </button>
-        </div>
+        </div> */}
 
         <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
           {loading ? (
@@ -114,25 +110,44 @@ export const Roles = () => {
                     >
                       <td className="px-4 py-3">{role.code}</td>
                       <td className="px-4 py-3">{role.name}</td>
-                      <td className="px-4 py-3 flex justify-center gap-2">
-                        {/* <button
-                      onClick={() => handleView(role)}
-                      className="text-blue-600 hover:text-blue-700"
-                    >
-                      <FaEye size={18} />
-                    </button> */}
+                      <td className="px-4 py-3 flex justify-center gap-2 relative">
                         <button
-                          onClick={() => handleEdit(role)}
-                          className="text-yellow-600 hover:text-yellow-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDropdownOpen(
+                              dropdownOpen === role.id ? null : role.id
+                            );
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+                          title="Actions"
                         >
-                          <FaEdit size={18} />
+                          <span style={{ fontSize: 20, lineHeight: 1 }}>⋮</span>
                         </button>
-                        <button
-                          onClick={() => handleDelete(role)}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <FaTrash size={18} />
-                        </button>
+                        {dropdownOpen === role.id && (
+                          <div
+                            className="absolute z-20 right-0 mt-2 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                navigate(`/roles/edit/${role.id}`);
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                              onClick={() => {
+                                setDropdownOpen(null);
+                                handleDelete(role);
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -148,14 +163,6 @@ export const Roles = () => {
           maxPages={4}
         />
       </div>
-
-      {/* Role Modal */}
-      <RoleFormModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSubmit={handleSubmit}
-        editingRole={editingRole}
-      />
     </>
   );
 };

@@ -12,8 +12,6 @@ import {
   MdAccessTime,
   MdSecurity,
   MdChevronRight,
-  // MdSettings,
-  // MdHelpOutline,
 } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
 
@@ -100,7 +98,7 @@ const navItems: NavItem[] = [
     path: "/shifts",
     subItems: [
       { name: "Create Shift", path: "/shifts/create", icon: null },
-      // { name: "View Shifts", path: "/shifts/view", icon: null },
+      { name: "View Shifts", path: "/shifts/view", icon: null },
     ],
   },
   {
@@ -109,15 +107,17 @@ const navItems: NavItem[] = [
     path: "/roles",
     subItems: [
       { name: "Create Role", path: "/roles/create", icon: null },
-      // { name: "View Roles", path: "/roles/view", icon: null },
+      { name: "View Roles", path: "/roles/view", icon: null },
     ],
   },
 ];
 
 const AppSidebar: React.FC = () => {
-  const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
+  const { isExpanded, isMobileOpen, isHovered, setIsHovered, toggleSidebar } =
+    useSidebar();
   const location = useLocation();
   const navigate = useNavigate();
+
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const isParentActive = (nav: NavItem, locationPath: string) => {
@@ -248,46 +248,36 @@ const AppSidebar: React.FC = () => {
         </nav>
 
         {/* Bottom */}
-        {/* <div className="px-2 py-4 border-t border-gray-200 dark:border-gray-700">
-          <ul className="space-y-1">
-            <li>
-              <Link
-                to="/settings"
-                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                ${
-                  isActive("/settings")
-                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                }
-                ${!shouldShowText ? "justify-center" : "justify-start"}`}
-              >
-                <MdSettings
-                  size={20}
-                  className="text-gray-500 dark:text-gray-400"
-                />
-                {shouldShowText && <span className="ml-3">Settings</span>}
-              </Link>
-            </li>
-            <li>
-              <Link
-                to="/help"
-                className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
-                ${
-                  isActive("/help")
-                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300"
-                    : "text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
-                }
-                ${!shouldShowText ? "justify-center" : "justify-start"}`}
-              >
-                <MdHelpOutline
-                  size={20}
-                  className="text-gray-500 dark:text-gray-400"
-                />
-                {shouldShowText && <span className="ml-3">Help & Support</span>}
-              </Link>
-            </li>
-          </ul>
-        </div> */}
+        <div className="px-2 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+          <span className="text-xs text-gray-500 dark:text-gray-400">
+            {shouldShowText ? "Collapse Sidebar" : ""}
+          </span>
+          <button
+            onClick={() => {
+              toggleSidebar();
+            }}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+          >
+            <svg
+              className={`transition-transform duration-200 ${
+                isExpanded ? "rotate-180" : ""
+              }`}
+              width="20"
+              height="20"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                d="M7.5 15l5-5-5-5"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
     </aside>
   );

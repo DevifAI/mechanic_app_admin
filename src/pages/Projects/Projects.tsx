@@ -73,12 +73,12 @@ export const Projects = () => {
   return (
     <>
       <PageBreadcrumb pageTitle={"Projects"} />
-      <div className="p-6 dark:bg-gray-900 min-h-screen">
+      <div className="dark:bg-gray-900 min-h-screen">
         <div className="flex justify-end mb-4">
           <button
             onClick={() => handleExport(original_projects)}
             className="
-      flex items-center px-5 py-2 bg-white text-gray-700 border border-gray-300 rounded-md 
+      flex items-center px-5 py-2 bg-white text-gray-700 rounded-md 
       shadow-sm  hover:border-black 
       transition-colors duration-300 ease-in-out
       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1
@@ -90,7 +90,7 @@ export const Projects = () => {
           </button>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
+        <div className="overflow-x-auto rounded-lg shadow dark:border-gray-700">
           {isLoading ? (
             <div className="text-center py-10 text-gray-600 dark:text-gray-300">
               Loading projects...
@@ -99,39 +99,39 @@ export const Projects = () => {
             <table className="min-w-full text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center ">
                     Project No
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Customer
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Order No
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Contract Start
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Tenure
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Revenues
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Equipments
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Staff
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Locations
                   </th>
-                  <th className="px-4 py-3 text-center border border-gray-300 dark:border-gray-600">
+                  <th className="px-4 py-3 text-center">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-[13px]">
                 {paginatedProjects &&
                   paginatedProjects.map((project, idx) => (
                     <tr
@@ -141,34 +141,34 @@ export const Projects = () => {
                         handleView(project);
                       }}
                     >
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3 ">
                         {project.projectNo}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3 ">
                         {project.customer}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3">
                         {project.orderNo}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3">
                         {project.contractStart}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3">
                         {project.tenure}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3 ">
                         {project.revenues}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3 ">
                         {project.equipments}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3">
                         {project.staff}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3 ">
                         {project.locations}
                       </td>
-                      <td className="px-4 py-3 border border-gray-300 dark:border-gray-600">
+                      <td className="px-4 py-3">
                         <div className="flex items-center justify-center space-x-2">
                           {/* Edit Button */}
                           <button
