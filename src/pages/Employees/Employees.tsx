@@ -25,7 +25,7 @@ type EmployeeRow = {
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
-  const [originalEmployees, setOriginalEmployees] = useState<EmployeeRow[]>([]);
+  // const [originalEmployees, setOriginalEmployees] = useState<EmployeeRow[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRow | null>(
     null
   );
@@ -62,7 +62,7 @@ export const Employees = () => {
         active: e.active !== undefined ? e.active : "N/A",
       }));
 
-      setOriginalEmployees(simplified); // <-- Fix: use simplified, not raw data
+      // setOriginalEmployees(simplified);
       setEmployees(simplified);
     } catch (err) {
       console.error("Error loading employees", err);
