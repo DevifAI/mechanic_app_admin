@@ -69,8 +69,10 @@ export default function App() {
           <Route path="/blank" element={<Blank />} />
           <Route path="/projects/view" element={<Projects />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route path="/projects/edit/:id" element={<CreateProjectPage />} />
           <Route path="/employees/view" element={<Employees />} />
           <Route path="/employees/create" element={<CreateEmployeePage />} />
+          <Route path="/employees/edit/:id" element={<CreateEmployeePage />} />
           <Route path="/partners/create" element={<PartnerFormPage />} />
           <Route path="/partners/edit/:id" element={<PartnerFormPage />} />
           <Route path="/partners/view" element={<Partners />} />

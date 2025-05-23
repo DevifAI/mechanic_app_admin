@@ -12,6 +12,8 @@ import { Customer } from "../../types/customerTypes";
 type ProjectFormProps = {
   onClose: () => void;
   onSubmit: (data: any) => void;
+  initialData?: any; // New
+  isEditMode: Boolean;
 };
 
 type Option = {
@@ -23,6 +25,8 @@ type Option = {
 export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   onClose,
   onSubmit,
+  initialData,
+  isEditMode = false,
 }) => {
   const [formData, setFormData] = useState({
     projectNo: "",
@@ -45,6 +49,27 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   const [storeOptions, setStoreOptions] = useState<Option[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        projectNo: initialData.project_no || "",
+        customer: initialData.customer?.id || "", // use id instead of partner_name
+        orderNo: initialData.order_no || "",
+        contractStartDate: initialData.contract_start_date
+          ? initialData.contract_start_date.split("T")[0]
+          : "",
+        contractTenure: initialData.contract_tenure || "",
+        revenueMaster: initialData.revenues?.map((r: any) => r.id) || [], // use id
+        equipments: initialData.equipments?.map((e: any) => e.id) || [],
+        staff: initialData.staff?.map((s: any) => s.id) || [],
+        storeLocations:
+          initialData.store_locations?.map((store: any) => store.id) || [],
+      });
+    }
+  }, [initialData]);
+
+  console.log(initialData);
+
   // Fetch data
   useEffect(() => {
     const fetchData = async () => {
@@ -55,7 +80,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
 
         //Fetch customer
         const employeesData = await fetchEmployees();
-        console.log({ employeesData });
+        // console.log({ employeesData });
         const emp_enhanced_data = employeesData.map((emp) => ({
           value: emp.id,
           text: emp.emp_name ?? "",
@@ -385,8 +410,10 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 ></path>
               </svg>
-              Creating...
+              {isEditMode ? "Updating..." : "Creating..."}
             </>
+          ) : isEditMode ? (
+            "Update Project"
           ) : (
             "Create Project"
           )}

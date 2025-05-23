@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { ProjectCreateForm } from "../../components/projects/ProjectCreateForm";
 import {
   FaUpload,
@@ -8,12 +8,33 @@ import {
   FaFileExcel,
   FaTimes,
 } from "react-icons/fa";
-import { createProject } from "../../apis/projectsApi";
+import {
+  createProject,
+  fetchProjectById,
+  updateProject,
+} from "../../apis/projectsApi";
 import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
 
 export const CreateProjectPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
+  const [editData, setEditData] = useState<any | null>(null);
+
+  const { id } = useParams<{ id: any }>();
+
+  useEffect(() => {
+    if (id) {
+      const fetchEditData = async () => {
+        try {
+          const data = await fetchProjectById(id);
+          setEditData(data);
+        } catch (error) {
+          console.error("Failed to fetch project data", error);
+        }
+      };
+      fetchEditData();
+    }
+  }, [id]);
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -65,12 +86,15 @@ export const CreateProjectPage = () => {
               <ProjectCreateForm
                 onClose={() => navigate("/projects/view")}
                 onSubmit={async (projectData: any) => {
-                  // Handle project creation
-                  console.log("Creating project:", projectData);
-                  // Add your API call here
-                  await createProject(projectData);
+                  if (id) {
+                    await updateProject(id, projectData);
+                  } else {
+                    await createProject(projectData);
+                  }
                   navigate("/projects/view");
                 }}
+                initialData={editData}
+                isEditMode={!!id}
               />
             ) : (
               <BulkUploadSection />

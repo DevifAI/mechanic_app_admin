@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   FaUpload,
   FaPlus,
@@ -11,13 +11,59 @@ import {
   FaDownload,
 } from "react-icons/fa";
 import { EmployeeForm } from "../../components/employee/EmployeeForm";
-import { createEmployee } from "../../apis/employyeApi";
+import {
+  createEmployee,
+  fetchEmployeeById,
+  updateEmployee,
+} from "../../apis/employyeApi";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+
 export const CreateEmployeePage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
   const [isLoading, setIsLoading] = useState(false);
+  const [editData, setEditData] = useState<any | null>(null);
+
+  const { id } = useParams<{ id: string }>();
+
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchEmployee = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetchEmployeeById(id);
+        setEditData(response);
+      } catch (error) {
+        console.error("Failed to fetch employee", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchEmployee();
+  }, [id]);
+
+  const handleSubmit = async (data: any) => {
+    try {
+      setIsLoading(true);
+
+      if (editData && id) {
+        await updateEmployee(id, data);
+        toast.success("Employee updated successfully!");
+        setTimeout(() => navigate("/employees/view"), 800);
+      } else {
+        await createEmployee(data);
+        toast.success("Employee created successfully!");
+        setTimeout(() => navigate("/employees/view"), 800);
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message || "Failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -68,28 +114,8 @@ export const CreateEmployeePage = () => {
             {activeTab === "form" ? (
               <EmployeeForm
                 loading={isLoading}
-                onSubmit={async (data) => {
-                  try {
-                    setIsLoading(true); // <-- Add this line
-                    await createEmployee(data);
-                    toast.success("Employee created successfully!");
-                    // navigate("/employees/view");
-                  } catch (error: any) {
-                    if (
-                      error.response &&
-                      error.response.data &&
-                      error.response.data.message
-                    ) {
-                      toast.error(`Failed: ${error.response.data.message}`);
-                    } else if (error.message) {
-                      toast.error(`Failed: ${error.message}`);
-                    } else {
-                      toast.error("Failed to create employee.");
-                    }
-                  } finally {
-                    setIsLoading(false);
-                  }
-                }}
+                initialData={editData}
+                onSubmit={handleSubmit}
               />
             ) : (
               <BulkUploadSection />

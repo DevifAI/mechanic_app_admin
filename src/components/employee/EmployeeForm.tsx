@@ -5,13 +5,17 @@ import { fetchEmpPositions } from "../../apis/empPositionApi";
 
 type Option = { id: string; name: string };
 
-export const EmployeeForm = ({
-  onSubmit,
-  loading = false, // add default value
-}: {
+type EmployeeFormProps = {
+  initialData?: any;
   onSubmit: (data: any) => void;
   loading?: boolean;
-}) => {
+};
+
+export const EmployeeForm = ({
+  initialData,
+  onSubmit,
+  loading = false,
+}: EmployeeFormProps) => {
   const [formData, setFormData] = useState({
     emp_id: "",
     emp_name: "",
@@ -30,6 +34,9 @@ export const EmployeeForm = ({
 
   // Fetch roles, shifts, positions on mount
   useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
     const fetchData = async () => {
       try {
         // Replace these with your actual fetch functions
@@ -58,7 +65,7 @@ export const EmployeeForm = ({
     };
 
     fetchData();
-  }, []);
+  }, [loading, initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -89,6 +96,7 @@ export const EmployeeForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
+    
   };
 
   // Fields except the 3 multi-selects and checkbox
