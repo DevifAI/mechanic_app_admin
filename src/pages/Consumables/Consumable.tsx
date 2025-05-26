@@ -1,173 +1,279 @@
-import { FaEdit, FaTrash, FaPlus, FaEye } from "react-icons/fa";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import PageBreadcrumb from "../../components/common/PageBreadCrumb";
-import ConsumableFormModal from "../../modals/ConsumableFormModal";
-import ConsumableViewModal from "../../modals/ConsumableViewModal";
-// import ConsumableFormModal from "../../modals/ConsumableFormModal"; // (optional if you implement it)
-
-const dummyConsumables = [
-  {
-    id: 1,
-    itemCode: "CON-001",
-    name: "Cutting Disc",
-    type: "Abrasive",
-    make: "Bosch",
-    uom: "PCS",
-    qtyInHand: 150,
-    accIn: 200,
-    accOut: 50,
-  },
-  {
-    id: 2,
-    itemCode: "CON-002",
-    name: "Welding Rod",
-    type: "Welding",
-    make: "Ador",
-    uom: "KG",
-    qtyInHand: 75,
-    accIn: 100,
-    accOut: 25,
-  },
-];
+import { usePagination } from "../../hooks/usePagination";
+import Pagination from "../../utils/Pagination";
+import { toast, ToastContainer } from "react-toastify";
+import { FaCircleChevronDown, FaPlus } from "react-icons/fa6";
+import { IoIosMore } from "react-icons/io";
+import ConsumableDrawer from "./ConsumableDrawer";
+import { Item } from "../../types/consumableItemTypes";
+import { deleteItem, fetchItems } from "../../apis/consumableApi";
 
 export const Consumable = () => {
-  const [consumables, setConsumables] = useState(dummyConsumables);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [editingItem, setEditingItem] = useState<any>(null);
+  const [items, setItems] = useState<Item[]>([]);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<string | null>(null);
+  const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
+  const [sortMenuOpen, setSortMenuOpen] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const navigate = useNavigate();
 
-  const [viewItem, setViewItem] = useState<any>(null);
-const [isViewOpen, setIsViewOpen] = useState(false);
+  console.log(items);
 
-const handleView = (item: any) => {
-  setViewItem(item);
-  setIsViewOpen(true);
-};
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedItems,
+  } = usePagination(items, rowsPerPage);
 
-  const handleAdd = () => {
-    setEditingItem(null);
-    setIsFormOpen(true);
-  };
-
-  const handleEdit = (item: any) => {
-    setEditingItem(item);
-    setIsFormOpen(true);
-  };
-
-  const handleDelete = (item: any) => {
-    console.log("Deleting:", item);
-    setConsumables((prev) => prev.filter((c) => c.id !== item.id));
-  };
-
-  const handleFormSubmit = (formData: any) => {
-    if (editingItem) {
-      setConsumables((prev) =>
-        prev.map((c) => (c.id === editingItem.id ? { ...c, ...formData } : c))
-      );
-    } else {
-      const newItem = {
-        ...formData,
-        id: consumables.length + 1,
-        accIn: 0,
-        accOut: 0,
-        qtyInHand: formData.qtyInHand || 0,
-      };
-      setConsumables((prev) => [...prev, newItem]);
+  const fetchAndSetItems = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchItems();
+      setItems(data);
+    } catch (err) {
+      console.error("Failed to fetch items", err);
+      toast.error("Failed to fetch items");
     }
-    setIsFormOpen(false);
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchAndSetItems();
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = () => setMoreDropdownOpen(false);
+    if (moreDropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [moreDropdownOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = () => setDropdownOpen(null);
+    if (dropdownOpen) {
+      document.addEventListener("click", handleClickOutside);
+      return () => document.removeEventListener("click", handleClickOutside);
+    }
+  }, [dropdownOpen]);
+
+  const handleDelete = async (item: Item) => {
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      setLoading(true);
+      try {
+        await deleteItem(item.id);
+        await fetchAndSetItems();
+        toast.success("Item deleted successfully!");
+      } catch (err) {
+        console.error("Failed to delete item", err);
+        toast.error("Failed to delete item!");
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleSortByName = () => {
+    setItems((prev) =>
+      [...prev].sort((a, b) => a.item_name.localeCompare(b.item_name))
+    );
+    toast.info("Sorted by Name");
+  };
+
+  const handleSortByCode = () => {
+    setItems((prev) =>
+      [...prev].sort((a, b) => a.item_code.localeCompare(b.item_code))
+    );
+    toast.info("Sorted by Code");
   };
 
   return (
     <>
-      <PageBreadcrumb pageTitle="Consumable" />
-
-      <div className="p-6 dark:bg-gray-900 min-h-screen">
-        <div className="flex justify-end items-center mb-4 gap-2">
+      <PageBreadcrumb pageTitle="Consumable Items" />
+      <ToastContainer position="bottom-right" autoClose={3000} />
+      <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
+        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
           <button
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-base"
+            onClick={() => navigate("/consumable/create")}
+            className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
             <FaPlus />
-            Add Project
+            <span>New</span>
           </button>
-          <button
-            onClick={handleAdd}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          <span
+            className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
+            onClick={(e) => {
+              e.stopPropagation();
+              setMoreDropdownOpen((prev) => !prev);
+            }}
           >
-            <FaPlus className="mr-2" />
-            Add Consumable
-          </button>
+            <IoIosMore />
+            {moreDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                  onClick={() => {
+                    setMoreDropdownOpen(false);
+                    toast.info("Export clicked");
+                  }}
+                >
+                  Export
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                  onClick={() => {
+                    setMoreDropdownOpen(false);
+                    fetchAndSetItems();
+                  }}
+                >
+                  Refresh
+                </button>
+                <div
+                  className="relative"
+                  onMouseEnter={() => setSortMenuOpen(true)}
+                  onMouseLeave={() => setSortMenuOpen(false)}
+                >
+                  <button
+                    className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
+                    onClick={() => setSortMenuOpen((prev) => !prev)}
+                  >
+                    Sort
+                    <span className="ml-2">&gt;</span>
+                  </button>
+                  {sortMenuOpen && (
+                    <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                        onClick={() => {
+                          setMoreDropdownOpen(false);
+                          setSortMenuOpen(false);
+                          handleSortByName();
+                        }}
+                      >
+                        Sort by Name
+                      </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                        onClick={() => {
+                          setMoreDropdownOpen(false);
+                          setSortMenuOpen(false);
+                          handleSortByCode();
+                        }}
+                      >
+                        Sort by Code
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </span>
         </div>
 
-        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <table className="min-w-full text-base bg-white dark:bg-gray-800">
-            <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
-              <tr>
-                <th className="px-4 py-3">Item Code</th>
-                <th className="px-4 py-3">Name</th>
-                <th className="px-4 py-3">Type</th>
-                <th className="px-4 py-3">Make</th>
-                <th className="px-4 py-3">UOM</th>
-                <th className="px-4 py-3">Qty in Hand</th>
-                <th className="px-4 py-3">Acc. In</th>
-                <th className="px-4 py-3">Acc. Out</th>
-                <th className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-              {consumables.map((item) => (
-                <tr
-                  key={item.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700 transition"
-                >
-                  <td className="px-4 py-3">{item.itemCode}</td>
-                  <td className="px-4 py-3">{item.name}</td>
-                  <td className="px-4 py-3">{item.type}</td>
-                  <td className="px-4 py-3">{item.make}</td>
-                  <td className="px-4 py-3">{item.uom}</td>
-                  <td className="px-4 py-3">{item.qtyInHand}</td>
-                  <td className="px-4 py-3">{item.accIn}</td>
-                  <td className="px-4 py-3">{item.accOut}</td>
-                  <td className="px-4 py-3 flex justify-center gap-2">
-                     <button
-                      onClick={() => handleView(item)}
-                      className="text-blue-600 hover:text-blue-700"
-                    >
-                      <FaEye size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleEdit(item)}
-                      className="text-yellow-600 hover:text-yellow-700"
-                    >
-                      <FaEdit size={18} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <FaTrash size={18} />
-                    </button>
-                  </td>
+        <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
+          {loading ? (
+            <div className="flex justify-center items-center py-10">
+              <span className="text-blue-600 font-semibold text-lg">
+                Loading...
+              </span>
+            </div>
+          ) : (
+            <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
+              <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
+                <tr>
+                  <th className="px-4 py-3">Code</th>
+                  <th className="px-4 py-3">Item Name</th>
+                  <th className="px-4 py-3">Product Type</th>
+                  <th className="px-4 py-3">Quantity</th>
+                  <th className="px-4 py-3">Avg Cost</th>
+                  <th className="px-4 py-3"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
+                {paginatedItems.map((item) => (
+                  <tr
+                    key={item.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
+                    onClick={() => setSelectedItem(item)}
+                    onMouseEnter={() => setHoveredRow(item.id)}
+                    onMouseLeave={() => setHoveredRow(null)}
+                  >
+                    <td className="px-4 py-3">{item.item_code}</td>
+                    <td className="px-4 py-3">{item.item_name}</td>
+                    <td className="px-4 py-3">{item.product_type}</td>
+                    <td className="px-4 py-3">{item.item_qty_in_hand}</td>
+                    <td className="px-4 py-3">{item.item_avg_cost}</td>
+                    <td className="flex justify-center gap-2 relative">
+                      {hoveredRow === item.id && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDropdownOpen(
+                              dropdownOpen === item.id ? null : item.id
+                            );
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full transition"
+                          title="Actions"
+                        >
+                          <FaCircleChevronDown
+                            className="text-blue-500"
+                            size={20}
+                          />
+                        </button>
+                      )}
+                      {dropdownOpen === item.id && (
+                        <div
+                          className="absolute z-20 right-0 mt-8 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                            onClick={() => {
+                              setDropdownOpen(null);
+                              navigate(`/consumable/edit/${item.id}`);
+                            }}
+                          >
+                            Edit
+                          </button>
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-red-500 hover:text-white dark:hover:bg-gray-700 transition"
+                            onClick={() => {
+                              setDropdownOpen(null);
+                              handleDelete(item);
+                            }}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
+        <div className="px-6 pb-6 flex justify-end">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            setCurrentPage={setCurrentPage}
+            rowsPerPage={rowsPerPage}
+            setRowsPerPage={setRowsPerPage}
+          />
         </div>
       </div>
 
-<ConsumableViewModal
-  isOpen={isViewOpen}
-  onClose={() => setIsViewOpen(false)}
-  item={viewItem}
-/>
-
-      {/* Add/Edit Modal (optional) */}
-    <ConsumableFormModal
-  isOpen={isFormOpen}
-  onClose={() => setIsFormOpen(false)}
-  onSubmit={handleFormSubmit}
-  item={editingItem}
-  uomOptions={["PCS", "KG", "LTR"]} // Example UOM options
-  accountOptions={["Account 1", "Account 2"]} // Example account options
-/>
+      <ConsumableDrawer
+        isOpen={!!selectedItem}
+        onClose={() => setSelectedItem(null)}
+        item={selectedItem}
+      />
     </>
   );
 };

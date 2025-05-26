@@ -88,8 +88,8 @@ const navItems: NavItem[] = [
     name: "Consumables",
     path: "/consumables",
     subItems: [
-      { name: "Add Consumable", path: "/consumables/create", icon: null },
-      // { name: "View Consumables", path: "/consumables/view", icon: null },
+      { name: "Add Consumable", path: "/consumable/create", icon: null },
+      { name: "View Consumables", path: "/consumables/view", icon: null },
     ],
   },
   {
