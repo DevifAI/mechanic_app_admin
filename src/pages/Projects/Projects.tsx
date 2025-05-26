@@ -34,6 +34,7 @@ export const Projects = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rawProjects, setRawProjects] = useState<any[]>([]);
 
   const {
     currentPage,
@@ -48,6 +49,7 @@ export const Projects = () => {
     setLoading(true);
     try {
       const data = await fetchProjects();
+      setRawProjects(data); // <-- store original data for export
       const simplified = data.map((p: any) => ({
         id: p.id,
         projectNo: p.project_no,
@@ -107,7 +109,7 @@ export const Projects = () => {
   };
 
   const handleExportProjects = () => {
-    handleExport(projects);
+    handleExport(rawProjects); // <-- use rawProjects here
     toast.success("Exported as Excel!");
   };
 
