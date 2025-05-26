@@ -1,4 +1,3 @@
-// types/oem.ts
 
 export interface OEM {
   id: string;

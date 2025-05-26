@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  MdDashboard,
+  // MdDashboard,
   MdWork,
   MdPeople,
   MdBusiness,
@@ -13,6 +13,10 @@ import {
   MdSecurity,
 } from "react-icons/md";
 import { AiFillPlusCircle } from "react-icons/ai";
+import { CgOrganisation } from "react-icons/cg";
+import { SiBaremetrics, SiOrigin } from "react-icons/si";
+import { FaLayerGroup } from "react-icons/fa6";
+import { MdAccountBalance } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
 
 type NavItem = {
@@ -24,11 +28,11 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  {
-    icon: <MdDashboard size={20} />,
-    name: "Dashboard",
-    path: "/dashboard",
-  },
+  // {
+  //   icon: <MdDashboard size={20} />,
+  //   name: "Dashboard",
+  //   path: "/dashboard",
+  // },
   {
     icon: <MdWork size={20} />,
     name: "Projects",
@@ -110,6 +114,55 @@ const navItems: NavItem[] = [
       { name: "View Roles", path: "/roles/view", icon: null },
     ],
   },
+  {
+    icon: <CgOrganisation size={20} />,
+    name: "Organisations",
+    path: "/organisations",
+    subItems: [
+      {
+        name: "Create Organisations",
+        path: "/organisations/create",
+        icon: null,
+      },
+      { name: "View Organisations", path: "/organisations/view", icon: null },
+    ],
+  },
+  {
+    icon: <SiBaremetrics size={20} />,
+    name: "Uom",
+    path: "/uom",
+    subItems: [
+      { name: "Create Uom", path: "/uom/create", icon: null },
+      { name: "View Uom", path: "/uom/view", icon: null },
+    ],
+  },
+  {
+    icon: <FaLayerGroup size={20} />,
+    name: "ItemGroup",
+    path: "/itemGroup",
+    subItems: [
+      { name: "Create itemGroup", path: "/itemGroup/create", icon: null },
+      { name: "View itemGroup", path: "/itemGroup/view", icon: null },
+    ],
+  },
+  {
+    icon: <MdAccountBalance  size={20} />,
+    name: "Account",
+    path: "/account",
+    subItems: [
+      { name: "Create Account", path: "/account/create/", icon: null },
+      { name: "View Account", path: "/account/view", icon: null },
+    ],
+  },
+  {
+    icon: <SiOrigin size={20} />,
+    name: "AccountGroup",
+    path: "/accountGroup",
+    subItems: [
+      { name: "Create accountGroup", path: "/accountGroup/create", icon: null },
+      { name: "View accountGroup", path: "/accountGroup/view", icon: null },
+    ],
+  },
 ];
 
 const AppSidebar: React.FC = () => {
@@ -134,7 +187,6 @@ const AppSidebar: React.FC = () => {
   const toggleMenu = (menuName: string) => {
     setOpenMenu((prev) => (prev === menuName ? null : menuName));
   };
-
 
   const shouldShowText = isExpanded || isHovered || isMobileOpen;
 
@@ -205,15 +257,13 @@ const AppSidebar: React.FC = () => {
                       }`}
                   >
                     <div className="flex items-center">
-                      <span className="text-white">
-                        {nav.icon}
-                      </span>
+                      <span className="text-white">{nav.icon}</span>
                       {shouldShowText && (
                         <span className="ml-3">{nav.name}</span>
                       )}
                     </div>
                     {shouldShowText && hasSub && createSub && (
-                      <AiFillPlusCircle 
+                      <AiFillPlusCircle
                         className={`transform text-white transition-transform duration-200 ${
                           isOpen ? "rotate-90" : ""
                         } cursor-pointer`}

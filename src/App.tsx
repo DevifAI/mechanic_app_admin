@@ -43,6 +43,18 @@ import StoreFormPage from "./pages/StoreLocation/StoreFormPage";
 import ShiftFormPage from "./pages/Shifts/ShiftFormPage";
 import RoleFormPage from "./pages/Roles/RoleFormPage";
 import ConsumableFormPage from "./pages/Consumables/ConsumableFormPage";
+import { Organisations } from "./pages/Organisation/Organisations";
+import OrganisationFormPage from "./pages/Organisation/OrganisationFormPage";
+import UomFormPage from "./pages/UOM/UomFormPage";
+import { Uom } from "./pages/UOM/Uom";
+import { ItemGroupPage } from "./pages/ItemGroup/ItemGroupPage";
+import ItemGroupFormPage from "./pages/ItemGroup/ItemGroupFormPage";
+import { OemPage } from "./pages/OEM/OemPage";
+import OemFormPage from "./pages/OEM/OemFormPage";
+import { AccountGroupPage } from "./pages/AccountGroup/AccountGroupPage";
+import AccountGroupFormPage from "./pages/AccountGroup/AccountGroupFormPage";
+import { AccountPage } from "./pages/Account/AccountPage";
+import AccountFormPage from "./pages/Account/AccountFormPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -79,15 +91,9 @@ export default function App() {
           <Route path="/partners/view" element={<Partners />} />
           <Route path="/equipments/view" element={<Equipments />} />
           // For create
-          <Route
-            path="/equipments/create"
-            element={<EquipmentFormPage/>}
-          />
+          <Route path="/equipments/create" element={<EquipmentFormPage />} />
           // For edit
-          <Route
-            path="/equipments/edit/:id"
-            element={<EquipmentFormPage/>}
-          />
+          <Route path="/equipments/edit/:id" element={<EquipmentFormPage />} />
           <Route path="/revenues/view" element={<Revenue />} />
           <Route path="/revenues/create" element={<RevenueFormPage />} />
           <Route path="/revenues/edit/:id" element={<RevenueFormPage />} />
@@ -103,6 +109,36 @@ export default function App() {
           <Route path="/roles/view" element={<Roles />} />
           <Route path="/roles/create" element={<RoleFormPage />} />
           <Route path="/roles/edit/:id" element={<RoleFormPage />} />
+          <Route path="/organisations/view" element={<Organisations />} />
+          <Route
+            path="/organisations/create"
+            element={<OrganisationFormPage />}
+          />
+          <Route
+            path="/organisation/edit/:id"
+            element={<OrganisationFormPage />}
+          />
+          <Route path="/uom/create" element={<UomFormPage />} />
+          <Route path="/uom/edit/:id" element={<UomFormPage />} />
+          <Route path="/uom/view" element={<Uom />} />
+          <Route path="/itemGroup/create" element={<ItemGroupFormPage />} />
+          <Route path="/itemGroup/edit/:id" element={<ItemGroupFormPage />} />
+          <Route path="/itemGroup/view" element={<ItemGroupPage />} />
+          <Route path="/oem/create" element={<OemFormPage />} />
+          <Route path="/oem/edit/:id" element={<OemFormPage />} />
+          <Route path="/oem/view" element={<OemPage />} />
+          <Route
+            path="/accountGroup/create"
+            element={<AccountGroupFormPage />}
+          />
+          <Route
+            path="/accountGroup/edit/:id"
+            element={<AccountGroupFormPage />}
+          />
+          <Route path="/accountGroup/view" element={<AccountGroupPage />} />
+          <Route path="/account/create" element={<AccountFormPage />} />
+          <Route path="/account/edit/:id" element={<AccountFormPage />} />
+          <Route path="/account/view" element={<AccountPage />} />
           {/* Forms */}
           <Route path="/form-elements" element={<FormElements />} />
           {/* Tables */}

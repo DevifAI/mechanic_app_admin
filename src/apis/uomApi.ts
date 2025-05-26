@@ -20,7 +20,7 @@ export const createUOM = async (payload: CreateUOMPayload): Promise<UOM> => {
 };
 
 export const updateUOM = async (payload: UpdateUOMPayload): Promise<UOM> => {
-  const res = await axiosInstance.put(`${BASE_PATH}/${payload.id}`, payload);
+  const res = await axiosInstance.post(`${BASE_PATH}/${payload.id}`, payload);
   return res.data;
 };
 
