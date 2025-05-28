@@ -3,12 +3,12 @@ import axios from "axios";
 
 const url = {
   production:
-    "https://mechanic-app-backend.onrender.com/api/master/super/admin",
+    "https://devifai.website/api/master/super/admin",
   development: "http://localhost:5000/api/master/super/admin",
 };
 
 const axiosInstance = axios.create({
-  baseURL: url.development,
+  baseURL: url.production,
   headers: {
     "Content-Type": "application/json",
   },
