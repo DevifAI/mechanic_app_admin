@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { fetchRoles } from "../../apis/roleApi";
 import { fetchShifts } from "../../apis/shiftApi";
 import { fetchEmpPositions } from "../../apis/empPositionApi";
+import { getAllOrganisations } from "../../apis/organisationApi";
 
 type Option = { id: string; name: string };
 
@@ -26,11 +27,13 @@ export const EmployeeForm = ({
     is_active: true,
     shiftcode: "", // change from [] to ""
     role_id: "",
+    org_id: "", // Assuming you have an org_id field
   });
 
   const [roles, setRoles] = useState<Option[]>([]);
   const [shifts, setShifts] = useState<Option[]>([]);
   const [positions, setPositions] = useState<Option[]>([]);
+  const [organisations, setOrganisations] = useState<Option[]>([]);
 
   // Fetch roles, shifts, positions on mount
   useEffect(() => {
@@ -59,6 +62,13 @@ export const EmployeeForm = ({
           name: pos.designation, // replace with actual field name from your data
         }));
         setPositions(mappedPositions);
+
+        const fetchedOrgs = await getAllOrganisations();
+        const mappedOrgs = fetchedOrgs.map((org) => ({
+          id: org.id,
+          name: org.org_name, // change if `name` is different
+        }));
+        setOrganisations(mappedOrgs);
       } catch (error) {
         console.error("Error fetching form data:", error);
       }
@@ -96,7 +106,6 @@ export const EmployeeForm = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
-    
   };
 
   // Fields except the 3 multi-selects and checkbox
@@ -182,6 +191,26 @@ export const EmployeeForm = ({
           >
             <option value="">Select position</option>
             {positions.map(({ id, name }) => (
+              <option key={id} value={id}>
+                {name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-full sm:w-1/2 px-3 mb-6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            Organisation
+          </label>
+          <select
+            name="org_id"
+            value={formData.org_id}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="">Select organisation</option>
+            {organisations.map(({ id, name }) => (
               <option key={id} value={id}>
                 {name}
               </option>
