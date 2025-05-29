@@ -2,8 +2,10 @@
 import axios from "axios";
 
 const url = {
-  production:
+  production1:
     "https://devifai.website/api/master/super/admin",
+  production:
+    "https://mechanic-app-backend.onrender.com/api/master/super/admin",
   development: "http://localhost:5000/api/master/super/admin",
 };
 
