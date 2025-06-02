@@ -9,6 +9,8 @@ import {
 import { getAllAccountGroups } from "../../apis/accountGroupApi";
 import { CreateAccountPayload, Account } from "../../types/accountTypes";
 import { AccountGroup } from "../../types/accountGroupTypes";
+import AccountBulkUpload from "./AccountBulkUpload";
+import { FaUpload } from "react-icons/fa6";
 
 export default function AccountFormPage() {
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ export default function AccountFormPage() {
   });
   const [loading, setLoading] = useState(false);
   const [groups, setGroups] = useState<AccountGroup[]>([]);
+  const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
 
   useEffect(() => {
     getAllAccountGroups().then(setGroups);
@@ -75,52 +78,82 @@ export default function AccountFormPage() {
   return (
     <div className="max-w-2xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow">
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-        {isEdit ? "Edit Account" : "Add New Account"}
-      </h2>
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
-        <InputField
-          label="Account Name"
-          name="account_name"
-          value={formData.account_name}
-          onChange={handleChange}
-        />
-        <InputField
-          label="Account Code"
-          name="account_code"
-          value={formData.account_code}
-          onChange={handleChange}
-        />
-        <SelectField
-          label="Account Group"
-          name="account_group"
-          value={formData.account_group}
-          onChange={handleChange}
-          options={groups}
-        />
-        <div className="flex justify-end gap-4 mt-6">
+      <div className="mb-6 flex gap-4">
+        <button
+          onClick={() => setActiveTab("form")}
+          className={`flex items-center px-4 py-2 rounded-md transition ${
+            activeTab === "form"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          }`}
+        >
+          Account Form
+        </button>
+        {!isEdit && (
           <button
-            type="button"
-            onClick={() => navigate("/account/view")}
-            className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
+            onClick={() => setActiveTab("bulk")}
+            className={`flex items-center px-4 py-2 rounded-md transition ${
+              activeTab === "bulk"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
-            Cancel
+            <FaUpload className="mr-2" /> Bulk Upload
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            {loading
-              ? isEdit
-                ? "Updating..."
-                : "Creating..."
-              : isEdit
-              ? "Update"
-              : "Create"}
-          </button>
-        </div>
-      </form>
+        )}
+      </div>
+      {activeTab === "form" ? (
+        <>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+            {isEdit ? "Edit Account" : "Add New Account"}
+          </h2>
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
+            <InputField
+              label="Account Name"
+              name="account_name"
+              value={formData.account_name}
+              onChange={handleChange}
+            />
+            <InputField
+              label="Account Code"
+              name="account_code"
+              value={formData.account_code}
+              onChange={handleChange}
+            />
+            <SelectField
+              label="Account Group"
+              name="account_group"
+              value={formData.account_group}
+              onChange={handleChange}
+              options={groups}
+            />
+            <div className="flex justify-end gap-4 mt-6">
+              <button
+                type="button"
+                onClick={() => navigate("/account/view")}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                {loading
+                  ? isEdit
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEdit
+                  ? "Update"
+                  : "Create"}
+              </button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <AccountBulkUpload />
+      )}
     </div>
   );
 }

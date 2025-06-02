@@ -8,6 +8,8 @@ import {
 import { toast, ToastContainer } from "react-toastify";
 import { FaCogs, FaDollarSign, FaTag, FaCalendarAlt } from "react-icons/fa";
 import { fetchEquipmentGroups } from "../../apis/equipmentGroupApi";
+import { FaUpload } from "react-icons/fa6";
+import EquipmentBulkUpload from "./EquipmentBulkUpload";
 
 export default function EquipmentFormPage() {
   const navigate = useNavigate();
@@ -17,6 +19,8 @@ export default function EquipmentFormPage() {
   const [equipmentGroups, setEquipmentGroups] = useState<
     { value: string; label: string }[]
   >([]);
+  // ...inside your EquipmentFormPage component, before the return:
+  const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
 
   const [formData, setFormData] = useState({
     equipmentName: "",
@@ -123,133 +127,159 @@ export default function EquipmentFormPage() {
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow">
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
-        {isEdit ? "Edit Equipment" : "Add New Equipment"}
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InputField
-            icon={<FaCogs />}
-            label="Equipment Name"
-            name="equipmentName"
-            value={formData.equipmentName}
-            onChange={handleChange}
-          />
-          <InputField
-            icon={<FaTag />}
-            label="Serial No"
-            name="serialNo"
-            value={formData.serialNo}
-            onChange={handleChange}
-          />
-          <InputField
-            icon={<FaTag />}
-            label="Additional ID"
-            name="additionalId"
-            value={formData.additionalId}
-            onChange={handleChange}
-          />
-          <div className="relative">
+      <div className="mb-6 flex gap-4">
+        <button
+          onClick={() => setActiveTab("form")}
+          className={`flex items-center px-4 py-2 rounded-md transition ${
+            activeTab === "form"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          }`}
+        >
+          Equipment Form
+        </button>
+        {!isEdit && (
+          <button
+            onClick={() => setActiveTab("bulk")}
+            className={`flex items-center px-4 py-2 rounded-md transition ${
+              activeTab === "bulk"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            }`}
+          >
+            <FaUpload className="mr-2" /> Bulk Upload
+          </button>
+        )}
+      </div>
+
+      {activeTab === "form" ? (
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <InputField
-              icon={<FaCalendarAlt />}
-              label="Purchase Date"
-              name="purchaseDate"
-              value={formData.purchaseDate}
-              onChange={handleChange}
-              type="date"
-              inputRef={dateInputRef}
-            />
-            <FaCalendarAlt
-              className="absolute right-3 top-9 text-gray-400 cursor-pointer"
-              onClick={() => dateInputRef.current?.showPicker?.()}
-              style={{ pointerEvents: "auto" }}
-            />
-          </div>
-          <InputField
-            icon={<FaCogs />}
-            label="OEM"
-            name="oem"
-            value={formData.oem}
-            onChange={handleChange}
-          />
-          <InputField
-            icon={<FaDollarSign />}
-            label="Purchase Cost"
-            name="purchaseCost"
-            value={formData.purchaseCost}
-            onChange={handleChange}
-            type="number"
-          />
-          <div className="md:col-span-2">
-            <TextAreaField
               icon={<FaCogs />}
-              label="Equipment Manual"
-              name="equipmentManual"
-              value={formData.equipmentManual}
+              label="Equipment Name"
+              name="equipmentName"
+              value={formData.equipmentName}
               onChange={handleChange}
             />
-          </div>
-          <div className="md:col-span-2">
-            <TextAreaField
+            <InputField
+              icon={<FaTag />}
+              label="Serial No"
+              name="serialNo"
+              value={formData.serialNo}
+              onChange={handleChange}
+            />
+            <InputField
+              icon={<FaTag />}
+              label="Additional ID"
+              name="additionalId"
+              value={formData.additionalId}
+              onChange={handleChange}
+            />
+            <div className="relative">
+              <InputField
+                icon={<FaCalendarAlt />}
+                label="Purchase Date"
+                name="purchaseDate"
+                value={formData.purchaseDate}
+                onChange={handleChange}
+                type="date"
+                inputRef={dateInputRef}
+              />
+              <FaCalendarAlt
+                className="absolute right-3 top-9 text-gray-400 cursor-pointer"
+                onClick={() => dateInputRef.current?.showPicker?.()}
+                style={{ pointerEvents: "auto" }}
+              />
+            </div>
+            <InputField
               icon={<FaCogs />}
-              label="Maintenance Log"
-              name="maintenanceLog"
-              value={formData.maintenanceLog}
+              label="OEM"
+              name="oem"
+              value={formData.oem}
               onChange={handleChange}
             />
-          </div>
-          <div className="md:col-span-2">
-            <TextAreaField
-              icon={<FaCogs />}
-              label="Other Log"
-              name="otherLog"
-              value={formData.otherLog}
+            <InputField
+              icon={<FaDollarSign />}
+              label="Purchase Cost"
+              name="purchaseCost"
+              value={formData.purchaseCost}
               onChange={handleChange}
+              type="number"
             />
+            <div className="md:col-span-2">
+              <TextAreaField
+                icon={<FaCogs />}
+                label="Equipment Manual"
+                name="equipmentManual"
+                value={formData.equipmentManual}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <TextAreaField
+                icon={<FaCogs />}
+                label="Maintenance Log"
+                name="maintenanceLog"
+                value={formData.maintenanceLog}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <TextAreaField
+                icon={<FaCogs />}
+                label="Other Log"
+                name="otherLog"
+                value={formData.otherLog}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <TextAreaField
+                icon={<FaCogs />}
+                label="Project Tag"
+                name="projectTag"
+                value={formData.projectTag}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="md:col-span-2">
+              <SelectField
+                icon={<FaCogs />}
+                label="Equipment Group"
+                name="equipmentGroup"
+                value={formData.equipmentGroup}
+                onChange={handleChange}
+                options={equipmentGroups}
+              />
+            </div>
           </div>
-          <div className="md:col-span-2">
-            <TextAreaField
-              icon={<FaCogs />}
-              label="Project Tag"
-              name="projectTag"
-              value={formData.projectTag}
-              onChange={handleChange}
-            />
+          <div className="mt-6 flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={() => navigate("/equipments/view")}
+              className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              {loading
+                ? isEdit
+                  ? "Updating..."
+                  : "Creating..."
+                : isEdit
+                ? "Update"
+                : "Create"}
+            </button>
           </div>
-          <div className="md:col-span-2">
-            <SelectField
-              icon={<FaCogs />}
-              label="Equipment Group"
-              name="equipmentGroup"
-              value={formData.equipmentGroup}
-              onChange={handleChange}
-              options={equipmentGroups}
-            />
-          </div>
-        </div>
-        <div className="mt-6 flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => navigate("/equipments/view")}
-            className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            {loading
-              ? isEdit
-                ? "Updating..."
-                : "Creating..."
-              : isEdit
-              ? "Update"
-              : "Create"}
-          </button>
-        </div>
-      </form>
+        </form>
+      ) : (
+        <EquipmentBulkUpload />
+      )}
     </div>
   );
 }

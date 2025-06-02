@@ -6,11 +6,18 @@ import {
   updateCustomer,
 } from "../../apis/customerApi";
 import { toast, ToastContainer } from "react-toastify";
-import { FaUser, FaMapMarkerAlt, FaReceipt, FaGlobe } from "react-icons/fa";
+import {
+  FaUser,
+  FaMapMarkerAlt,
+  FaReceipt,
+  FaGlobe,
+  FaUpload,
+} from "react-icons/fa";
+import PartnerBulkUpload from "./PartnerBulkUpload";
 
 export default function PartnerFormPage() {
   const navigate = useNavigate();
-  const { id } = useParams(); // <-- get id from route
+  const { id } = useParams();
   const isEdit = Boolean(id);
 
   const [formData, setFormData] = useState({
@@ -21,11 +28,11 @@ export default function PartnerFormPage() {
     isCustomer: true,
   });
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
 
   // Fetch partner data if editing
   useEffect(() => {
     if (isEdit && id) {
-      // <-- check id is defined
       setLoading(true);
       fetchCustomerById(id)
         .then((data) => {
@@ -73,7 +80,7 @@ export default function PartnerFormPage() {
       }
       setTimeout(() => {
         navigate("/partners/view");
-      }, 800); // 800ms delay so user sees the toast
+      }, 800);
     } catch (error: any) {
       toast.error(
         error?.response?.data?.message ||
@@ -85,116 +92,146 @@ export default function PartnerFormPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-lg shadow">
+    <div className="max-w-4xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-lg shadow">
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-        <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"}{" "}
-        Partner
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-            <span className="inline-flex items-center gap-2">
-              <FaUser /> Partner Name
-            </span>
-          </label>
-          <div className="relative">
-            <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              name="partner_name"
-              value={formData.partner_name}
-              onChange={handleChange}
-              required
-              className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-            <span className="inline-flex items-center gap-2">
-              <FaReceipt /> GST
-            </span>
-          </label>
-          <div className="relative">
-            <FaReceipt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              name="partner_gst"
-              value={formData.partner_gst}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-            <span className="inline-flex items-center gap-2">
-              <FaGlobe /> Geo ID
-            </span>
-          </label>
-          <div className="relative">
-            <FaGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="number"
-              name="partner_geo_id"
-              value={formData.partner_geo_id}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-            <span className="inline-flex items-center gap-2">
-              <FaMapMarkerAlt /> Address
-            </span>
-          </label>
-          <div className="relative">
-            <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400" />
-            <textarea
-              name="partner_address"
-              value={formData.partner_address}
-              onChange={handleChange}
-              className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-        </div>
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            name="isCustomer"
-            checked={formData.isCustomer}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label className="text-gray-700 dark:text-gray-200">
-            Is Customer
-          </label>
-        </div>
-        <div className="flex justify-end gap-4">
+      <div className="mb-6 flex gap-4">
+        <button
+          onClick={() => setActiveTab("form")}
+          className={`flex items-center px-4 py-2 rounded-md transition ${
+            activeTab === "form"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          }`}
+        >
+          <FaUser className="mr-2" /> Single Partner
+        </button>
+        {!isEdit && (
           <button
-            type="button"
-            onClick={() => navigate("/partners/view")}
-            className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
+            onClick={() => setActiveTab("bulk")}
+            className={`flex items-center px-4 py-2 rounded-md transition ${
+              activeTab === "bulk"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
-            Cancel
+            <FaUpload className="mr-2" /> Bulk Upload
           </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            {loading
-              ? isEdit
-                ? "Updating..."
-                : "Creating..."
-              : isEdit
-              ? "Update"
-              : "Create"}
-          </button>
-        </div>
-      </form>
+        )}
+      </div>
+      {activeTab === "form" ? (
+        <>
+          <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
+            <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"}{" "}
+            Partner
+          </h2>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                <span className="inline-flex items-center gap-2">
+                  <FaUser /> Partner Name
+                </span>
+              </label>
+              <div className="relative">
+                <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  name="partner_name"
+                  value={formData.partner_name}
+                  onChange={handleChange}
+                  required
+                  className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                <span className="inline-flex items-center gap-2">
+                  <FaReceipt /> GST
+                </span>
+              </label>
+              <div className="relative">
+                <FaReceipt className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  name="partner_gst"
+                  value={formData.partner_gst}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                <span className="inline-flex items-center gap-2">
+                  <FaGlobe /> Geo ID
+                </span>
+              </label>
+              <div className="relative">
+                <FaGlobe className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="number"
+                  name="partner_geo_id"
+                  value={formData.partner_geo_id}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                <span className="inline-flex items-center gap-2">
+                  <FaMapMarkerAlt /> Address
+                </span>
+              </label>
+              <div className="relative">
+                <FaMapMarkerAlt className="absolute left-3 top-3 text-gray-400" />
+                <textarea
+                  name="partner_address"
+                  value={formData.partner_address}
+                  onChange={handleChange}
+                  className="w-full pl-10 pr-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+            </div>
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                name="isCustomer"
+                checked={formData.isCustomer}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <label className="text-gray-700 dark:text-gray-200">
+                Is Customer
+              </label>
+            </div>
+            <div className="flex justify-end gap-4">
+              <button
+                type="button"
+                onClick={() => navigate("/partners/view")}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-white rounded-lg hover:bg-gray-400 dark:hover:bg-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+              >
+                {loading
+                  ? isEdit
+                    ? "Updating..."
+                    : "Creating..."
+                  : isEdit
+                  ? "Update"
+                  : "Create"}
+              </button>
+            </div>
+          </form>
+        </>
+      ) : (
+        <PartnerBulkUpload />
+      )}
     </div>
   );
 }

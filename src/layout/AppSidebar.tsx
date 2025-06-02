@@ -94,7 +94,7 @@ const masterItems: NavItem[] = [
     name: "Consumables",
     path: "/consumables/view",
     subItems: [
-      { name: "Add Consumable", path: "/consumables/create" },
+      { name: "Add Consumable", path: "/consumable/create" },
       { name: "View Consumables", path: "/consumables/view" },
     ],
   },
