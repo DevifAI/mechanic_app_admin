@@ -55,6 +55,7 @@ import { AccountGroupPage } from "./pages/AccountGroup/AccountGroupPage";
 import AccountGroupFormPage from "./pages/AccountGroup/AccountGroupFormPage";
 import { AccountPage } from "./pages/Account/AccountPage";
 import AccountFormPage from "./pages/Account/AccountFormPage";
+import ProjectDetailPage from "./pages/Projects/ProjectDetailPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -82,6 +83,7 @@ export default function App() {
           <Route path="/blank" element={<Blank />} />
           <Route path="/projects/view" element={<Projects />} />
           <Route path="/projects/create" element={<CreateProjectPage />} />
+          <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/projects/edit/:id" element={<CreateProjectPage />} />
           <Route path="/employees/view" element={<Employees />} />
           <Route path="/employees/create" element={<CreateEmployeePage />} />

@@ -1,25 +1,35 @@
-import React, { useState, useEffect, useRef } from "react";
-import { FaCalendarAlt, FaUserTie, FaClock } from "react-icons/fa";
-
+import React, { useState, useEffect } from "react";
 import { MultiSelect } from "../../components/projects/MultiSelect";
 import { fetchRevenues } from "../../apis/revenueApi";
 import { fetchEquipments } from "../../apis/equipmentApi";
 import { fetchCustomers } from "../../apis/customerApi";
-import { fetchEmployees } from "../../apis/employyeApi";
+// import { fetchEmployees } from "../../apis/employeeApi";
 import { fetchStores } from "../../apis/storeApi";
 import { Customer } from "../../types/customerTypes";
+import { fetchEmployees } from "../../apis/employyeApi";
 
 type ProjectFormProps = {
   onClose: () => void;
   onSubmit: (data: any) => void;
-  initialData?: any; // New
-  isEditMode: Boolean;
+  initialData?: any;
+  isEditMode?: boolean;
 };
 
 type Option = {
   value: string;
   text: string;
-  selected: boolean;
+};
+
+type FormData = {
+  projectNo: string;
+  customer: string;
+  orderNo: string;
+  contractStartDate: string;
+  contractTenure: string;
+  revenueMaster: string[];
+  equipments: string[];
+  staff: string[];
+  storeLocations: string[];
 };
 
 export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
@@ -28,7 +38,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   initialData,
   isEditMode = false,
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     projectNo: "",
     customer: "",
     orderNo: "",
@@ -40,86 +50,75 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     storeLocations: [],
   });
 
-  const dateInputRef = useRef<HTMLInputElement>(null);
   const [customers, setCustomers] = useState<Customer[]>([]);
-
   const [revenueOptions, setRevenueOptions] = useState<Option[]>([]);
   const [equipmentOptions, setEquipmentOptions] = useState<Option[]>([]);
   const [employeeOptions, setEmployeeOptions] = useState<Option[]>([]);
   const [storeOptions, setStoreOptions] = useState<Option[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  // Initialize form data when initialData changes
   useEffect(() => {
     if (initialData) {
       setFormData({
         projectNo: initialData.project_no || "",
-        customer: initialData.customer?.id || "", // use id instead of partner_name
+        customer: initialData.customer?.id || "",
         orderNo: initialData.order_no || "",
         contractStartDate: initialData.contract_start_date
-          ? initialData.contract_start_date.split("T")[0]
+          ? new Date(initialData.contract_start_date).toISOString().split("T")[0]
           : "",
         contractTenure: initialData.contract_tenure || "",
-        revenueMaster: initialData.revenues?.map((r: any) => r.id) || [], // use id
+        revenueMaster: initialData.revenues?.map((r: any) => r.id) || [],
         equipments: initialData.equipments?.map((e: any) => e.id) || [],
         staff: initialData.staff?.map((s: any) => s.id) || [],
-        storeLocations:
-          initialData.store_locations?.map((store: any) => store.id) || [],
+        storeLocations: initialData.store_locations?.map((s: any) => s.id) || [],
       });
     }
   }, [initialData]);
 
-  console.log(initialData);
-
-  // Fetch data
+  // Fetch all required data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch customers
-        const customersData = await fetchCustomers();
+        setIsLoading(true);
+        const [customersData, employeesData, storeData, revenues, equipments] = await Promise.all([
+          fetchCustomers(),
+          fetchEmployees(),
+          fetchStores(),
+          fetchRevenues(),
+          fetchEquipments(),
+        ]);
+
         setCustomers(customersData);
-
-        //Fetch customer
-        const employeesData = await fetchEmployees();
-        // console.log({ employeesData });
-        const emp_enhanced_data = employeesData.map((emp) => ({
-          value: emp.id,
-          text: emp.emp_name ?? "",
-          selected: false,
-        }));
-
-        setEmployeeOptions(emp_enhanced_data);
-
-        //Fetch Store
-        const storeData = await fetchStores();
-        const storeData_enhanced = storeData.map((store) => ({
-          value: store.id,
-          text: store.store_name ?? "", // fallback to empty string,
-          selected: false,
-        }));
-
-        setStoreOptions(storeData_enhanced);
-
-        // Fetch revenues
-        const revenues = await fetchRevenues();
+        setEmployeeOptions(
+          employeesData.map((emp: any) => ({
+            value: emp.id,
+            text: emp.emp_name || "Unnamed Employee",
+          }))
+        );
+        setStoreOptions(
+          storeData.map((store: any) => ({
+            value: store.id,
+            text: store.store_name || "Unnamed Store",
+          }))
+        );
         setRevenueOptions(
           revenues.map((rev: any) => ({
             value: rev.id,
             text: `${rev.revenue_code} - ${rev.revenue_description}`,
-            selected: false,
           }))
         );
-
-        // Fetch equipments
-        const equipments = await fetchEquipments();
         setEquipmentOptions(
           equipments.map((eq: any) => ({
             value: eq.id,
-            text: eq.equipment_name,
-            selected: false,
+            text: eq.equipment_name || "Unnamed Equipment",
           }))
         );
       } catch (err) {
         console.error("Error loading data", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -133,16 +132,19 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleMultiSelectChange = (name: string, values: string[]) => {
+  const handleMultiSelectChange = (name: keyof FormData, values: string[]) => {
     setFormData((prev) => ({ ...prev, [name]: values }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (formData.staff.length < 6) {
+      alert("Please select at least 6 staff members.");
+      return;
+    }
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
-      onClose();
     } catch (error) {
       console.error("Error submitting form", error);
     } finally {
@@ -150,272 +152,157 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     }
   };
 
-  const dummyOptions = {
-    tenure: ["3 months", "6 months", "12 months"],
-  };
+  const tenureOptions = ["3 months", "6 months", "12 months"];
 
-  const multiOptions = {
-    revenueMaster: revenueOptions,
-    equipments: equipmentOptions,
-    staff: employeeOptions,
-    storeLocations: storeOptions,
-  };
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Project No */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Project No<span className="text-red-500"> *</span>
           </label>
-          <div className="relative">
-            <input
-              type="text"
-              name="projectNo"
-              value={formData.projectNo}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="PRJ-001"
-              required
-            />
-            <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
-              #
-            </span>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Project Creation Date
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              name="creationDate"
-              value={new Date().toLocaleDateString("en-GB")} // Formats as dd/mm/yyyy
-              readOnly // Makes the field non-editable
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white bg-gray-100 dark:bg-gray-600 cursor-not-allowed"
-            />
-            <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                />
-              </svg>
-            </span>
-          </div>
+          <input
+            type="text"
+            name="projectNo"
+            value={formData.projectNo}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+            placeholder="PRJ-001"
+            required
+            disabled={isEditMode}
+          />
         </div>
 
-        {/* Customer */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Customer<span className="text-red-500"> *</span>
+            Order No
           </label>
-          <div className="relative">
-            <select
-              name="customer"
-              value={formData.customer}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
-              required
-            >
-              <option value="">Select customer</option>
-              {customers.map((cust) => (
-                <option key={cust.id} value={cust.id}>
-                  {cust.partner_name}
-                </option>
-              ))}
-            </select>
-            <FaUserTie className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
-          </div>
+          <input
+            type="text"
+            name="orderNo"
+            value={formData.orderNo}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+            placeholder="Order Number"
+          />
         </div>
 
-        {/* Order No */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Order No<span className="text-red-500"> *</span>
+            Customer
           </label>
-          <div className="relative">
-            <input
-              type="number"
-              min={0}
-              name="orderNo"
-              value={formData.orderNo}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              placeholder="001"
-              required
-            />
-            <span className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400">
-              #
-            </span>
-          </div>
-        </div>
-
-        {/* Contract Start Date */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Contract Start Date<span className="text-red-500"> *</span>
-          </label>
-          <div
-            className="relative"
-            onClick={() => dateInputRef.current?.showPicker()}
-            style={{ cursor: "pointer" }}
+          <select
+            name="customer"
+            value={formData.customer}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+            required
           >
-            <input
-              type="date"
-              name="contractStartDate"
-              value={formData.contractStartDate}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              ref={dateInputRef}
-              onClick={(e) => e.stopPropagation()}
-              required
-            />
-            <FaCalendarAlt
-              className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400"
-              onClick={() => dateInputRef.current?.showPicker()}
-              style={{ cursor: "pointer" }}
-            />
-          </div>
+            <option value="">Select Customer</option>
+            {customers.map((cust) => (
+              <option key={cust.id} value={cust.id}>
+                {cust.partner_name}
+              </option>
+            ))}
+          </select>
         </div>
 
-        {/* Contract Tenure */}
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Contract Tenure<span className="text-red-500"> *</span>
+            Contract Start Date
           </label>
-          <div className="relative">
-            <select
-              name="contractTenure"
-              value={formData.contractTenure}
-              onChange={handleChange}
-              className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 pl-10 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white appearance-none"
-              required
-            >
-              <option value="">Select tenure</option>
-              {dummyOptions.tenure.map((tenure, idx) => (
-                <option key={idx} value={tenure}>
-                  {tenure}
-                </option>
-              ))}
-            </select>
-            <FaClock className="absolute left-3 top-2.5 text-gray-400 dark:text-gray-400" />
-          </div>
+          <input
+            type="date"
+            name="contractStartDate"
+            value={formData.contractStartDate}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+            required
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Contract Tenure
+          </label>
+          <select
+            name="contractTenure"
+            value={formData.contractTenure}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+            required
+          >
+            <option value="">Select Tenure</option>
+            {tenureOptions.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
-      {/* Multi-select Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Revenue Master */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Add Revenue Master<span className="text-red-500"> *</span>
-          </label>
-          <MultiSelect
-            label="Revenue Master"
-            options={multiOptions.revenueMaster}
-            defaultSelected={formData.revenueMaster}
-            onChange={(values: any) =>
-              handleMultiSelectChange("revenueMaster", values)
-            }
-          />
-        </div>
+      <MultiSelect
+        label="Revenues"
+        options={revenueOptions}
+        defaultSelected={formData.revenueMaster}
+        onChange={(values) => handleMultiSelectChange("revenueMaster", values)}
+      />
 
-        {/* Equipments */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Add Equipments<span className="text-red-500"> *</span>
-          </label>
-          <MultiSelect
-            label="Equipments"
-            options={multiOptions.equipments}
-            defaultSelected={formData.equipments}
-            onChange={(values: any) =>
-              handleMultiSelectChange("equipments", values)
-            }
-          />
-        </div>
+      <MultiSelect
+        label="Equipments"
+        options={equipmentOptions}
+        defaultSelected={formData.equipments}
+        onChange={(values) => handleMultiSelectChange("equipments", values)}
+      />
 
-        {/* Staff */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Add Employees <span className="text-red-500"> *</span>
-          </label>
-          <MultiSelect
-            label="Staff"
-            options={multiOptions.staff}
-            defaultSelected={formData.staff}
-            onChange={(values: any) => handleMultiSelectChange("staff", values)}
-          />
-        </div>
+      <MultiSelect
+        label="Staff (Select at least 6)"
+        options={employeeOptions}
+        defaultSelected={formData.staff}
+        onChange={(values) => handleMultiSelectChange("staff", values)}
+        className="mb-4"
+      />
 
-        {/* Store Locations */}
-        <div className="space-y-2">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-            Add Store Locations<span className="text-red-500"> *</span>
-          </label>
-          <MultiSelect
-            label="Store Locations"
-            options={multiOptions.storeLocations}
-            defaultSelected={formData.storeLocations}
-            onChange={(values: any) =>
-              handleMultiSelectChange("storeLocations", values)
-            }
-          />
-        </div>
-      </div>
+      <MultiSelect
+        label="Store Locations"
+        options={storeOptions}
+        defaultSelected={formData.storeLocations}
+        onChange={(values) => handleMultiSelectChange("storeLocations", values)}
+      />
 
-      <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex justify-end space-x-4 pt-4">
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          disabled={isSubmitting}
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors flex items-center"
           disabled={isSubmitting}
+          className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-400"
         >
           {isSubmitting ? (
-            <>
-              <svg
-                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                ></path>
+            <span className="flex items-center justify-center">
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
               {isEditMode ? "Updating..." : "Creating..."}
-            </>
-          ) : isEditMode ? (
-            "Update Project"
+            </span>
           ) : (
-            "Create Project"
+            isEditMode ? "Update Project" : "Create Project"
           )}
         </button>
       </div>

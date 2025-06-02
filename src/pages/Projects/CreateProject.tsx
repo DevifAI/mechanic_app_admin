@@ -14,6 +14,8 @@ import {
   updateProject,
 } from "../../apis/projectsApi";
 import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import { toast, ToastContainer } from "react-toastify";
+import axiosInstance from "../../utils/axiosInstance";
 
 export const CreateProjectPage = () => {
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ export const CreateProjectPage = () => {
   const [editData, setEditData] = useState<any | null>(null);
 
   const { id } = useParams<{ id: any }>();
-
+  console.log({ editData })
   useEffect(() => {
     if (id) {
       const fetchEditData = async () => {
@@ -38,10 +40,11 @@ export const CreateProjectPage = () => {
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Create Project
+            {id ? "Edit Project" : "Create New Project"}
           </h1>
           <button
             onClick={() => navigate("/projects/view")}
@@ -57,26 +60,24 @@ export const CreateProjectPage = () => {
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab("form")}
-                className={`flex items-center px-4 py-3 text-sm font-medium ${
-                  activeTab === "form"
-                    ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                }`}
+                className={`flex items-center px-4 py-3 text-sm font-medium ${activeTab === "form"
+                  ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  }`}
               >
                 <FaPlus className="mr-2" />
                 Single Project
               </button>
-              <button
+              {!id && (<button
                 onClick={() => setActiveTab("bulk")}
-                className={`flex items-center px-4 py-3 text-sm font-medium ${
-                  activeTab === "bulk"
-                    ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                }`}
+                className={`flex items-center px-4 py-3 text-sm font-medium ${activeTab === "bulk"
+                  ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  }`}
               >
                 <FaUpload className="mr-2" />
                 Bulk Upload
-              </button>
+              </button>)}
             </nav>
           </div>
 
@@ -86,12 +87,30 @@ export const CreateProjectPage = () => {
               <ProjectCreateForm
                 onClose={() => navigate("/projects/view")}
                 onSubmit={async (projectData: any) => {
-                  if (id) {
-                    await updateProject(id, projectData);
-                  } else {
-                    await createProject(projectData);
+                  try {
+                    if (id) {
+                      await updateProject(id, projectData);
+                      toast.success("Project updated successfully");
+                    } else {
+                      await createProject(projectData);
+                      toast.success("Project created successfully");
+                      // navigate("/projects/view")
+                    }
+                    // navigate("/projects/view");
+                  } catch (error) {
+                    let errorMessage = "An unexpected error occurred";
+
+                    if (error instanceof Error) {
+                      errorMessage = error.message;
+                    } else if (typeof error === 'string') {
+                      errorMessage = error;
+                    }
+
+                    toast.error(errorMessage);
+
+                    // Optionally log the full error for debugging
+                    console.error("Project operation failed:", error);
                   }
-                  navigate("/projects/view");
                 }}
                 initialData={editData}
                 isEditMode={!!id}
@@ -129,6 +148,7 @@ const BulkUploadSection = () => {
     }
   };
 
+
   const handleUpload = async () => {
     if (!file) return;
 
@@ -137,29 +157,19 @@ const BulkUploadSection = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch(
-        "https://mechanic-app-backend.onrender.com/api/master/super/admin/project/bulk-upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await axiosInstance.post("/project/bulk-upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data", // Required for file uploads
+        },
+      });
 
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      const data = await response.json();
+      const data = response.data;
 
       if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${
-          data.results[data.results.length - 1].status
-        }:\n\n`;
+        let message = `Bulk Upload ${data.results[data.results.length - 1].status}:\n\n`;
 
-        data.results.forEach((item: any, index: any) => {
-          message += `${index + 1}. Project: ${item.projectNo}\n   Status: ${
-            item.status
-          }\n   Message: ${item.message}\n\n`;
+        data.results.forEach((item: any, index: number) => {
+          message += `${index + 1}. Project: ${item.projectNo}\n   Status: ${item.status}\n   Message: ${item.message}\n\n`;
         });
 
         alert(message);
@@ -232,11 +242,10 @@ const BulkUploadSection = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
-              ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
+          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
+            ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+            }`}
         >
           {isUploading ? (
             <>

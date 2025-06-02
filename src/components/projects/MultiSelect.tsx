@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Option {
   value: string;
@@ -27,6 +27,10 @@ export const MultiSelect = ({
   const [selectedValues, setSelectedValues] =
     useState<string[]>(defaultSelected);
   const [searchTerm, setSearchTerm] = useState("");
+
+   useEffect(() => {
+    setSelectedValues(defaultSelected);
+  }, [defaultSelected]);
 
   const toggleOption = (value: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
