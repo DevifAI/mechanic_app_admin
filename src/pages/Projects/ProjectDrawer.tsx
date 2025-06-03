@@ -1,5 +1,5 @@
-import { FaCalendarAlt, FaCogs, FaMapMarkerAlt, FaTimes } from "react-icons/fa";
-import { FaHashtag, FaList, FaMoneyBillWave, FaUser, FaUsers } from "react-icons/fa6";
+import { FaCogs, FaMapMarkerAlt, FaTimes } from "react-icons/fa";
+import { FaHashtag, FaMoneyBillWave, FaUsers } from "react-icons/fa6";
 
 const ProjectDrawer: React.FC<{
   isOpen: boolean;

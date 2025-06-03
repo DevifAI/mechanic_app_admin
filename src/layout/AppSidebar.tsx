@@ -210,6 +210,12 @@ const AppSidebar: React.FC = () => {
     }
   };
 
+  console.log({
+    setIsHovered,
+    toggleMenu,
+    
+  })
+
   return (
     <aside
       className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-blue-700 text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
