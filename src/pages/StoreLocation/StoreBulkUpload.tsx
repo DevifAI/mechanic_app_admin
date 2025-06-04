@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadTemplateButtonForStore from "../../utils/helperFunctions/download_excel_store";
 
 const StoreBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -28,6 +28,7 @@ const StoreBulkUpload: React.FC = () => {
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -44,15 +45,19 @@ const StoreBulkUpload: React.FC = () => {
 
       const data = response.data;
 
+      // Check for failure based on HTTP status code
+      if (response.status !== 201) {
+        alert("Upload failed. Please check your file and try again.");
+        return;
+      }
+
       if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${
-          data.results[data.results.length - 1].status
-        }:\n\n`;
+        let message = `Bulk Upload Results:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Store: ${item.store_name}\n   Status: ${
-            item.status
-          }\n   Message: ${item.message}\n\n`;
+          message += `${index + 1}. Store: ${item.store_name || "N/A"
+            }\n   Status: ${item.status}\n   ${item.message ? `Message: ${item.message}` : ""
+            }\n\n`;
         });
 
         alert(message);
@@ -68,6 +73,7 @@ const StoreBulkUpload: React.FC = () => {
       setIsUploading(false);
     }
   };
+
 
   return (
     <div
@@ -123,11 +129,10 @@ const StoreBulkUpload: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
+          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
               ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+            }`}
         >
           {isUploading ? (
             <>
@@ -149,7 +154,7 @@ const StoreBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadTemplateButtonForStore />
       </div>
     </div>
   );

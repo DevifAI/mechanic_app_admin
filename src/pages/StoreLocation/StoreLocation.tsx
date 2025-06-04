@@ -56,6 +56,29 @@ export const StoreLocation = () => {
     fetchAndSetStores();
   }, []);
 
+
+
+  const exportToCSV = (data: StoreRow[], filename: string = "stores.csv") => {
+    const headers = ["Store Code", "Name", "Location"];
+    const rows = data.map((store) => [
+      store.store_code,
+      store.store_name || "-",
+      store.store_location,
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   useEffect(() => {
     const handleClickOutside = () => setMoreDropdownOpen(false);
     if (moreDropdownOpen) {
@@ -134,7 +157,7 @@ export const StoreLocation = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    exportToCSV(stores); // 👈 This line handles the export
                   }}
                 >
                   Export

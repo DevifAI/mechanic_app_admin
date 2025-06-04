@@ -56,6 +56,8 @@ import AccountGroupFormPage from "./pages/AccountGroup/AccountGroupFormPage";
 import { AccountPage } from "./pages/Account/AccountPage";
 import AccountFormPage from "./pages/Account/AccountFormPage";
 import ProjectDetailPage from "./pages/Projects/ProjectDetailPage";
+import { DieselRequisition } from "./pages/Transactions/Diesel_Requisitions/DieselRequisition";
+import  DieselRequisitionDetailsPage  from "./pages/Transactions/Diesel_Requisitions/DieselRequisitionDetailsPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -129,6 +131,10 @@ export default function App() {
           <Route path="/oem/create" element={<OemFormPage />} />
           <Route path="/oem/edit/:id" element={<OemFormPage />} />
           <Route path="/oem/view" element={<OemPage />} />
+          <Route path="/diesel-requisition/view" element={<DieselRequisition />} />
+          <Route path="/diesel-requisition/:id" element={<DieselRequisitionDetailsPage />} />
+
+
           <Route
             path="/accountGroup/create"
             element={<AccountGroupFormPage />}

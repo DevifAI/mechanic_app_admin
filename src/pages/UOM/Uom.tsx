@@ -10,6 +10,9 @@ import UomDrawer from "./UomDrawer";
 import { getAllUOMs, deleteUOM } from "../../apis/uomApi";
 import { UOM } from "../../types/uomTypes";
 
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
+
 export const Uom = () => {
   const [uoms, setUoms] = useState<UOM[]>([]);
   const [selectedUom, setSelectedUom] = useState<UOM | null>(null);
@@ -20,6 +23,44 @@ export const Uom = () => {
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
+
+
+
+  // Inside your Uom component, add:
+
+  const exportToExcel = () => {
+    if (uoms.length === 0) {
+      toast.info("No data to export");
+      return;
+    }
+
+    // Prepare data for export (map to simple objects)
+    const dataToExport = uoms.map(({ unit_name, unit_code }) => ({
+      "Unit Name": unit_name,
+      "Unit Code": unit_code,
+    }));
+
+    // Create a worksheet from the data
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+
+    // Create a new workbook and append the worksheet
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "UOMs");
+
+    // Generate buffer
+    const excelBuffer = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+
+    // Create blob and trigger download
+    const data = new Blob([excelBuffer], {
+      type:
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+    });
+
+    saveAs(data, "UOMs_export.xlsx");
+  };
 
   const {
     currentPage,
@@ -111,7 +152,7 @@ export const Uom = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    exportToExcel();
                   }}
                 >
                   Export

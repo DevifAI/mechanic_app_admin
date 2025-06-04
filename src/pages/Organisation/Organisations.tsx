@@ -25,6 +25,44 @@ export const Organisations = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
+  const convertOrganisationsToCSV = (orgs: Organisation[]) => {
+    const header = ["Organisation Name", "Organisation Code"];
+    const rows = orgs.map((org) => [org.org_name, org.org_code]);
+
+    const csvContent =
+      [header, ...rows]
+        .map((row) =>
+          row
+            .map((item) => `"${item?.toString().replace(/"/g, '""')}"`) // escape quotes
+            .join(",")
+        )
+        .join("\n") + "\n";
+
+    return csvContent;
+  };
+
+
+  const handleExport = () => {
+    if (organisations.length === 0) {
+      toast.info("No organisations to export");
+      return;
+    }
+
+    const csv = convertOrganisationsToCSV(organisations);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "organisations_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+    toast.success("Organisations exported successfully!");
+  };
+
   const {
     currentPage,
     setCurrentPage,
@@ -119,7 +157,7 @@ export const Organisations = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    handleExport()
                   }}
                 >
                   Export

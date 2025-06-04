@@ -9,6 +9,7 @@ import { IoIosMore } from "react-icons/io";
 import ConsumableDrawer from "./ConsumableDrawer";
 import { Item } from "../../types/consumableItemTypes";
 import { deleteItem, fetchItems } from "../../apis/consumableApi";
+import * as XLSX from "xlsx";
 
 export const Consumable = () => {
   const [items, setItems] = useState<Item[]>([]);
@@ -21,7 +22,22 @@ export const Consumable = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
-  console.log(items);
+
+  const exportToExcel = () => {
+    const dataToExport = items.map(({ item_code, item_name, product_type, item_qty_in_hand, item_avg_cost }) => ({
+      Code: item_code,
+      Name: item_name,
+      Type: product_type,
+      Quantity: item_qty_in_hand,
+      AvgCost: item_avg_cost,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Consumables");
+
+    XLSX.writeFile(workbook, "ConsumableItems.xlsx");
+  };
 
   const {
     currentPage,
@@ -118,7 +134,7 @@ export const Consumable = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    exportToExcel();
                   }}
                 >
                   Export

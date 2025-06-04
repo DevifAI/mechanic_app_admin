@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
+// ...imports and axiosInstance same as before
 import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
 
 const PartnerBulkUpload: React.FC = () => {
@@ -45,14 +46,11 @@ const PartnerBulkUpload: React.FC = () => {
       const data = response.data;
 
       if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${
-          data.results[data.results.length - 1].status
-        }:\n\n`;
+        let message = `Bulk Upload Results:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Partner: ${item.partner_name}\n   Status: ${
-            item.status
-          }\n   Message: ${item.message}\n\n`;
+          message += `${index + 1}. Row: ${item.row}\n   Status: ${item.status
+            }\n   Message: ${item.message || "No additional info"}\n\n`;
         });
 
         alert(message);
@@ -94,6 +92,7 @@ const PartnerBulkUpload: React.FC = () => {
           Supported formats: CSV, Excel
         </p>
       </div>
+
       {file && (
         <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mt-4">
           <div className="flex items-center justify-between">
@@ -119,15 +118,15 @@ const PartnerBulkUpload: React.FC = () => {
           </div>
         </div>
       )}
+
       <div className="flex justify-end mt-4">
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
+          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
               ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+            }`}
         >
           {isUploading ? (
             <>
@@ -142,6 +141,7 @@ const PartnerBulkUpload: React.FC = () => {
           )}
         </button>
       </div>
+
       <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6 text-left">
         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
           Download Template

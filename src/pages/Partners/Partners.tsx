@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaCircleChevronDown, FaPlus } from "react-icons/fa6";
 import { IoIosMore } from "react-icons/io";
 import PartnerDrawer from "./PartnerDrawer";
+import * as XLSX from "xlsx";
 
 export const Partners = () => {
   const [partners, setPartners] = useState<any[]>([]);
@@ -50,6 +51,28 @@ export const Partners = () => {
     };
     fetchAndSetPartners();
   }, []);
+
+
+  const exportToExcel = (data: any[]) => {
+    if (!data || data.length === 0) {
+      toast.error("No data to export.");
+      return;
+    }
+
+    const exportData = data.map((partner) => ({
+      "Name": partner.partner_name,
+      "Address": partner.partner_address,
+      "GST": partner.partner_gst,
+      "Geo ID": partner.partner_geo_id,
+      "Is Customer": partner.isCustomer ? "Yes" : "No",
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Partners");
+
+    XLSX.writeFile(workbook, "partners.xlsx");
+  };
 
   useEffect(() => {
     const handleClickOutside = () => setMoreDropdownOpen(false);
@@ -124,11 +147,12 @@ export const Partners = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    exportToExcel(partners); // <-- use full data, not paginated
                   }}
                 >
                   Export
                 </button>
+
                 <button
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {

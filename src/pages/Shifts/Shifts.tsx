@@ -5,6 +5,8 @@ import { fetchShifts, deleteShift } from "../../apis/shiftApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
   FaCircleChevronDown,
   FaPlus,
@@ -75,6 +77,28 @@ export const Shifts = () => {
     }
   }, [dropdownOpen]);
 
+
+
+
+  const exportShiftsToExcel = (shifts: ShiftRow[]) => {
+    const worksheet = XLSX.utils.json_to_sheet(
+      shifts.map((shift) => ({
+        "Shift Code": shift.shift_code,
+        "From Time": shift.shift_from_time,
+        "To Time": shift.shift_to_time,
+      }))
+    );
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Shifts");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+
+    saveAs(data, `shifts_export_${new Date().toISOString().split("T")[0]}.xlsx`);
+  };
+
+
   const handleDelete = async (shift: ShiftRow) => {
     if (window.confirm("Are you sure you want to delete this shift?")) {
       setLoading(true);
@@ -137,7 +161,7 @@ export const Shifts = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    exportShiftsToExcel(shifts); // <-- Call export function
                   }}
                 >
                   Export

@@ -28,6 +28,32 @@ export const ItemGroupPage = () => {
     paginatedData: paginatedItemGroups,
   } = usePagination(itemGroups, rowsPerPage);
 
+  const handleExport = () => {
+    if (!itemGroups.length) {
+      toast.warn("No item groups to export.");
+      return;
+    }
+
+    const csvHeaders = ["Group Name", "Group Code"];
+    const csvRows = itemGroups.map(group =>
+      [group.group_name, group.group_code].join(",")
+    );
+    const csvContent = [csvHeaders.join(","), ...csvRows].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "item_groups.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("Exported as CSV");
+  };
+
+
   const fetchAndSetItemGroups = async () => {
     setLoading(true);
     try {
@@ -115,7 +141,7 @@ export const ItemGroupPage = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    handleExport();
                   }}
                 >
                   Export

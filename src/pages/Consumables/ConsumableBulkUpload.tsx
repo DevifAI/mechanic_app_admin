@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadTemplateButtonForConsumableItems from "../../utils/helperFunctions/consumable_item.excel";
 
 const ConsumableBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -28,11 +28,12 @@ const ConsumableBulkUpload: React.FC = () => {
   const handleUpload = async () => {
     if (!file) return;
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await axiosInstance.post("/consumable/bulk-upload", formData, {
+      const response = await axiosInstance.post("/consumableitems/bulk-upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -41,10 +42,17 @@ const ConsumableBulkUpload: React.FC = () => {
       const data = response.data;
 
       if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${data.results[data.results.length - 1].status}:\n\n`;
+        let message = `Bulk Upload Completed:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Consumable: ${item.item_name}\n   Status: ${item.status}\n   Message: ${item.message}\n\n`;
+          message += `${index + 1}. Row: ${item.row}\n`;
+          message += `   Status: ${item.status}\n`;
+
+          if (item.status === "success") {
+            message += `   Item ID: ${item.itemId}\n\n`;
+          } else {
+            message += `   Message: ${item.message || "Unknown error"}\n\n`;
+          }
         });
 
         alert(message);
@@ -115,11 +123,10 @@ const ConsumableBulkUpload: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
+          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
               ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+            }`}
         >
           {isUploading ? (
             <>
@@ -141,7 +148,7 @@ const ConsumableBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadTemplateButtonForConsumableItems />
       </div>
     </div>
   );

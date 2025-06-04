@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadTemplateButtonForAccountGroup from "../../utils/helperFunctions/AccountGroup.excel";
 
 const AccountGroupBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -27,7 +27,9 @@ const AccountGroupBulkUpload: React.FC = () => {
 
   const handleUpload = async () => {
     if (!file) return;
+
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -42,29 +44,25 @@ const AccountGroupBulkUpload: React.FC = () => {
         }
       );
 
-      const data = response.data;
+      const data = response?.data;
 
       if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${
-          data.results[data.results.length - 1].status
-        }:\n\n`;
+        let message = `Bulk Upload Results:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Account Group: ${
-            item.account_group_code
-          }\n   Status: ${item.status}\n   Message: ${item.message}\n\n`;
+          message += `${index + 1}. Account Group: ${item.account_group_code || "N/A"}\n   Status: ${item.status
+            }\n   Message: ${item.message || "No message"}\n\n`;
         });
 
         alert(message);
       } else {
         alert("Bulk upload completed successfully!");
       }
-
-      setFile(null);
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
     } finally {
+      setFile(null); // ✅ Ensures file is cleared regardless of success/failure
       setIsUploading(false);
     }
   };
@@ -123,11 +121,10 @@ const AccountGroupBulkUpload: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
+          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
               ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+            }`}
         >
           {isUploading ? (
             <>
@@ -149,7 +146,7 @@ const AccountGroupBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadTemplateButtonForAccountGroup />
       </div>
     </div>
   );

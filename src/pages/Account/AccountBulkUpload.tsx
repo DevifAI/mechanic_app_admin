@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadTemplateButtonForAccount from "../../utils/helperFunctions/Account.excel";
 
 const AccountBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -33,7 +33,7 @@ const AccountBulkUpload: React.FC = () => {
       formData.append("file", file);
 
       const response = await axiosInstance.post(
-        "/account/bulk-upload",
+        "/account/upload/bulk-upload",
         formData,
         {
           headers: {
@@ -149,7 +149,7 @@ const AccountBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadTemplateButtonForAccount />
       </div>
     </div>
   );

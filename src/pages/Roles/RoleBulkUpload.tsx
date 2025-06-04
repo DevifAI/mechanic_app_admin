@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadTemplateButtonForRole from "../../utils/helperFunctions/roles_excel";
 
 const RoleBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -25,45 +25,45 @@ const RoleBulkUpload: React.FC = () => {
     }
   };
 
-  const handleUpload = async () => {
-    if (!file) return;
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
+const handleUpload = async () => {
+  if (!file) return;
 
-      const response = await axiosInstance.post("/role/bulk-upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+  setIsUploading(true);
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await axiosInstance.post("/role/bulk-upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    const { status, data } = response;
+
+    if (status === 201 && data?.results && Array.isArray(data.results)) {
+      let message = `${data.message || "Bulk Upload Completed"}:\n\n`;
+
+      data.results.forEach((item: any, index: number) => {
+        message += `${index + 1}. Role: ${item.code || "N/A"}\n   Status: ${
+          item.status
+        }\n   Message: ${item.message || "No message"}\n\n`;
       });
 
-      const data = response.data;
-
-      if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${
-          data.results[data.results.length - 1].status
-        }:\n\n`;
-
-        data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Role: ${item.code}\n   Status: ${
-            item.status
-          }\n   Message: ${item.message}\n\n`;
-        });
-
-        alert(message);
-      } else {
-        alert("Bulk upload completed successfully!");
-      }
-
-      setFile(null);
-    } catch (error) {
-      console.error("Upload failed:", error);
-      alert("Upload failed. Please try again.");
-    } finally {
-      setIsUploading(false);
+      alert(message);
+    } else {
+      alert(data.message || "Bulk upload completed successfully.");
     }
-  };
+
+    setFile(null);
+  } catch (error) {
+    console.error("Upload failed:", error);
+    alert("Upload failed. Please try again.");
+  } finally {
+    setIsUploading(false);
+  }
+};
 
   return (
     <div
@@ -145,7 +145,7 @@ const RoleBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadTemplateButtonForRole />
       </div>
     </div>
   );

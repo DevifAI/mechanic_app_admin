@@ -29,6 +29,48 @@ export const Equipments = () => {
     paginatedData: paginatedEquipments,
   } = usePagination(equipments, rowsPerPage);
 
+
+  const exportToCSV = (data: any[]) => {
+    if (!data || data.length === 0) {
+      toast.warn("No data available to export");
+      return;
+    }
+
+    const headers = [
+      "Equipment Name",
+      "Serial No",
+      "Additional ID",
+      "Purchase Date",
+      "OEM",
+      "Purchase Cost",
+      "Group",
+    ];
+
+    const rows = data.map((item) => [
+      item.equipment_name,
+      item.equipment_sr_no,
+      item.additional_id,
+      item.purchase_date,
+      item.oem,
+      item.purchase_cost,
+      item.equipment_group_id,
+    ]);
+
+    let csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "equipments.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("Exported successfully!");
+  };
+
   useEffect(() => {
     const fetchAndSetEquipmentGroups = async () => {
       try {
@@ -121,8 +163,8 @@ export const Equipments = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
+                    exportToCSV(equipments);
                     // Export logic here
-                    toast.info("Export clicked");
                   }}
                 >
                   Export

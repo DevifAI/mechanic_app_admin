@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadTemplateButtonForItemGroup from "../../utils/helperFunctions/item_group_excel";
 
 const ItemGroupBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -27,7 +27,9 @@ const ItemGroupBulkUpload: React.FC = () => {
 
   const handleUpload = async () => {
     if (!file) return;
+
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -42,32 +44,29 @@ const ItemGroupBulkUpload: React.FC = () => {
         }
       );
 
-      const data = response.data;
+      const { status, data } = response;
 
-      if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${
-          data.results[data.results.length - 1].status
-        }:\n\n`;
+      if (status === 201 && data?.results && Array.isArray(data.results)) {
+        let message = `${data.message || "Bulk Upload Results"}:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Item Group: ${
-            item.group_code
-          }\n   Status: ${item.status}\n   Message: ${item.message}\n\n`;
+          message += `${index + 1}. Item Group: ${item.group_code || "N/A"}\n   Status: ${item.status || "unknown"
+            }\n   Message: ${item.message || "No message"}\n\n`;
         });
 
         alert(message);
       } else {
-        alert("Bulk upload completed successfully!");
+        alert(data?.message || "Bulk upload completed successfully!");
       }
-
-      setFile(null);
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
     } finally {
-      setIsUploading(false);
+      setFile(null); // Always reset the file input
+      setIsUploading(false); // Always stop the loading indicator
     }
   };
+
 
   return (
     <div
@@ -123,11 +122,10 @@ const ItemGroupBulkUpload: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
+          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
               ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-          }`}
+            }`}
         >
           {isUploading ? (
             <>
@@ -149,7 +147,7 @@ const ItemGroupBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadTemplateButtonForItemGroup />
       </div>
     </div>
   );

@@ -213,17 +213,17 @@ const AppSidebar: React.FC = () => {
   console.log({
     setIsHovered,
     toggleMenu,
-    
+
   })
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-blue-700 text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-[#303F9F] text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
       ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-20"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0`}
-      // onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      // onMouseLeave={() => setIsHovered(false)}
+    // onMouseEnter={() => !isExpanded && setIsHovered(true)}
+    // onMouseLeave={() => setIsHovered(false)}
     >
       {/* Profile */}
       <div
@@ -362,12 +362,13 @@ const AppSidebar: React.FC = () => {
                   <>
                     <li>
                       <div
+                      onClick={() => handleNavigate("/diesel-requisition/view")}
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
                         ${!shouldShowText ? "justify-center" : "justify-start"
                           }`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3">Transaction Item 1</span>
+                          <span className="ml-3"> View Diesel Requisition</span>
                         )}
                       </div>
                     </li>
@@ -378,7 +379,29 @@ const AppSidebar: React.FC = () => {
                           }`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3">Transaction Item 2</span>
+                          <span className="ml-3">View Diesel Receipt</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
+                        ${!shouldShowText ? "justify-center" : "justify-start"
+                          }`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">View Consumption Sheet</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
+                        ${!shouldShowText ? "justify-center" : "justify-start"
+                          }`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">View Maintenance Log</span>
                         )}
                       </div>
                     </li>
@@ -419,31 +442,31 @@ const AppSidebar: React.FC = () => {
 
         {/* Bottom */}
         <hr className="border-gray-100 dark:border-gray-700" />
-          <button
-            onClick={() => {
-              toggleSidebar();
-            }}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:border-2 hover:border-blue-500 dark:hover:bg-gray-700 transition"
-            title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+        <button
+          onClick={() => {
+            toggleSidebar();
+          }}
+          className="w-8 h-8 flex items-center justify-center rounded-full hover:border-2 hover:border-blue-500 dark:hover:bg-gray-700 transition"
+          title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
+        >
+          <svg
+            className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
+              }`}
+            width="20"
+            height="20"
+            fill="none"
+            viewBox="0 0 20 20"
           >
-            <svg
-              className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
-                }`}
-              width="20"
-              height="20"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                d="M7.5 15l5-5-5-5"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-       
+            <path
+              d="M7.5 15l5-5-5-5"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+
       </div>
     </aside>
   );

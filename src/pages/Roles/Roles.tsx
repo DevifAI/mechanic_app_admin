@@ -33,6 +33,47 @@ export const Roles = () => {
     paginatedData: paginatedRoles,
   } = usePagination(roles, rowsPerPage);
 
+
+  // Utility to convert roles array to CSV string
+  const convertRolesToCSV = (roles: RoleRow[]) => {
+    const header = ["ID", "Code", "Name"];
+    const rows = roles.map(role => [role.id, role.code, role.name]);
+
+    const csvContent =
+      [header, ...rows]
+        .map(row =>
+          row
+            .map(item => `"${item.replace(/"/g, '""')}"`) // escape quotes
+            .join(",")
+        )
+        .join("\n") + "\n";
+
+    return csvContent;
+  };
+
+  // Export handler function
+  const handleExport = () => {
+    if (roles.length === 0) {
+      toast.info("No roles to export");
+      return;
+    }
+
+    const csv = convertRolesToCSV(roles);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", "roles_export.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+    toast.success("Roles exported successfully!");
+  };
+
+
   const fetchAndSetRoles = async () => {
     setLoading(true);
     try {
@@ -125,8 +166,9 @@ export const Roles = () => {
                 <button
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
+
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    handleExport();
                   }}
                 >
                   Export

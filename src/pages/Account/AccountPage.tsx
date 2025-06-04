@@ -9,6 +9,8 @@ import { IoIosMore } from "react-icons/io";
 import AccountDrawer from "./AccountDrawer";
 import { getAllAccounts, deleteAccount } from "../../apis/accountApi";
 import { Account } from "../../types/accountTypes";
+import * as XLSX from "xlsx";
+
 
 export const AccountPage = () => {
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -27,6 +29,24 @@ export const AccountPage = () => {
     totalPages,
     paginatedData: paginatedAccounts,
   } = usePagination(accounts, rowsPerPage);
+
+
+
+  const handleExportToExcel = () => {
+  const exportData = accounts.map((acc) => ({
+    "Account Name": acc.account_name,
+    "Account Code": acc.account_code,
+    "Account Group":
+      acc.group?.account_group_name || acc.account_group || "N/A",
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(exportData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Accounts");
+
+  XLSX.writeFile(workbook, "accounts.xlsx");
+};
+
 
   const fetchAndSetAccounts = async () => {
     setLoading(true);
@@ -115,7 +135,7 @@ export const AccountPage = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                     handleExportToExcel();
                   }}
                 >
                   Export

@@ -87,22 +87,20 @@ export const CreateEmployeePage = () => {
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab("form")}
-                className={`flex items-center px-6 py-4 text-sm font-medium ${
-                  activeTab === "form"
-                    ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                } transition-colors`}
+                className={`flex items-center px-6 py-4 text-sm font-medium ${activeTab === "form"
+                  ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  } transition-colors`}
               >
                 <FaPlus className="mr-2" />
                 Single Employee
               </button>
               <button
                 onClick={() => setActiveTab("bulk")}
-                className={`flex items-center px-6 py-4 text-sm font-medium ${
-                  activeTab === "bulk"
-                    ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
-                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                } transition-colors`}
+                className={`flex items-center px-6 py-4 text-sm font-medium ${activeTab === "bulk"
+                  ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
+                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  } transition-colors`}
               >
                 <FaUpload className="mr-2" />
                 Bulk Upload
@@ -132,15 +130,16 @@ const BulkUploadSection = () => {
   const [isUploading, setIsUploading] = React.useState(false);
   // const navigate = useNavigate();
   const dummyData = {
-    emp_id: "EMP20704",
+    emp_id: "EMP20701",
     emp_name: "Abir Roy",
     blood_group: "O+",
     age: 31,
     adress: "123 Main St, City",
-    position: "JR. Engineer",
+    position: "JR Engineer",
     is_active: true,
     shiftcode: "SHIFT-M2",
-    role_name: "Mechanic",
+    role_name: "mechanic",
+    organisations: "SoftSkirll"
   };
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -192,11 +191,15 @@ const BulkUploadSection = () => {
               }}
             />
           );
-        } else if (data.message) {
-          toast.error("Upload failed: " + data.message);
         } else {
-          toast.error("Upload failed");
+          toast.success(
+            `Bulk upload completed successfully! Created ${data.createdCount} employees.`
+          );
+          setFile(null);
+          // navigate("/employees/view");
         }
+
+
         return;
       }
 
@@ -224,9 +227,9 @@ const BulkUploadSection = () => {
           age: dummyData.age,
           adress: dummyData.adress,
           position: dummyData.position,
-          is_active: dummyData.is_active ? "Yes" : "No",
           shiftcode: dummyData.shiftcode,
           role_name: dummyData.role_name,
+          organisations: dummyData.organisations,
         },
       ];
 
@@ -316,11 +319,10 @@ const BulkUploadSection = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-6 py-2 rounded-md text-white flex items-center ${
-            !file || isUploading
-              ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
-              : "bg-blue-600 hover:bg-blue-700"
-          } transition-colors`}
+          className={`px-6 py-2 rounded-md text-white flex items-center ${!file || isUploading
+            ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
+            : "bg-blue-600 hover:bg-blue-700"
+            } transition-colors`}
         >
           {isUploading ? (
             <>

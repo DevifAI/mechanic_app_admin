@@ -25,6 +25,42 @@ export const AccountGroupPage = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
 
+  const exportToCSV = () => {
+    if (accountGroups.length === 0) {
+      toast.info("No data to export.");
+      return;
+    }
+
+    const csvRows = [
+      ["Group Name", "Group Code"], // CSV headers
+      ...accountGroups.map((group) => [
+        group.account_group_name,
+        group.account_group_code,
+      ]),
+    ];
+
+    const csvContent = csvRows
+      .map((row) =>
+        row
+          .map((value) => `"${(value ?? "").toString().replace(/"/g, '""')}"`)
+          .join(",")
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "account_groups.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("Exported as CSV");
+  };
+
+
   const {
     currentPage,
     setCurrentPage,
@@ -123,7 +159,7 @@ export const AccountGroupPage = () => {
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
-                    toast.info("Export clicked");
+                    exportToCSV(); // <-- add this line
                   }}
                 >
                   Export

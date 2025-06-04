@@ -141,9 +141,8 @@ export const Employees = () => {
   return (
     <>
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <PageBreadcrumb pageTitle="Employees" />
-
-      <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
+      <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+         <PageBreadcrumb pageTitle="Employees" />
         <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
           <button
             onClick={() => navigate("/employees/create")}
@@ -224,6 +223,11 @@ export const Employees = () => {
             )}
           </span>
         </div>
+       
+      </div>
+
+      <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
+
         <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
