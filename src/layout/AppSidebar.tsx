@@ -18,6 +18,7 @@ import { SiBaremetrics, SiOrigin } from "react-icons/si";
 import { FaLayerGroup } from "react-icons/fa6";
 import { MdAccountBalance } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
+import UserDropdown from "../components/header/UserDropdown";
 
 type NavItem = {
   name: string;
@@ -218,7 +219,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-[#303F9F] text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-[#5b6eee] text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
       ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-20"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0`}
@@ -230,13 +231,10 @@ const AppSidebar: React.FC = () => {
         className={`py-4 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center ${!shouldShowText ? "justify-center" : "justify-start"
           }`}
       >
-        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-medium">
-          SA
-        </div>
+        
         {shouldShowText && (
           <div className="ml-3">
-            <p className="text-sm font-medium text-white">Super Admin</p>
-            <p className="text-xs text-white">Super Admin</p>
+           <UserDropdown />
           </div>
         )}
       </div>
@@ -253,8 +251,8 @@ const AppSidebar: React.FC = () => {
                       onClick={() => handleCategoryClick(category.name)}
                       className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
                       ${isActive(category.path)
-                          ? "bg-blue-500 text-white"
-                          : "text-white hover:border-2 hover:border-blue-500"
+                          ? "bg-white text-black"
+                          : "text-white hover:border-2 hover:border-white"
                         }
                       ${!shouldShowText ? "justify-center" : "justify-start"
                         }`}
@@ -306,8 +304,8 @@ const AppSidebar: React.FC = () => {
                             }}
                             className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
                             ${isParentActive(item)
-                                ? "bg-blue-500 text-white"
-                                : "text-white hover:border-2 hover:border-blue-500"
+                                ? "bg-white text-black"
+                                : "text-white hover:border-2 hover:border-white"
                               }
                             ${!shouldShowText ? "justify-center" : "justify-between"
                               }`}

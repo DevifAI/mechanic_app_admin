@@ -10,6 +10,7 @@ export default function DownloadTemplateButton() {
         "customer",
         "orderNo",
         "contractStartDate",
+        "contractEndDate",
         "contractTenure",
         "revenueMaster", // user can enter comma-separated IDs here
         "equipments",
@@ -21,6 +22,7 @@ export default function DownloadTemplateButton() {
         "SoftSkirl",
         "234",
         "2025-04-30",
+        "2025-05-30",
         "6 months",
         "REV-002, REV-001", 
         "hydraulic , motor",

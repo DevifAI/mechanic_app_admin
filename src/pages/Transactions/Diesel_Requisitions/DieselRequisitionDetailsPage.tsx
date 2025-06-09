@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { DieselRequisition } from "../../../types/dieselRequisition"; // Adjust as needed
+import { DieselRequisition } from "../../../types/dieselRequisition"; // Adjust path as needed
 
 const DieselRequisitionDetailsPage = () => {
   const { state } = useLocation();
@@ -9,11 +9,11 @@ const DieselRequisitionDetailsPage = () => {
 
   if (!requisition) {
     return (
-      <div className="p-6 text-red-500">
-        No requisition data available. Please go back to the list.
+      <div className="p-6 text-red-600 dark:text-red-400">
+        <p className="mb-4">No requisition data available. Please go back to the list.</p>
         <button
           onClick={() => navigate("/diesel-requisitions")}
-          className="block mt-4 text-blue-600 hover:underline"
+          className="text-blue-600 hover:underline dark:text-blue-400"
         >
           ← Back to Diesel Requisitions
         </button>
@@ -22,49 +22,76 @@ const DieselRequisitionDetailsPage = () => {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div className="p-6 max-w-5xl mx-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 rounded-lg shadow-lg">
       <button
         onClick={() => navigate("/diesel-requisition/view")}
-        className="mb-4 text-blue-600 hover:underline"
+        className="text-blue-600 dark:text-blue-400 hover:underline mb-6"
       >
         ← Back to Diesel Requisitions
       </button>
 
-      <h1 className="text-2xl font-semibold mb-4">Diesel Requisition Details</h1>
-      <p><strong>Date:</strong> {new Date(requisition.date).toLocaleDateString()}</p>
-      <p><strong>Created By:</strong> {requisition.createdByEmployee?.emp_name}</p>
-      <p><strong>Organisation:</strong> {requisition.organisation?.org_name}</p>
-     <p>
-  <strong>Is Approved By Mechanic Incharge:</strong>{" "}
-  {requisition.is_approve_mic ? "Approved" : "Pending"}
-</p>
+      <h1 className="text-3xl font-bold mb-6">Diesel Requisition Details</h1>
 
-<p>
-  <strong>Is Approved By Site Incharge:</strong>{" "}
-  {requisition.is_approve_sic === true
-    ? "Approved"
-    : requisition.is_approve_sic === false
-    ? "Rejected"
-    : "Pending"}
-</p>
+      <div className="grid sm:grid-cols-2 gap-6">
+        <div>
+          <p><span className="font-semibold">Date:</span> {new Date(requisition.date).toLocaleDateString()}</p>
+          <p><span className="font-semibold">Created By:</span> {requisition.createdByEmployee?.emp_name}</p>
+          <p><span className="font-semibold">Organisation:</span> {requisition.organisation?.org_name}</p>
+        </div>
+        <div>
+          <p>
+            <span className="font-semibold">Mechanic Incharge Approval:</span>{" "}
+            <span className={requisition.is_approve_mic ? "text-green-600" : "text-yellow-600"}>
+              {requisition.is_approve_mic ? "Approved" : "Pending"}
+            </span>
+          </p>
 
-<p>
-  <strong>Is Approved By Project Manager:</strong>{" "}
-  {requisition.is_approve_pm ? "Approved" : "Pending"}
-</p>
+          <p>
+            <span className="font-semibold">Site Incharge Approval:</span>{" "}
+            <span
+              className={
+                requisition.is_approve_sic === true
+                  ? "text-green-600"
+                  : requisition.is_approve_sic === false
+                  ? "text-red-600"
+                  : "text-yellow-600"
+              }
+            >
+              {requisition.is_approve_sic === true
+                ? "Approved"
+                : requisition.is_approve_sic === false
+                ? "Rejected"
+                : "Pending"}
+            </span>
+          </p>
 
+          <p>
+            <span className="font-semibold">Project Manager Approval:</span>{" "}
+            <span className={requisition.is_approve_pm ? "text-green-600" : "text-yellow-600"}>
+              {requisition.is_approve_pm ? "Approved" : "Pending"}
+            </span>
+          </p>
+        </div>
+      </div>
 
-      <h2 className="text-xl font-semibold mt-6 mb-2">Items</h2>
-      <ul className="space-y-3">
+      <h2 className="text-2xl font-semibold mt-10 mb-4">Requisitioned Items</h2>
+
+      <div className="grid gap-4">
         {requisition.items.map((item) => (
-          <li key={item.id} className="border rounded p-4 dark:border-gray-700">
-            <p><strong>Item:</strong> {item.consumableItem.item_name}</p>
-            <p><strong>Description:</strong> {item.consumableItem.item_description}</p>
-            <p><strong>Quantity:</strong> {item.quantity} {item.unitOfMeasurement.unit_name}</p>
-            <p><strong>Notes:</strong> {item.Notes}</p>
-          </li>
+          <div
+            key={item.id}
+            className="p-4 rounded-lg border dark:border-gray-700 bg-gray-50 dark:bg-gray-800 shadow-sm"
+          >
+            <p><span className="font-semibold">Item:</span> {item.consumableItem.item_name}</p>
+            <p><span className="font-semibold">Description:</span> {item.consumableItem.item_description}</p>
+            <p>
+              <span className="font-semibold">Quantity:</span> {item.quantity}{" "}
+              {item.unitOfMeasurement.unit_name}
+            </p>
+            <p><span className="font-semibold">Notes:</span> {item.Notes || "N/A"}</p>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   );
 };

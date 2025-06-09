@@ -25,6 +25,7 @@ type FormData = {
   customer: string;
   orderNo: string;
   contractStartDate: string;
+  contractEndDate: string; // ✅ Added
   contractTenure: string;
   revenueMaster: string[];
   equipments: string[];
@@ -32,17 +33,20 @@ type FormData = {
   storeLocations: string[];
 };
 
+
 export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   onClose,
   onSubmit,
   initialData,
   isEditMode = false,
 }) => {
+
   const [formData, setFormData] = useState<FormData>({
     projectNo: "",
     customer: "",
     orderNo: "",
     contractStartDate: "",
+    contractEndDate: "", // ✅ Added
     contractTenure: "",
     revenueMaster: [],
     equipments: [],
@@ -68,6 +72,9 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         contractStartDate: initialData.contract_start_date
           ? new Date(initialData.contract_start_date).toISOString().split("T")[0]
           : "",
+        contractEndDate: initialData.contract_end_date // ✅ Added
+          ? new Date(initialData.contract_end_date).toISOString().split("T")[0]
+          : "",
         contractTenure: initialData.contract_tenure || "",
         revenueMaster: initialData.revenues?.map((r: any) => r.id) || [],
         equipments: initialData.equipments?.map((e: any) => e.id) || [],
@@ -76,6 +83,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
       });
     }
   }, [initialData]);
+
 
   // Fetch all required data
   useEffect(() => {
@@ -228,6 +236,19 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
             required
           />
         </div>
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            Contract End Date
+          </label>
+          <input
+            type="date"
+            name="contractEndDate"
+            value={formData.contractEndDate}
+            onChange={handleChange}
+            className="w-full border rounded-lg px-4 py-2"
+          />
+        </div>
+
 
         <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -250,34 +271,55 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         </div>
       </div>
 
-      <MultiSelect
-        label="Revenues"
-        options={revenueOptions}
-        defaultSelected={formData.revenueMaster}
-        onChange={(values) => handleMultiSelectChange("revenueMaster", values)}
-      />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Revenues
+        </label>
+        <MultiSelect
+          label="Revenues"
+          options={revenueOptions}
+          defaultSelected={formData.revenueMaster}
+          onChange={(values) => handleMultiSelectChange("revenueMaster", values)}
+        />
+      </div>
 
-      <MultiSelect
-        label="Equipments"
-        options={equipmentOptions}
-        defaultSelected={formData.equipments}
-        onChange={(values) => handleMultiSelectChange("equipments", values)}
-      />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Equipments
+        </label>
+        <MultiSelect
+          label="Equipments"
+          options={equipmentOptions}
+          defaultSelected={formData.equipments}
+          onChange={(values) => handleMultiSelectChange("equipments", values)}
+        />
+      </div>
 
-      <MultiSelect
-        label="Staff (Select at least 6)"
-        options={employeeOptions}
-        defaultSelected={formData.staff}
-        onChange={(values) => handleMultiSelectChange("staff", values)}
-        className="mb-4"
-      />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Staff <span className="text-xs text-gray-500">(Select at least 6)</span>
+        </label>
+        <MultiSelect
+          label="Staff"
+          options={employeeOptions}
+          defaultSelected={formData.staff}
+          onChange={(values) => handleMultiSelectChange("staff", values)}
+          className="mb-4"
+        />
+      </div>
 
-      <MultiSelect
-        label="Store Locations"
-        options={storeOptions}
-        defaultSelected={formData.storeLocations}
-        onChange={(values) => handleMultiSelectChange("storeLocations", values)}
-      />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Store Locations
+        </label>
+        <MultiSelect
+          label="Store Locations"
+          options={storeOptions}
+          defaultSelected={formData.storeLocations}
+          onChange={(values) => handleMultiSelectChange("storeLocations", values)}
+        />
+      </div>
+
 
       <div className="flex justify-end space-x-4 pt-4">
         <button
