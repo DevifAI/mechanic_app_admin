@@ -41,6 +41,8 @@ interface Project {
   order_no: string;
   contract_tenure: string;
   contract_start_date: string;
+  contract_end_date: string;
+  duration: string; // <-- added duration
   createdAt: string;
   updatedAt: string;
   customer: Customer;
@@ -162,8 +164,18 @@ const ProjectDetailPage = () => {
                 </p>
               </div>
               <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 mb-1">Contract End</p>
+                <p className="text-gray-800 font-medium">
+                  {project.contract_end_date ? formatDate(project.contract_end_date) : '-'}
+                </p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-500 mb-1">Tenure</p>
                 <p className="text-gray-800 font-medium">{project.contract_tenure || '-'}</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-sm text-gray-500 mb-1">Project Duration</p>
+                <p className="text-gray-800 font-medium">{project.duration || '-'}</p>
               </div>
             </div>
           </div>
