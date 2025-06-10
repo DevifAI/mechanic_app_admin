@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,6 +12,7 @@ import { UOM } from "../../types/uomTypes";
 
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import Title from "../../components/common/Title";
 
 export const Uom = () => {
   const [uoms, setUoms] = useState<UOM[]>([]);
@@ -23,8 +24,6 @@ export const Uom = () => {
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const navigate = useNavigate();
-
-
 
   // Inside your Uom component, add:
 
@@ -55,8 +54,7 @@ export const Uom = () => {
 
     // Create blob and trigger download
     const data = new Blob([excelBuffer], {
-      type:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
     });
 
     saveAs(data, "UOMs_export.xlsx");
@@ -116,98 +114,105 @@ export const Uom = () => {
 
   // Sort handlers
   const handleSortByName = () => {
-    setUoms((prev) => [...prev].sort((a, b) => a.unit_name.localeCompare(b.unit_name)));
+    setUoms((prev) =>
+      [...prev].sort((a, b) => a.unit_name.localeCompare(b.unit_name))
+    );
     toast.info("Sorted by Name");
   };
 
   const handleSortByCode = () => {
-    setUoms((prev) => [...prev].sort((a, b) => a.unit_code.localeCompare(b.unit_code)));
+    setUoms((prev) =>
+      [...prev].sort((a, b) => a.unit_code.localeCompare(b.unit_code))
+    );
     toast.info("Sorted by Code");
   };
 
   return (
     <>
-      <PageBreadcrumb pageTitle="UOMs" />
+      {/* <PageBreadcrumb pageTitle="UOMs" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
-          <button
-            onClick={() => navigate("/uom/create")}
-            className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-          >
-            <FaPlus />
-            <span>New</span>
-          </button>
-          <span
-            className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
-            onClick={(e) => {
-              e.stopPropagation();
-              setMoreDropdownOpen((prev) => !prev);
-            }}
-          >
-            <IoIosMore />
-            {moreDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
-                <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                  onClick={() => {
-                    setMoreDropdownOpen(false);
-                    exportToExcel();
-                  }}
-                >
-                  Export
-                </button>
-                <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                  onClick={() => {
-                    setMoreDropdownOpen(false);
-                    fetchAndSetUoms();
-                  }}
-                >
-                  Refresh
-                </button>
-                <div
-                  className="relative"
-                  onMouseEnter={() => setSortMenuOpen(true)}
-                  onMouseLeave={() => setSortMenuOpen(false)}
-                >
+        <div className="flex justify-between items-center px-6">
+          <Title pageTitle="UOMs" />
+          <div className="flex justify-end items-center mb-4 gap-3">
+            <button
+              onClick={() => navigate("/uom/create")}
+              className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            >
+              <FaPlus />
+              <span>New</span>
+            </button>
+            <span
+              className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMoreDropdownOpen((prev) => !prev);
+              }}
+            >
+              <IoIosMore />
+              {moreDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
                   <button
-                    className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
-                    onClick={() => setSortMenuOpen((prev) => !prev)}
+                    className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                    onClick={() => {
+                      setMoreDropdownOpen(false);
+                      exportToExcel();
+                    }}
                   >
-                    Sort
-                    <span className="ml-2">&gt;</span>
+                    Export
                   </button>
-                  {sortMenuOpen && (
-                    <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
-                        onClick={() => {
-                          setMoreDropdownOpen(false);
-                          setSortMenuOpen(false);
-                          handleSortByName();
-                        }}
-                      >
-                        Sort by Name
-                      </button>
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
-                        onClick={() => {
-                          setMoreDropdownOpen(false);
-                          setSortMenuOpen(false);
-                          handleSortByCode();
-                        }}
-                      >
-                        Sort by Code
-                      </button>
-                    </div>
-                  )}
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                    onClick={() => {
+                      setMoreDropdownOpen(false);
+                      fetchAndSetUoms();
+                    }}
+                  >
+                    Refresh
+                  </button>
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setSortMenuOpen(true)}
+                    onMouseLeave={() => setSortMenuOpen(false)}
+                  >
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
+                      onClick={() => setSortMenuOpen((prev) => !prev)}
+                    >
+                      Sort
+                      <span className="ml-2">&gt;</span>
+                    </button>
+                    {sortMenuOpen && (
+                      <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                          onClick={() => {
+                            setMoreDropdownOpen(false);
+                            setSortMenuOpen(false);
+                            handleSortByName();
+                          }}
+                        >
+                          Sort by Name
+                        </button>
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                          onClick={() => {
+                            setMoreDropdownOpen(false);
+                            setSortMenuOpen(false);
+                            handleSortByCode();
+                          }}
+                        >
+                          Sort by Code
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </span>
+              )}
+            </span>
+          </div>
         </div>
-        <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
+        <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
               <span className="text-blue-600 font-semibold text-lg">

@@ -24,7 +24,9 @@ type ProjectRow = {
 
 export const Projects = () => {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
-  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
@@ -104,7 +106,9 @@ export const Projects = () => {
 
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4 bg-gray-100 dark:bg-gray-800">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Projects</h2>
+        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">
+          Projects
+        </h2>
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate("/projects/create")}
@@ -126,7 +130,9 @@ export const Projects = () => {
       <div className="flex-1 flex flex-col overflow-hidden dark:bg-gray-900">
         {loading ? (
           <div className="flex justify-center items-center h-full">
-            <span className="text-blue-600 font-semibold text-lg">Loading...</span>
+            <span className="text-blue-600 font-semibold text-lg">
+              Loading...
+            </span>
           </div>
         ) : (
           <>
@@ -155,7 +161,11 @@ export const Projects = () => {
                         <tr
                           key={idx}
                           className="even:bg-gray-200 dark:even:bg-gray-900 hover:bg-gray-100 dark:hover:bg-gray-700 hover:shadow-lg hover:-translate-y-[2px] transition duration-200 cursor-pointer"
-                          onClick={() => navigate(`/projects/${project.id}`, { state: { project: rawProjects[idx] } })}
+                          onClick={() =>
+                            navigate(`/projects/${project.id}`, {
+                              state: { project: rawProjects[idx] },
+                            })
+                          }
                           onMouseEnter={() => setHoveredRow(project.projectNo)}
                           onMouseLeave={() => setHoveredRow(null)}
                         >
@@ -164,7 +174,8 @@ export const Projects = () => {
                           <td className="px-4 py-2">{project.orderNo}</td>
                           <td className="px-4 py-2">{project.contractStart}</td>
                           <td className="px-4 py-2">{project.tenure}</td>
-                          <td className="px-4 py-2">{project.duration}</td> {/* ✅ Added */}
+                          <td className="px-4 py-2">{project.duration}</td>{" "}
+                          {/* ✅ Added */}
                           <td className="px-4 py-2">{project.revenues}</td>
                           <td className="px-4 py-2">{project.equipments}</td>
                           <td className="px-4 py-2">{project.staff}</td>
@@ -174,12 +185,19 @@ export const Projects = () => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setDropdownOpen(dropdownOpen === project.projectNo ? null : project.projectNo);
+                                  setDropdownOpen(
+                                    dropdownOpen === project.projectNo
+                                      ? null
+                                      : project.projectNo
+                                  );
                                 }}
                                 className="w-8 h-8 flex items-center justify-center rounded-full transition"
                                 title="Actions"
                               >
-                                <FaCircleChevronDown className="text-blue-500" size={20} />
+                                <FaCircleChevronDown
+                                  className="text-blue-500"
+                                  size={20}
+                                />
                               </button>
                             )}
                             {dropdownOpen === project.projectNo && (
@@ -201,7 +219,9 @@ export const Projects = () => {
                                   onClick={async () => {
                                     try {
                                       await deleteProject(project.id);
-                                      toast.success("Project deleted successfully!");
+                                      toast.success(
+                                        "Project deleted successfully!"
+                                      );
                                       setDropdownOpen(null);
                                       fetchAndSetProjects();
                                     } catch (error) {

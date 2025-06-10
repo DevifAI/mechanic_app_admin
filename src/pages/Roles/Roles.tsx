@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageBreadcrumb from "../../components/common/PageBreadCrumb";
+// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { fetchRoles, deleteRole } from "../../apis/roleApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
@@ -8,6 +8,7 @@ import { toast, ToastContainer } from "react-toastify";
 import { FaCircleChevronDown, FaPlus } from "react-icons/fa6";
 import { IoIosMore } from "react-icons/io";
 import RolesDrawer from "./RolesDrawer";
+import Title from "../../components/common/Title";
 
 type RoleRow = {
   id: string;
@@ -33,17 +34,16 @@ export const Roles = () => {
     paginatedData: paginatedRoles,
   } = usePagination(roles, rowsPerPage);
 
-
   // Utility to convert roles array to CSV string
   const convertRolesToCSV = (roles: RoleRow[]) => {
     const header = ["ID", "Code", "Name"];
-    const rows = roles.map(role => [role.id, role.code, role.name]);
+    const rows = roles.map((role) => [role.id, role.code, role.name]);
 
     const csvContent =
       [header, ...rows]
-        .map(row =>
+        .map((row) =>
           row
-            .map(item => `"${item.replace(/"/g, '""')}"`) // escape quotes
+            .map((item) => `"${item.replace(/"/g, '""')}"`) // escape quotes
             .join(",")
         )
         .join("\n") + "\n";
@@ -72,7 +72,6 @@ export const Roles = () => {
     URL.revokeObjectURL(url);
     toast.success("Roles exported successfully!");
   };
-
 
   const fetchAndSetRoles = async () => {
     setLoading(true);
@@ -139,91 +138,95 @@ export const Roles = () => {
 
   return (
     <>
-      <PageBreadcrumb pageTitle="Roles" />
+      {/* <PageBreadcrumb pageTitle="Roles" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
-          <button
-            onClick={() => navigate("/roles/create")}
-            className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-          >
-            <span>
-              <FaPlus />
-            </span>
-            <span className="">New</span>
-          </button>
-          <span
-            className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
-            onClick={(e) => {
-              e.stopPropagation();
-              setMoreDropdownOpen((prev) => !prev);
-            }}
-          >
-            <IoIosMore />
-            {moreDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
-                <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                  onClick={() => {
+        <div className="flex justify-between items-center px-6">
+          <Title pageTitle="Roles" />
 
-                    setMoreDropdownOpen(false);
-                    handleExport();
-                  }}
-                >
-                  Export
-                </button>
-                <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                  onClick={() => {
-                    setMoreDropdownOpen(false);
-                    fetchAndSetRoles();
-                  }}
-                >
-                  Refresh
-                </button>
-                <div
-                  className="relative"
-                  onMouseEnter={() => setSortMenuOpen(true)}
-                  onMouseLeave={() => setSortMenuOpen(false)}
-                >
+          <div className="flex justify-end items-center mb-4 gap-3">
+            <button
+              onClick={() => navigate("/roles/create")}
+              className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            >
+              <span>
+                <FaPlus />
+              </span>
+              <span className="">New</span>
+            </button>
+            <span
+              className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
+              onClick={(e) => {
+                e.stopPropagation();
+                setMoreDropdownOpen((prev) => !prev);
+              }}
+            >
+              <IoIosMore />
+              {moreDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
                   <button
-                    className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
-                    onClick={() => setSortMenuOpen((prev) => !prev)}
+                    className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                    onClick={() => {
+                      setMoreDropdownOpen(false);
+                      handleExport();
+                    }}
                   >
-                    Sort
-                    <span className="ml-2">&gt;</span>
+                    Export
                   </button>
-                  {sortMenuOpen && (
-                    <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                        onClick={() => {
-                          setMoreDropdownOpen(false);
-                          setSortMenuOpen(false);
-                          handleSortByName();
-                        }}
-                      >
-                        Sort by Name
-                      </button>
-                      <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                        onClick={() => {
-                          setMoreDropdownOpen(false);
-                          setSortMenuOpen(false);
-                          handleSortByCode();
-                        }}
-                      >
-                        Sort by Code
-                      </button>
-                    </div>
-                  )}
+                  <button
+                    className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                    onClick={() => {
+                      setMoreDropdownOpen(false);
+                      fetchAndSetRoles();
+                    }}
+                  >
+                    Refresh
+                  </button>
+                  <div
+                    className="relative"
+                    onMouseEnter={() => setSortMenuOpen(true)}
+                    onMouseLeave={() => setSortMenuOpen(false)}
+                  >
+                    <button
+                      className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
+                      onClick={() => setSortMenuOpen((prev) => !prev)}
+                    >
+                      Sort
+                      <span className="ml-2">&gt;</span>
+                    </button>
+                    {sortMenuOpen && (
+                      <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                          onClick={() => {
+                            setMoreDropdownOpen(false);
+                            setSortMenuOpen(false);
+                            handleSortByName();
+                          }}
+                        >
+                          Sort by Name
+                        </button>
+                        <button
+                          className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                          onClick={() => {
+                            setMoreDropdownOpen(false);
+                            setSortMenuOpen(false);
+                            handleSortByCode();
+                          }}
+                        >
+                          Sort by Code
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </span>
+              )}
+            </span>
+          </div>
         </div>
-        <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
+
+        <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
               <span className="text-blue-600 font-semibold text-lg">
