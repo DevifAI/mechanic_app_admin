@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useSidebar } from "../context/SidebarContext";
 import UserDropdown from "../components/header/UserDropdown";
-import { Link } from "react-router";
 
 const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
@@ -18,6 +17,8 @@ const AppHeader: React.FC = () => {
   const toggleApplicationMenu = () => {
     setApplicationMenuOpen(!isApplicationMenuOpen);
   };
+
+  console.log(toggleApplicationMenu);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
