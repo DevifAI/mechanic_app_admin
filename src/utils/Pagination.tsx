@@ -1,7 +1,7 @@
 import React from "react";
 import { PaginationProps } from "../types/paginationTypes";
 
-const rowsPerPageOptions = [10, 25, 50, 100, 200];
+const rowsPerPageOptions = [10, 20, 50, 100, 200];
 
 const Pagination: React.FC<
   PaginationProps & {

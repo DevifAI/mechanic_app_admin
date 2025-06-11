@@ -57,7 +57,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [revenueOptions, setRevenueOptions] = useState<Option[]>([]);
   const [equipmentOptions, setEquipmentOptions] = useState<Option[]>([]);
-  const [employeeOptions, setEmployeeOptions] = useState<Option[]>([]);
+  // const [employeeOptions, setEmployeeOptions] = useState<Option[]>([]);
   const [storeOptions, setStoreOptions] = useState<Option[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -90,7 +90,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [customersData, employeesData, storeData, revenues, equipments] = await Promise.all([
+        const [customersData, storeData, revenues, equipments] = await Promise.all([
           fetchCustomers(),
           fetchEmployees(),
           fetchStores(),
@@ -99,12 +99,12 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         ]);
 
         setCustomers(customersData);
-        setEmployeeOptions(
-          employeesData.map((emp: any) => ({
-            value: emp.id,
-            text: emp.emp_name || "Unnamed Employee",
-          }))
-        );
+        // setEmployeeOptions(
+        //   employeesData.map((emp: any) => ({
+        //     value: emp.id,
+        //     text: emp.emp_name || "Unnamed Employee",
+        //   }))
+        // );
         setStoreOptions(
           storeData.map((store: any) => ({
             value: store.id,
@@ -146,10 +146,10 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.staff.length < 6) {
-      alert("Please select at least 6 staff members.");
-      return;
-    }
+    // if (formData.staff.length < 6) {
+    //   alert("Please select at least 6 staff members.");
+    //   return;
+    // }
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
@@ -295,7 +295,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         />
       </div>
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Staff <span className="text-xs text-gray-500">(Select at least 6)</span>
         </label>
@@ -306,7 +306,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           onChange={(values) => handleMultiSelectChange("staff", values)}
           className="mb-4"
         />
-      </div>
+      </div> */}
 
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

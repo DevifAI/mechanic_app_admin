@@ -34,7 +34,7 @@ export const Projects = () => {
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [rawProjects, setRawProjects] = useState<any[]>([]);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [sortAsc, setSortAsc] = useState(true);
