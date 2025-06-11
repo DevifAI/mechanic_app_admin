@@ -10,7 +10,7 @@ const url = {
 };
 
 const axiosInstance = axios.create({
-  baseURL: url.development,
+  baseURL: url.production1,
   headers: {
     "Content-Type": "application/json",
   },
