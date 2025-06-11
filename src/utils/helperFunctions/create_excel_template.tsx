@@ -25,8 +25,7 @@ export default function DownloadTemplateButton() {
         "2025-05-30",
         "6 months",
         "REV-002, REV-001", 
-        "hydraulic , motor",
-        
+        "hydraulic",
         "ST001",
       ],
     ];

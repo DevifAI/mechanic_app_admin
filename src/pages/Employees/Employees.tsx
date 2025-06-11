@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { fetchEmployees, deleteEmployee } from "../../apis/employyeApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
@@ -26,16 +25,15 @@ type EmployeeRow = {
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
-  // const [originalEmployees, setOriginalEmployees] = useState<EmployeeRow[]>([]);
-  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRow | null>(
-    null
-  );
+  const [filteredEmployees, setFilteredEmployees] = useState<EmployeeRow[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRow | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const navigate = useNavigate();
 
   const {
@@ -43,7 +41,7 @@ export const Employees = () => {
     setCurrentPage,
     totalPages,
     paginatedData: paginatedEmployees,
-  } = usePagination(employees, rowsPerPage);
+  } = usePagination(filteredEmployees, rowsPerPage);
 
   const fetchAndSetEmployees = async () => {
     setLoading(true);
@@ -63,8 +61,8 @@ export const Employees = () => {
         active: e.active !== undefined ? e.active : "N/A",
       }));
 
-      // setOriginalEmployees(simplified);
       setEmployees(simplified);
+      setFilteredEmployees(simplified);
     } catch (err) {
       console.error("Error loading employees", err);
     } finally {
@@ -92,10 +90,20 @@ export const Employees = () => {
     }
   }, [dropdownOpen]);
 
+  // 👇 Search filtering effect
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredEmployees(employees);
+    } else {
+      const filtered = employees.filter((e) =>
+        e.emp_name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredEmployees(filtered);
+    }
+  }, [searchTerm, employees]);
+
   const handleDelete = async (employee: EmployeeRow) => {
-    if (
-      !window.confirm(`Are you sure you want to delete ${employee.emp_name}?`)
-    ) {
+    if (!window.confirm(`Are you sure you want to delete ${employee.emp_name}?`)) {
       return;
     }
     setLoading(true);
@@ -104,11 +112,7 @@ export const Employees = () => {
       await fetchAndSetEmployees();
       toast.success("Employee deleted successfully!");
     } catch (error: any) {
-      if (
-        error.response &&
-        error.response.data &&
-        error.response.data.message
-      ) {
+      if (error.response && error.response.data && error.response.data.message) {
         toast.error(`Failed: ${error.response.data.message}`);
       } else if (error.message) {
         toast.error(`Failed: ${error.message}`);
@@ -120,18 +124,13 @@ export const Employees = () => {
     }
   };
 
-  // Sort handlers
   const handleSortByName = () => {
-    setEmployees((prev) =>
-      [...prev].sort((a, b) => a.emp_name.localeCompare(b.emp_name))
-    );
+    setEmployees((prev) => [...prev].sort((a, b) => a.emp_name.localeCompare(b.emp_name)));
     toast.info("Sorted by Name");
   };
 
   const handleSortByEmpId = () => {
-    setEmployees((prev) =>
-      [...prev].sort((a, b) => a.emp_id.localeCompare(b.emp_id))
-    );
+    setEmployees((prev) => [...prev].sort((a, b) => a.emp_id.localeCompare(b.emp_id)));
     toast.info("Sorted by Emp ID");
   };
 
@@ -144,17 +143,22 @@ export const Employees = () => {
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
-        <div className="flex justify-between items-center px-6">
-           <Title pageTitle="Employees" />
-          <div className="flex justify-end items-center mb-4 gap-3">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center px-6 gap-4 mb-4">
+          <Title pageTitle="Employees" />
+          <div className="flex flex-wrap justify-end items-center gap-3 w-full md:w-auto">
+            <input
+              type="text"
+              placeholder="Search by employee name..."
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-200 w-full md:w-64"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
             <button
               onClick={() => navigate("/employees/create")}
-              className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+              className="flex items-center justify-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
             >
-              <span>
-                <FaPlus />
-              </span>
-              <span className="">New</span>
+              <FaPlus />
+              <span>New</span>
             </button>
             <span
               className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -194,8 +198,7 @@ export const Employees = () => {
                       className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
                       onClick={() => setSortMenuOpen((prev) => !prev)}
                     >
-                      Sort
-                      <span className="ml-2">&gt;</span>
+                      Sort <span className="ml-2">&gt;</span>
                     </button>
                     {sortMenuOpen && (
                       <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
@@ -227,12 +230,14 @@ export const Employees = () => {
             </span>
           </div>
         </div>
+
+
+       
+
         <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
-              <span className="text-blue-600 font-semibold text-lg">
-                Loading...
-              </span>
+              <span className="text-blue-600 font-semibold text-lg">Loading...</span>
             </div>
           ) : (
             <table className="w-full min-w-[1100px] text-base bg-white dark:bg-gray-800">
@@ -267,28 +272,19 @@ export const Employees = () => {
                       <td className="px-4 py-2">{employee.shift}</td>
                       <td className="px-4 py-2">{employee.role}</td>
                       <td className="px-4 py-2">
-                        {employee.active === true || employee.active === "Yes"
-                          ? "Yes"
-                          : "No"}
+                        {employee.active === true || employee.active === "Yes" ? "Yes" : "No"}
                       </td>
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === employee.id && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setDropdownOpen(
-                                dropdownOpen === employee.id
-                                  ? null
-                                  : employee.id
-                              );
+                              setDropdownOpen(dropdownOpen === employee.id ? null : employee.id);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-full transition"
                             title="Actions"
                           >
-                            <FaCircleChevronDown
-                              className="text-blue-500"
-                              size={20}
-                            />
+                            <FaCircleChevronDown className="text-blue-500" size={20} />
                           </button>
                         )}
                         {dropdownOpen === employee.id && (

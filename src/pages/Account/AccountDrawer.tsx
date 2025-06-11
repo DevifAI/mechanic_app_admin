@@ -1,11 +1,48 @@
 import { FaTimes, FaTag, FaCalendarAlt, FaLayerGroup } from "react-icons/fa";
+import { useState } from "react";
 
 const AccountDrawer: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   account: any;
 }> = ({ isOpen, onClose, account }) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   if (!isOpen || !account) return null;
+
+  const filteredFields = [
+    {
+      title: "Account Code",
+      value: account.account_code,
+      icon: <FaTag />,
+    },
+    {
+      title: "Account Group Name",
+      value: account.group?.account_group_name || "-",
+      icon: <FaLayerGroup />,
+    },
+    {
+      title: "Account Group Code",
+      value: account.group?.account_group_code || "-",
+      icon: <FaLayerGroup />,
+    },
+    {
+      title: "Created At",
+      value: account.createdAt
+        ? new Date(account.createdAt).toLocaleString()
+        : "-",
+      icon: <FaCalendarAlt />,
+    },
+    {
+      title: "Updated At",
+      value: account.updatedAt
+        ? new Date(account.updatedAt).toLocaleString()
+        : "-",
+      icon: <FaCalendarAlt />,
+    },
+  ].filter((field) =>
+    field.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div className="fixed inset-0 z-[99999] pointer-events-none">
@@ -34,48 +71,36 @@ const AccountDrawer: React.FC<{
           />
         </button>
 
-        <div className="p-6 pt-12 flex-grow">
+        <div className="p-6 pt-12 flex-grow overflow-y-auto">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
               {account.account_name}
             </h2>
             <p className="text-gray-600 dark:text-gray-300">Account Details</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <DrawerInfo
-              title="Account Code"
-              icon={<FaTag />}
-              value={account.account_code}
-            />
-            <DrawerInfo
-              title="Account Group Name"
-              icon={<FaLayerGroup />}
-              value={account.group?.account_group_name || "-"}
-            />
-            <DrawerInfo
-              title="Account Group Code"
-              icon={<FaLayerGroup />}
-              value={account.group?.account_group_code || "-"}
-            />
-            <DrawerInfo
-              title="Created At"
-              icon={<FaCalendarAlt />}
-              value={
-                account.createdAt
-                  ? new Date(account.createdAt).toLocaleString()
-                  : "-"
-              }
-            />
-            <DrawerInfo
-              title="Updated At"
-              icon={<FaCalendarAlt />}
-              value={
-                account.updatedAt
-                  ? new Date(account.updatedAt).toLocaleString()
-                  : "-"
-              }
+
+          {/* 👇 Search Bar */}
+          <div className="mb-6">
+            <input
+              type="text"
+              placeholder="Search field title..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring focus:ring-blue-200"
             />
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {filteredFields.map((field, index) => (
+              <DrawerInfo
+                key={index}
+                title={field.title}
+                icon={field.icon}
+                value={field.value}
+              />
+            ))}
+          </div>
+
           <div className="mt-6 flex justify-end">
             <button
               onClick={onClose}

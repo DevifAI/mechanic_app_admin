@@ -6,7 +6,6 @@ import { fetchCustomers } from "../../apis/customerApi";
 // import { fetchEmployees } from "../../apis/employeeApi";
 import { fetchStores } from "../../apis/storeApi";
 import { Customer } from "../../types/customerTypes";
-import { fetchEmployees } from "../../apis/employyeApi";
 
 type ProjectFormProps = {
   onClose: () => void;
@@ -92,7 +91,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         setIsLoading(true);
         const [customersData, storeData, revenues, equipments] = await Promise.all([
           fetchCustomers(),
-          fetchEmployees(),
+          // fetchEmployees(),
           fetchStores(),
           fetchRevenues(),
           fetchEquipments(),
@@ -117,6 +116,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
             text: `${rev.revenue_code} - ${rev.revenue_description}`,
           }))
         );
+console.log({equipments})
         setEquipmentOptions(
           equipments.map((eq: any) => ({
             value: eq.id,
@@ -133,6 +133,9 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     fetchData();
   }, []);
 
+
+  console.log({equipmentOptions})
+  console.log({revenueOptions})
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {

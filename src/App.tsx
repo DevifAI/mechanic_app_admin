@@ -58,6 +58,7 @@ import AccountFormPage from "./pages/Account/AccountFormPage";
 import ProjectDetailPage from "./pages/Projects/ProjectDetailPage";
 import { DieselRequisition } from "./pages/Transactions/Diesel_Requisitions/DieselRequisition";
 import  DieselRequisitionDetailsPage  from "./pages/Transactions/Diesel_Requisitions/DieselRequisitionDetailsPage";
+import AddEmployeeProject from "./pages/AddEmployee_Project/AddEmployeeProject";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -87,6 +88,7 @@ export default function App() {
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/projects/edit/:id" element={<CreateProjectPage />} />
+          <Route path="/projects/add/employees/:id" element={<AddEmployeeProject />} />
           <Route path="/employees/view" element={<Employees />} />
           <Route path="/employees/create" element={<CreateEmployeePage />} />
           <Route path="/employees/edit/:id" element={<CreateEmployeePage />} />

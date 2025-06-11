@@ -4,8 +4,7 @@ import { handleExport } from "../../utils/helperFunctions/downloadExcel_forProje
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { FaCircleChevronDown, FaPlus } from "react-icons/fa6";
-import { FaSortAmountUp } from "react-icons/fa";
-import { FaSortAmountDown } from "react-icons/fa";
+import { FaSortAmountUp, FaSortAmountDown } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import ProjectDrawer from "./ProjectDrawer";
 import { useNavigate } from "react-router";
@@ -28,9 +27,7 @@ type ProjectRow = {
 
 export const Projects = () => {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
-  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(
-    null
-  );
+  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
@@ -38,6 +35,7 @@ export const Projects = () => {
   const [rawProjects, setRawProjects] = useState<any[]>([]);
   const [optionsDropdownOpen, setOptionsDropdownOpen] = useState(false);
   const [sortAsc, setSortAsc] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const {
     currentPage,
@@ -53,35 +51,6 @@ export const Projects = () => {
     try {
       const data = await fetchProjects();
       setRawProjects(data);
-      const simplified = data.map((p: any) => {
-        const start = new Date(p.contract_start_date);
-        const end = p.contract_end_date ? new Date(p.contract_end_date) : null;
-        let duration = "Ongoing";
-        if (end && !isNaN(start.getTime())) {
-          const diffMs = end.getTime() - start.getTime();
-          const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-          duration = `${diffDays} Days`;
-        }
-
-        return {
-          id: p.id,
-          projectNo: p.project_no,
-          customer: p.customer?.partner_name || "N/A",
-          orderNo: p.order_no,
-          contractStart: p.contract_start_date?.split("T")[0] || "N/A",
-          tenure: p.contract_tenure,
-          duration,
-          revenues:
-            p.revenues.length > 0
-              ? p.revenues.map((r: any) => r.revenue_description).join(", ")
-              : "N/A",
-          equipments: p.equipments.length,
-          staff: p.staff.length,
-          locations: p.store_locations.length,
-        };
-      });
-
-      setProjects(simplified);
     } catch (err) {
       console.error("Error loading projects", err);
     } finally {
@@ -92,6 +61,50 @@ export const Projects = () => {
   useEffect(() => {
     fetchAndSetProjects();
   }, []);
+
+  useEffect(() => {
+    const filtered = rawProjects.filter((p: any) => {
+      const projectNo = p.project_no?.toLowerCase() || "";
+      const customer = p.customer?.partner_name?.toLowerCase() || "";
+      const orderNo = p.order_no?.toLowerCase() || "";
+      const query = searchQuery.toLowerCase();
+      return (
+        projectNo.includes(query) ||
+        customer.includes(query) ||
+        orderNo.includes(query)
+      );
+    });
+
+    const simplified = filtered.map((p: any) => {
+      const start = new Date(p.contract_start_date);
+      const end = p.contract_end_date ? new Date(p.contract_end_date) : null;
+      let duration = "Ongoing";
+      if (end && !isNaN(start.getTime())) {
+        const diffMs = end.getTime() - start.getTime();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        duration = `${diffDays} Days`;
+      }
+
+      return {
+        id: p.id,
+        projectNo: p.project_no,
+        customer: p.customer?.partner_name || "N/A",
+        orderNo: p.order_no,
+        contractStart: p.contract_start_date?.split("T")[0] || "N/A",
+        tenure: p.contract_tenure,
+        duration,
+        revenues:
+          p.revenues.length > 0
+            ? p.revenues.map((r: any) => r.revenue_description).join(", ")
+            : "N/A",
+        equipments: p.equipments.length,
+        staff: p.staff.length,
+        locations: p.store_locations.length,
+      };
+    });
+
+    setProjects(simplified);
+  }, [searchQuery, rawProjects]);
 
   useEffect(() => {
     const handleClickOutside = () => {
@@ -142,21 +155,23 @@ export const Projects = () => {
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       {/* Header */}
-
-
-
       <div className="flex justify-between items-center px-6">
         <Title pageTitle="Projects" />
 
         <div className="flex justify-end items-center mb-4 gap-3">
+          <input
+            type="text"
+            placeholder="Search by Project No, Customer, or Order No"
+            className="px-4 py-2 w-80 border rounded-md shadow-sm focus:outline-none focus:ring focus:border-blue-300 dark:bg-gray-800 dark:text-white dark:border-gray-600"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
           <button
             onClick={() => navigate("/projects/create")}
             className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            <span>
-              <FaPlus />
-            </span>
-            <span className="">New</span>
+            <span><FaPlus /></span>
+            <span>New</span>
           </button>
           <span
             className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -170,7 +185,6 @@ export const Projects = () => {
               <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
                 <button
                   className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-
                   onClick={handleExportProjects}
                 >
                   Export
@@ -184,21 +198,16 @@ export const Projects = () => {
                 >
                   Refresh
                 </button>
-                <div
-                  className="relative"
-
+                <button
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                  onClick={() => {
+                    handleSort();
+                    setOptionsDropdownOpen(false);
+                  }}
                 >
-                  <button
-                    className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
-                    onClick={() => {
-                      handleSort();
-                      setOptionsDropdownOpen(false);
-                    }}
-                  >
-                    {sortAsc ? <FaSortAmountDown /> : <FaSortAmountUp />}
-                    <span>Sort {sortAsc ? "Asc" : "Desc"}</span>
-                  </button>
-                </div>
+                  {sortAsc ? <FaSortAmountDown /> : <FaSortAmountUp />}
+                  <span>Sort {sortAsc ? "Asc" : "Desc"}</span>
+                </button>
               </div>
             )}
           </span>
@@ -209,13 +218,10 @@ export const Projects = () => {
       <div className="flex-1 flex flex-col overflow-hidden dark:bg-gray-900">
         {loading ? (
           <div className="flex justify-center items-center h-full">
-            <span className="text-blue-600 font-semibold text-lg">
-              Loading...
-            </span>
+            <span className="text-blue-600 font-semibold text-lg">Loading...</span>
           </div>
         ) : (
           <>
-            {/* Table */}
             <div className="flex-1 overflow-hidden px-6 pt-4">
               <div className="h-full rounded-lg overflow-hidden bg-white dark:bg-gray-800">
                 <div className="overflow-y-auto h-full">
@@ -260,25 +266,29 @@ export const Projects = () => {
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setDropdownOpen(
-                                    dropdownOpen === project.projectNo
-                                      ? null
-                                      : project.projectNo
+                                    dropdownOpen === project.projectNo ? null : project.projectNo
                                   );
                                 }}
                                 className="w-8 h-8 flex items-center justify-center rounded-full transition"
                                 title="Actions"
                               >
-                                <FaCircleChevronDown
-                                  className="text-blue-500"
-                                  size={20}
-                                />
+                                <FaCircleChevronDown className="text-blue-500" size={20} />
                               </button>
                             )}
                             {dropdownOpen === project.projectNo && (
                               <div
-                                className="absolute z-20 right-0 mt-8 w-32 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
+                                className="absolute z-20 right-0 mt-8 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg py-1"
                                 onClick={(e) => e.stopPropagation()}
                               >
+                                <button
+                                  className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                                  onClick={() => {
+                                    setDropdownOpen(null);
+                                    navigate(`/projects/add/employees/${project.id}`);
+                                  }}
+                                >
+                                  Add Employees
+                                </button>
                                 <button
                                   className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
                                   onClick={() => {
@@ -293,9 +303,7 @@ export const Projects = () => {
                                   onClick={async () => {
                                     try {
                                       await deleteProject(project.id);
-                                      toast.success(
-                                        "Project deleted successfully!"
-                                      );
+                                      toast.success("Project deleted successfully!");
                                       setDropdownOpen(null);
                                       fetchAndSetProjects();
                                     } catch (error) {
@@ -317,7 +325,6 @@ export const Projects = () => {
               </div>
             </div>
 
-            {/* Pagination */}
             <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
               <Pagination
                 currentPage={currentPage}

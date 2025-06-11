@@ -63,3 +63,22 @@ export const deleteEmployee = async (
     throw error;
   }
 };
+
+// Get employees by role ID
+export const fetchEmployeesByRoleId = async (roleId: string): Promise<Employee[]> => {
+  try {
+    const res = await axiosInstance.get(`/employee/role/${roleId}`);
+    return res.data;
+  } catch (error) {
+    console.error(`Failed to fetch employees with role ID ${roleId}`, error);
+    throw error;
+  }
+};
+
+export const assignEmployeesToProject = async (project_id: string, employee_ids: string[]) => {
+  const res = await axiosInstance.post("/employee/add/employee/project", {
+    project_id,
+    employee_ids,
+  });
+  return res.data;
+};
