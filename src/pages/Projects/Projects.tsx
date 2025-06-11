@@ -5,7 +5,7 @@ import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { FaCircleChevronDown, FaPlus } from "react-icons/fa6";
 import { FaSortAmountUp } from "react-icons/fa";
-import { FaSyncAlt, FaSortAmountDown } from "react-icons/fa";
+import { FaSortAmountDown } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import ProjectDrawer from "./ProjectDrawer";
 import { useNavigate } from "react-router";
