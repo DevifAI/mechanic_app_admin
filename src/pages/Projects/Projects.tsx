@@ -9,6 +9,8 @@ import { FaSyncAlt, FaSortAmountDown } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import ProjectDrawer from "./ProjectDrawer";
 import { useNavigate } from "react-router";
+import Title from "../../components/common/Title";
+import { IoIosMore } from "react-icons/io";
 
 type ProjectRow = {
   id: any;
@@ -101,7 +103,27 @@ export const Projects = () => {
   }, []);
 
   const handleExportProjects = () => {
-    handleExport(rawProjects);
+    const formattedProjects = rawProjects.map(project => {
+      const {
+        createdAt,
+        updatedAt,
+        contract_start_date,
+        contract_end_date,
+        ...rest
+      } = project;
+
+      return {
+        ...rest,
+        contract_start_date: contract_start_date
+          ? new Date(contract_start_date).toISOString().split("T")[0]
+          : "",
+        contract_end_date: contract_end_date
+          ? new Date(contract_end_date).toISOString().split("T")[0]
+          : "",
+      };
+    });
+
+    handleExport(formattedProjects);
     toast.success("Exported as Excel!");
   };
 
@@ -120,63 +142,66 @@ export const Projects = () => {
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-gray-800">
-        <h2 className="text-xl font-semibold text-gray-800 dark:text-white">Projects</h2>
-        <div className="flex items-center gap-3 relative">
+
+
+
+      <div className="flex justify-between items-center px-6">
+        <Title pageTitle="Projects" />
+
+        <div className="flex justify-end items-center mb-4 gap-3">
           <button
             onClick={() => navigate("/projects/create")}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            <FaPlus />
-            <span>New</span>
+            <span>
+              <FaPlus />
+            </span>
+            <span className="">New</span>
           </button>
-          <button
-            onClick={handleExportProjects}
-            className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
-          >
-            <span>Export</span>
-          </button>
-
-          {/* More options button */}
-          <button
+          <span
+            className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
             onClick={(e) => {
               e.stopPropagation();
               setOptionsDropdownOpen(!optionsDropdownOpen);
             }}
-            className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center "
-            title="More options"
           >
-            ...
-          </button>
+            <IoIosMore />
+            {optionsDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
 
-          {/* Dropdown */}
-          {optionsDropdownOpen && (
-            <div
-              onClick={(e) => e.stopPropagation()}
-              className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50"
-            >
-              <button
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
-                onClick={() => {
-                  fetchAndSetProjects();
-                  setOptionsDropdownOpen(false);
-                }}
-              >
-                <FaSyncAlt />
-                <span>Refresh Table</span>
-              </button>
-              <button
-                className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
-                onClick={() => {
-                  handleSort();
-                  setOptionsDropdownOpen(false);
-                }}
-              >
-                {sortAsc ? <FaSortAmountDown /> : <FaSortAmountUp />}
-                <span>Sort {sortAsc ? "Asc" : "Desc"}</span>
-              </button>
-            </div>
-          )}
+                  onClick={handleExportProjects}
+                >
+                  Export
+                </button>
+                <button
+                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                  onClick={() => {
+                    fetchAndSetProjects();
+                    setOptionsDropdownOpen(false);
+                  }}
+                >
+                  Refresh
+                </button>
+                <div
+                  className="relative"
+
+                >
+                  <button
+                    className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                    onClick={() => {
+                      handleSort();
+                      setOptionsDropdownOpen(false);
+                    }}
+                  >
+                    {sortAsc ? <FaSortAmountDown /> : <FaSortAmountUp />}
+                    <span>Sort {sortAsc ? "Asc" : "Desc"}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </span>
         </div>
       </div>
 
