@@ -14,7 +14,7 @@ export default function DownloadTemplateButton() {
         "contractTenure",
         "revenueMaster", // user can enter comma-separated IDs here
         "equipments",
-        "staff",
+      
         "storeLocations",
       ],
       [
@@ -26,7 +26,7 @@ export default function DownloadTemplateButton() {
         "6 months",
         "REV-002, REV-001", 
         "hydraulic , motor",
-        "Virat Singh,John Doe",
+        
         "ST001",
       ],
     ];
