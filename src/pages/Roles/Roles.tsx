@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { fetchRoles, deleteRole } from "../../apis/roleApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
@@ -25,50 +24,45 @@ export const Roles = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  const filteredRoles = roles.filter((role) =>
+    role.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    role.code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedRoles,
-  } = usePagination(roles, rowsPerPage);
+  } = usePagination(filteredRoles, rowsPerPage);
 
-  // Utility to convert roles array to CSV string
   const convertRolesToCSV = (roles: RoleRow[]) => {
     const header = ["ID", "Code", "Name"];
     const rows = roles.map((role) => [role.id, role.code, role.name]);
-
     const csvContent =
       [header, ...rows]
-        .map((row) =>
-          row
-            .map((item) => `"${item.replace(/"/g, '""')}"`) // escape quotes
-            .join(",")
-        )
+        .map((row) => row.map((item) => `"${item.replace(/"/g, '""')}"`).join(","))
         .join("\n") + "\n";
-
     return csvContent;
   };
 
-  // Export handler function
   const handleExport = () => {
     if (roles.length === 0) {
       toast.info("No roles to export");
       return;
     }
-
     const csv = convertRolesToCSV(roles);
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-
     const link = document.createElement("a");
     link.href = url;
     link.setAttribute("download", "roles_export.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     URL.revokeObjectURL(url);
     toast.success("Roles exported successfully!");
   };
@@ -77,13 +71,11 @@ export const Roles = () => {
     setLoading(true);
     try {
       const data = await fetchRoles();
-      setRoles(
-        data.map((item: any) => ({
-          id: item.id,
-          code: item.code,
-          name: item.name,
-        }))
-      );
+      setRoles(data.map((item: any) => ({
+        id: item.id,
+        code: item.code,
+        name: item.name,
+      })));
     } catch (err) {
       console.error("Failed to fetch roles", err);
     }
@@ -125,7 +117,6 @@ export const Roles = () => {
     }
   };
 
-  // Sort handlers
   const handleSortByName = () => {
     setRoles((prev) => [...prev].sort((a, b) => a.name.localeCompare(b.name)));
     toast.info("Sorted by Name");
@@ -138,22 +129,27 @@ export const Roles = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle="Roles" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
-
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Roles" />
-
-          <div className="flex justify-end items-center mb-4 gap-3">
+          <div className="flex justify-end items-center mb-4 gap-3 flex-wrap">
+            <input
+              type="text"
+              placeholder="Search by name or code..."
+              className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-900 text-sm"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
             <button
               onClick={() => navigate("/roles/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
             >
-              <span>
-                <FaPlus />
-              </span>
-              <span className="">New</span>
+              <FaPlus />
+              <span>New</span>
             </button>
             <span
               className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -192,8 +188,7 @@ export const Roles = () => {
                       className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
                       onClick={() => setSortMenuOpen((prev) => !prev)}
                     >
-                      Sort
-                      <span className="ml-2">&gt;</span>
+                      Sort <span className="ml-2">&gt;</span>
                     </button>
                     {sortMenuOpen && (
                       <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
@@ -229,16 +224,14 @@ export const Roles = () => {
         <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
-              <span className="text-blue-600 font-semibold text-lg">
-                Loading...
-              </span>
+              <span className="text-blue-600 font-semibold text-lg">Loading...</span>
             </div>
           ) : (
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Code</th>
-                  <th className="px-4 py-3">Role Name</th>
+                  <th className="px-4 py-3 text-[12px]">Code</th>
+                  <th className="px-4 py-3 text-[12px]">Role Name</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -252,24 +245,19 @@ export const Roles = () => {
                       onMouseEnter={() => setHoveredRow(role.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-3">{role.code}</td>
-                      <td className="px-4 py-3">{role.name}</td>
+                      <td className="px-4 py-3 text-[12px]">{role.code}</td>
+                      <td className="px-4 py-3 text-[12px]">{role.name}</td>
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === role.id && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setDropdownOpen(
-                                dropdownOpen === role.id ? null : role.id
-                              );
+                              setDropdownOpen(dropdownOpen === role.id ? null : role.id);
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-full transition"
                             title="Actions"
                           >
-                            <FaCircleChevronDown
-                              className="text-blue-500"
-                              size={20}
-                            />
+                            <FaCircleChevronDown className="text-blue-500" size={20} />
                           </button>
                         )}
                         {dropdownOpen === role.id && (

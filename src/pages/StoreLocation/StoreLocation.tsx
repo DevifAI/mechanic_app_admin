@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { fetchStores, deleteStore } from "../../apis/storeApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
@@ -26,14 +25,9 @@ export const StoreLocation = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
-  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData: paginatedStores,
-  } = usePagination(stores, rowsPerPage);
+  const navigate = useNavigate();
 
   const fetchAndSetStores = async () => {
     setLoading(true);
@@ -56,6 +50,19 @@ export const StoreLocation = () => {
   useEffect(() => {
     fetchAndSetStores();
   }, []);
+
+  const filteredStores = stores.filter(
+    (store) =>
+      store.store_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (store.store_name || "").toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedStores,
+  } = usePagination(filteredStores, rowsPerPage);
 
   const exportToCSV = (data: StoreRow[], filename: string = "stores.csv") => {
     const headers = ["Store Code", "Name", "Location"];
@@ -109,7 +116,6 @@ export const StoreLocation = () => {
     }
   };
 
-  // Example sort handlers (implement actual sorting logic as needed)
   const handleSortByName = () => {
     setStores((prev) =>
       [...prev].sort((a, b) =>
@@ -128,7 +134,6 @@ export const StoreLocation = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle="Store Location" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
@@ -136,15 +141,20 @@ export const StoreLocation = () => {
           <Title pageTitle="Store Location" />
 
           <div>
-            <div className="flex justify-end items-center mb-4 gap-3">
+            <div className="flex flex-wrap justify-end items-center mb-4 gap-3">
+              <input
+                type="text"
+                placeholder="Search by code or name"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="px-3 py-1 border rounded-md text-sm w-60"
+              />
               <button
                 onClick={() => navigate("/store-locations/create")}
                 className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
               >
-                <span>
-                  <FaPlus />
-                </span>
-                <span className="">New</span>
+                <FaPlus />
+                <span>New</span>
               </button>
               <span
                 className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -160,7 +170,7 @@ export const StoreLocation = () => {
                       className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                       onClick={() => {
                         setMoreDropdownOpen(false);
-                        exportToCSV(stores); // 👈 This line handles the export
+                        exportToCSV(stores);
                       }}
                     >
                       Export
@@ -229,9 +239,9 @@ export const StoreLocation = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Store Code</th>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Location</th>
+                  <th className="px-4 py-3 text-[12px]">Store Code</th>
+                  <th className="px-4 py-3 text-[12px]">Name</th>
+                  <th className="px-4 py-3 text-[12px]">Location</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -245,9 +255,9 @@ export const StoreLocation = () => {
                       onMouseEnter={() => setHoveredRow(store.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-3">{store.store_code}</td>
-                      <td className="px-4 py-3">{store.store_name || "-"}</td>
-                      <td className="px-4 py-3">{store.store_location}</td>
+                      <td className="px-4 py-3 text-[12px]">{store.store_code}</td>
+                      <td className="px-4 py-3 text-[12px]">{store.store_name || "-"}</td>
+                      <td className="px-4 py-3 text-[12px]">{store.store_location}</td>
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === store.id && (
                           <button
@@ -298,6 +308,7 @@ export const StoreLocation = () => {
             </table>
           )}
         </div>
+
         <div className="px-6 pb-6 flex justify-end">
           <Pagination
             currentPage={currentPage}
@@ -308,6 +319,7 @@ export const StoreLocation = () => {
           />
         </div>
       </div>
+
       <StoreDrawer
         isOpen={!!selectedStore}
         onClose={() => setSelectedStore(null)}

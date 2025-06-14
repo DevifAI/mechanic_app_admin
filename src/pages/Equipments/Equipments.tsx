@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { fetchEquipments, deleteEquipment } from "../../apis/equipmentApi";
 import { fetchEquipmentGroups } from "../../apis/equipmentGroupApi";
 import Pagination from "../../utils/Pagination";
@@ -19,16 +18,24 @@ export const Equipments = () => {
   const [equipmentGroups, setEquipmentGroups] = useState<any[]>([]);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
-  const [sortMenuOpen, setSortMenuOpen] = useState(false);
-  const navigate = useNavigate();
+  // const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const navigate = useNavigate();
+
+  // Filtered data
+  const filteredEquipments = equipments.filter((eq) =>
+    eq.equipment_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    eq.equipment_sr_no.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedEquipments,
-  } = usePagination(equipments, rowsPerPage);
+  } = usePagination(filteredEquipments, rowsPerPage);
 
   const exportToCSV = (data: any[]) => {
     if (!data || data.length === 0) {
@@ -121,7 +128,6 @@ export const Equipments = () => {
       setLoading(true);
       try {
         await deleteEquipment(equipment.id);
-        // Refresh the list after deletion
         const data = await fetchEquipments();
         setEquipments(data);
         toast.success("Equipment deleted successfully!");
@@ -135,21 +141,25 @@ export const Equipments = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle={"Equipments"} /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
-        <div className="flex justify-between items-center px-6 ">
+        <div className="flex justify-between items-center px-6">
           <Title pageTitle="Equipments" />
-          <div className="flex justify-end items-center mb-4 gap-3 ">
+          <div className="flex flex-wrap justify-end items-center mb-4 gap-3">
+            <input
+              type="text"
+              placeholder="Search by Name or Serial No"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded-md text-sm w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
             <button
               onClick={() => navigate("/equipments/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
             >
-              <span>
-                <FaPlus />
-              </span>
-              <span className="">New</span>
+              <FaPlus />
+              <span>New</span>
             </button>
             <span
               className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -165,8 +175,7 @@ export const Equipments = () => {
                     className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                     onClick={() => {
                       setMoreDropdownOpen(false);
-                      exportToCSV(equipments);
-                      // Export logic here
+                      exportToCSV(filteredEquipments);
                     }}
                   >
                     Export
@@ -175,51 +184,11 @@ export const Equipments = () => {
                     className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                     onClick={() => {
                       setMoreDropdownOpen(false);
-                      // Refresh logic here
                       window.location.reload();
                     }}
                   >
                     Refresh
                   </button>
-                  <div
-                    className="relative"
-                    onMouseEnter={() => setSortMenuOpen(true)}
-                    onMouseLeave={() => setSortMenuOpen(false)}
-                  >
-                    <button
-                      className=" w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
-                      onClick={() => setSortMenuOpen((prev) => !prev)}
-                    >
-                      Sort
-                      <span className="ml-2">&gt;</span>
-                    </button>
-                    {sortMenuOpen && (
-                      <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
-                        <button
-                          className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                          onClick={() => {
-                            setMoreDropdownOpen(false);
-                            setSortMenuOpen(false);
-                            // Sort by Purchase Cost logic here
-                            toast.info("Sort by Purchase Cost clicked");
-                          }}
-                        >
-                          Sort by Purchase Cost
-                        </button>
-                        <button
-                          className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
-                          onClick={() => {
-                            setMoreDropdownOpen(false);
-                            setSortMenuOpen(false);
-                            // Sort by Purchase Date logic here
-                            toast.info("Sort by Purchase Date clicked");
-                          }}
-                        >
-                          Sort by Purchase Date
-                        </button>
-                      </div>
-                    )}
-                  </div>
                 </div>
               )}
             </span>
@@ -233,91 +202,92 @@ export const Equipments = () => {
                 Loading...
               </span>
             </div>
-          ) : (
+          )  : (
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Equipment Name</th>
-                  <th className="px-4 py-3">Serial No</th>
-                  <th className="px-4 py-3">Additional ID</th>
-                  <th className="px-4 py-3">Purchase Date</th>
-                  <th className="px-4 py-3">OEM</th>
-                  <th className="px-4 py-3">Purchase Cost</th>
-                  <th className="px-4 py-3">Group</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 text-[12px]">Equipment Name</th>
+                  <th className="px-4 py-3 text-[12px]">Serial No</th>
+                  <th className="px-4 py-3 text-[12px]">Additional ID</th>
+                  <th className="px-4 py-3 text-[12px]">Purchase Date</th>
+                  <th className="px-4 py-3 text-[12px]">OEM</th>
+                  <th className="px-4 py-3 text-[12px]">Purchase Cost</th>
+                  <th className="px-4 py-3 text-[12px]">Group</th>
+                  <th className="px-4 py-3 text-[12px]"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {paginatedEquipments &&
-                  paginatedEquipments.map((equipment) => (
-                    <tr
-                      key={equipment.id}
-                      className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center cursor-pointer"
-                      onClick={() => handleView(equipment)}
-                      onMouseEnter={() => setHoveredRow(equipment.id)}
-                      onMouseLeave={() => setHoveredRow(null)}
-                    >
-                      <td className="px-4 py-3">{equipment.equipment_name}</td>
-                      <td className="px-4 py-3">{equipment.equipment_sr_no}</td>
-                      <td className="px-4 py-3">{equipment.additional_id}</td>
-                      <td className="px-4 py-3">{equipment.purchase_date}</td>
-                      <td className="px-4 py-3">{equipment.oem}</td>
-                      <td className="px-4 py-3">{equipment.purchase_cost}</td>
-                      <td className="px-4 py-3">
-                        {equipmentGroups.find(
+                {paginatedEquipments.map((equipment) => (
+                  <tr
+                    key={equipment.id}
+                    className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center cursor-pointer"
+                    onClick={() => handleView(equipment)}
+                    onMouseEnter={() => setHoveredRow(equipment.id)}
+                    onMouseLeave={() => setHoveredRow(null)}
+                  >
+                    <td className="px-4 py-3 text-[12px]">{equipment.equipment_name}</td>
+                    <td className="px-4 py-3 text-[12px]">{equipment.equipment_sr_no}</td>
+                    <td className="px-4 py-3 text-[12px]">{equipment.additional_id}</td>
+                    <td className="px-4 py-3 text-[12px]">{equipment.purchase_date}</td>
+                    <td className="px-4 py-3 text-[12px]">{equipment.oem}</td>
+                    <td className="px-4 py-3 text-[12px]">{equipment.purchase_cost}</td>
+                    <td className="px-4 py-3 text-[12px]">
+                      {
+                        equipmentGroups.find(
                           (g: any) => g.id === equipment.equipment_group_id
-                        )?.equipment_group || ""}
-                      </td>
-                      <td className="flex justify-center gap-2 relative">
-                        {hoveredRow === equipment.id && (
+                        )?.equipment_group || ""
+                      }
+                    </td>
+                    <td className="flex justify-center gap-2 relative">
+                      {hoveredRow === equipment.id && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setDropdownOpen(
+                              dropdownOpen === equipment.id
+                                ? null
+                                : equipment.id
+                            );
+                          }}
+                          className="w-8 h-8 flex items-center justify-center rounded-full transition"
+                          title="Actions"
+                        >
+                          <FaCircleChevronDown
+                            className="text-blue-500"
+                            size={20}
+                          />
+                        </button>
+                      )}
+                      {dropdownOpen === equipment.id && (
+                        <div
+                          className="absolute z-20 right-0 mt-8 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDropdownOpen(
-                                dropdownOpen === equipment.id
-                                  ? null
-                                  : equipment.id
-                              );
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                            onClick={() => {
+                              navigate(`/equipments/edit/${equipment.id}`);
+                              toast.info("Edit clicked");
                             }}
-                            className="w-8 h-8 flex items-center justify-center rounded-full transition"
-                            title="Actions"
                           >
-                            <FaCircleChevronDown
-                              className="text-blue-500"
-                              size={20}
-                            />
+                            Edit
                           </button>
-                        )}
-                        {dropdownOpen === equipment.id && (
-                          <div
-                            className="absolute z-20 right-0 mt-8 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1"
-                            onClick={(e) => e.stopPropagation()}
+                          <button
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-red-500 hover:text-white dark:hover:bg-gray-700 transition"
+                            onClick={() => handleDelete(equipment)}
                           >
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
-                              onClick={() => {
-                                // Replace with your edit logic, e.g.:
-                                navigate(`/equipments/edit/${equipment.id}`);
-                                toast.info("Edit clicked");
-                              }}
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="block w-full text-left px-4 py-2 text-sm hover:bg-red-500 hover:text-white dark:hover:bg-gray-700 transition"
-                              onClick={() => handleDelete(equipment)}
-                            >
-                              Delete
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                            Delete
+                          </button>
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
         </div>
+
         <div className="px-6 pb-6">
           <Pagination
             currentPage={currentPage}

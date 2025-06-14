@@ -24,21 +24,20 @@ export const Organisations = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState(""); // 🆕 Search input state
   const navigate = useNavigate();
 
   const convertOrganisationsToCSV = (orgs: Organisation[]) => {
     const header = ["Organisation Name", "Organisation Code"];
     const rows = orgs.map((org) => [org.org_name, org.org_code]);
-
     const csvContent =
       [header, ...rows]
         .map((row) =>
           row
-            .map((item) => `"${item?.toString().replace(/"/g, '""')}"`) // escape quotes
+            .map((item) => `"${item?.toString().replace(/"/g, '""')}"`)
             .join(",")
         )
         .join("\n") + "\n";
-
     return csvContent;
   };
 
@@ -63,12 +62,18 @@ export const Organisations = () => {
     toast.success("Organisations exported successfully!");
   };
 
+  const filteredOrganisations = organisations.filter(
+    (org) =>
+      org.org_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      org.org_code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedOrganisations,
-  } = usePagination(organisations, rowsPerPage);
+  } = usePagination(filteredOrganisations, rowsPerPage); // 🆕 use filtered data
 
   const fetchAndSetOrganisations = async () => {
     setLoading(true);
@@ -115,7 +120,6 @@ export const Organisations = () => {
     }
   };
 
-  // Sort handlers
   const handleSortByName = () => {
     setOrganisations((prev) =>
       [...prev].sort((a, b) => a.org_name.localeCompare(b.org_name))
@@ -138,6 +142,15 @@ export const Organisations = () => {
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Organisations" />
           <div className="flex justify-end items-center mb-4 gap-3">
+             <div className="">
+          <input
+            type="text"
+            placeholder="Search by Name or Code"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
             <button
               onClick={() => navigate("/organisations/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -216,6 +229,9 @@ export const Organisations = () => {
           </div>
         </div>
 
+        {/* 🆕 Search bar */}
+       
+
         <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
@@ -227,8 +243,8 @@ export const Organisations = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Organisation Name</th>
-                  <th className="px-4 py-3">Organisation Code</th>
+                  <th className="px-4 py-3 text-[12px]">Organisation Name</th>
+                  <th className="px-4 py-3 text-[12px]">Organisation Code</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -241,8 +257,8 @@ export const Organisations = () => {
                     onMouseEnter={() => setHoveredRow(org.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3">{org.org_name}</td>
-                    <td className="px-4 py-3">{org.org_code}</td>
+                    <td className="px-4 py-3 text-[12px]">{org.org_name}</td>
+                    <td className="px-4 py-3 text-[12px]">{org.org_code}</td>
                     <td className="flex justify-center gap-2 relative">
                       {hoveredRow === org.id && (
                         <button
@@ -293,6 +309,7 @@ export const Organisations = () => {
             </table>
           )}
         </div>
+
         <div className="px-6 pb-6 flex justify-end">
           <Pagination
             currentPage={currentPage}
@@ -303,6 +320,7 @@ export const Organisations = () => {
           />
         </div>
       </div>
+
       <OrganisationDrawer
         isOpen={!!selectedOrganisation}
         onClose={() => setSelectedOrganisation(null)}

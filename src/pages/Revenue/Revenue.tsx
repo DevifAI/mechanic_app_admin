@@ -186,10 +186,10 @@ export const Revenue = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Revenue Code</th>
-                  <th className="px-4 py-3">Description</th>
-                  <th className="px-4 py-3">Value</th>
-                  <th className="px-4 py-3">Linked Projects</th>
+                  <th className="px-4 py-3 text-[12px]">Revenue Code</th>
+                  <th className="px-4 py-3 text-[12px]">Description</th>
+                  <th className="px-4 py-3 text-[12px]">Value</th>
+                  <th className="px-4 py-3 text-[12px]">Linked Projects</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -203,10 +203,10 @@ export const Revenue = () => {
                       onMouseEnter={() => setHoveredRow(revenue.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-3">{revenue.revenue_code}</td>
-                      <td className="px-4 py-3">{revenue.revenue_description}</td>
-                      <td className="px-4 py-3">₹{revenue.revenue_value}</td>
-                      <td className="px-4 py-3">{revenue.linkedProjects}</td>
+                      <td className="px-4 py-3 text-[12px]">{revenue.revenue_code}</td>
+                      <td className="px-4 py-3 text-[12px]">{revenue.revenue_description}</td>
+                      <td className="px-4 py-3 text-[12px]">₹{revenue.revenue_value}</td>
+                      <td className="px-4 py-3 text-[12px]">{revenue.linkedProjects}</td>
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === revenue.id && (
                           <button

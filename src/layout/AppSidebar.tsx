@@ -128,7 +128,7 @@ const masterItems: NavItem[] = [
   },
   {
     icon: <SiBaremetrics size={20} />,
-    name: "Uom",
+    name: "Units Of Measurement",
     path: "/uom/view",
     subItems: [
       { name: "Create Uom", path: "/uom/create" },
@@ -137,7 +137,7 @@ const masterItems: NavItem[] = [
   },
   {
     icon: <FaLayerGroup size={20} />,
-    name: "ItemGroup",
+    name: "Item Group",
     path: "/itemGroup/view",
     subItems: [
       { name: "Create ItemGroup", path: "/itemGroup/create" },
@@ -155,7 +155,7 @@ const masterItems: NavItem[] = [
   },
   {
     icon: <SiOrigin size={20} />,
-    name: "AccountGroup",
+    name: "Account Group",
     path: "/accountGroup/view",
     subItems: [
       { name: "Create AccountGroup", path: "/accountGroup/create" },

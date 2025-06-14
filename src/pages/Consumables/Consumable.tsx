@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
@@ -14,6 +13,7 @@ import Title from "../../components/common/Title";
 
 export const Consumable = () => {
   const [items, setItems] = useState<Item[]>([]);
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
@@ -21,17 +21,12 @@ export const Consumable = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   const exportToExcel = () => {
-    const dataToExport = items.map(
-      ({
-        item_code,
-        item_name,
-        product_type,
-        item_qty_in_hand,
-        item_avg_cost,
-      }) => ({
+    const dataToExport = filteredItems.map(
+      ({ item_code, item_name, product_type, item_qty_in_hand, item_avg_cost }) => ({
         Code: item_code,
         Name: item_name,
         Type: product_type,
@@ -47,18 +42,29 @@ export const Consumable = () => {
     XLSX.writeFile(workbook, "ConsumableItems.xlsx");
   };
 
+  useEffect(() => {
+    const lower = searchTerm.toLowerCase();
+    const results = items.filter(
+      (item) =>
+        item.item_code.toLowerCase().includes(lower) ||
+        item.item_name.toLowerCase().includes(lower)
+    );
+    setFilteredItems(results);
+  }, [searchTerm, items]);
+
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedItems,
-  } = usePagination(items, rowsPerPage);
+  } = usePagination(filteredItems, rowsPerPage);
 
   const fetchAndSetItems = async () => {
     setLoading(true);
     try {
       const data = await fetchItems();
       setItems(data);
+      setFilteredItems(data);
     } catch (err) {
       console.error("Failed to fetch items", err);
       toast.error("Failed to fetch items");
@@ -121,7 +127,14 @@ export const Consumable = () => {
       <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Consumable Items" />
-          <div className="flex justify-end items-center mb-4 gap-3">
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="text"
+              placeholder="Search by code or name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300"
+            />
             <button
               onClick={() => navigate("/consumable/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"

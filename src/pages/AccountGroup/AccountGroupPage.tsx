@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
@@ -16,63 +15,31 @@ import Title from "../../components/common/Title";
 
 export const AccountGroupPage = () => {
   const [accountGroups, setAccountGroups] = useState<AccountGroup[]>([]);
-  const [selectedAccountGroup, setSelectedAccountGroup] =
-    useState<AccountGroup | null>(null);
+  const [filteredAccountGroups, setFilteredAccountGroups] = useState<AccountGroup[]>([]);
+  const [selectedAccountGroup, setSelectedAccountGroup] = useState<AccountGroup | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
+
   const navigate = useNavigate();
-
-  const exportToCSV = () => {
-    if (accountGroups.length === 0) {
-      toast.info("No data to export.");
-      return;
-    }
-
-    const csvRows = [
-      ["Group Name", "Group Code"], // CSV headers
-      ...accountGroups.map((group) => [
-        group.account_group_name,
-        group.account_group_code,
-      ]),
-    ];
-
-    const csvContent = csvRows
-      .map((row) =>
-        row
-          .map((value) => `"${(value ?? "").toString().replace(/"/g, '""')}"`)
-          .join(",")
-      )
-      .join("\n");
-
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "account_groups.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    toast.success("Exported as CSV");
-  };
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedAccountGroups,
-  } = usePagination(accountGroups, rowsPerPage);
+  } = usePagination(filteredAccountGroups, rowsPerPage);
 
   const fetchAndSetAccountGroups = async () => {
     setLoading(true);
     try {
       const data = await getAllAccountGroups();
       setAccountGroups(data);
+      setFilteredAccountGroups(data);
     } catch (err) {
       toast.error("Failed to fetch Account Groups");
     }
@@ -113,9 +80,52 @@ export const AccountGroupPage = () => {
     }
   };
 
-  // Sort handlers
+  const exportToCSV = () => {
+    if (filteredAccountGroups.length === 0) {
+      toast.info("No data to export.");
+      return;
+    }
+
+    const csvRows = [
+      ["Group Name", "Group Code"],
+      ...filteredAccountGroups.map((group) => [
+        group.account_group_name,
+        group.account_group_code,
+      ]),
+    ];
+
+    const csvContent = csvRows
+      .map((row) =>
+        row.map((value) => `"${(value ?? "").toString().replace(/"/g, '""')}"`).join(",")
+      )
+      .join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "account_groups.csv");
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast.success("Exported as CSV");
+  };
+
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    const filtered = accountGroups.filter(
+      (group) =>
+        group.account_group_name.toLowerCase().includes(term.toLowerCase()) ||
+        group.account_group_code.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredAccountGroups(filtered);
+    setCurrentPage(1);
+  };
+
   const handleSortByName = () => {
-    setAccountGroups((prev) =>
+    setFilteredAccountGroups((prev) =>
       [...prev].sort((a, b) =>
         a.account_group_name.localeCompare(b.account_group_name)
       )
@@ -124,7 +134,7 @@ export const AccountGroupPage = () => {
   };
 
   const handleSortByCode = () => {
-    setAccountGroups((prev) =>
+    setFilteredAccountGroups((prev) =>
       [...prev].sort((a, b) =>
         a.account_group_code.localeCompare(b.account_group_code)
       )
@@ -134,12 +144,18 @@ export const AccountGroupPage = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle="Account Groups" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Account Groups" />
-          <div className="flex justify-end items-center mb-4 gap-3">
+          <div className="flex flex-wrap gap-3 items-center mb-4">
+            <input
+              type="text"
+              placeholder="Search by Name or Code"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-300 text-sm"
+            />
             <button
               onClick={() => navigate("/accountgroup/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -161,7 +177,7 @@ export const AccountGroupPage = () => {
                     className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                     onClick={() => {
                       setMoreDropdownOpen(false);
-                      exportToCSV(); // <-- add this line
+                      exportToCSV();
                     }}
                   >
                     Export
@@ -250,17 +266,12 @@ export const AccountGroupPage = () => {
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            setDropdownOpen(
-                              dropdownOpen === group.id ? null : group.id
-                            );
+                            setDropdownOpen(dropdownOpen === group.id ? null : group.id);
                           }}
                           className="w-8 h-8 flex items-center justify-center rounded-full transition"
                           title="Actions"
                         >
-                          <FaCircleChevronDown
-                            className="text-blue-500"
-                            size={20}
-                          />
+                          <FaCircleChevronDown className="text-blue-500" size={20} />
                         </button>
                       )}
                       {dropdownOpen === group.id && (

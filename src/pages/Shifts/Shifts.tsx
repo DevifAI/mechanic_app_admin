@@ -28,14 +28,8 @@ export const Shifts = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData: paginatedShifts,
-  } = usePagination(shifts, rowsPerPage);
 
   const fetchAndSetShifts = async () => {
     setLoading(true);
@@ -74,6 +68,17 @@ export const Shifts = () => {
       return () => document.removeEventListener("click", handleClickOutside);
     }
   }, [dropdownOpen]);
+
+  const filteredShifts = shifts.filter((shift) =>
+    shift.shift_code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedShifts,
+  } = usePagination(filteredShifts, rowsPerPage);
 
   const exportShiftsToExcel = (shifts: ShiftRow[]) => {
     const worksheet = XLSX.utils.json_to_sheet(
@@ -114,7 +119,6 @@ export const Shifts = () => {
     }
   };
 
-  // Example sort handlers
   const handleSortByCode = () => {
     setShifts((prev) =>
       [...prev].sort((a, b) => a.shift_code.localeCompare(b.shift_code))
@@ -139,7 +143,14 @@ export const Shifts = () => {
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Shifts" />
-          <div className="flex justify-end items-center mb-4 gap-3">
+          <div className="flex flex-wrap justify-end items-center mb-4 gap-3">
+            <input
+              type="text"
+              placeholder="Search Shift Code"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded-md text-sm focus:outline-none focus:ring focus:border-blue-400 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
             <button
               onClick={() => navigate("/shifts/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -163,7 +174,7 @@ export const Shifts = () => {
                     className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                     onClick={() => {
                       setMoreDropdownOpen(false);
-                      exportShiftsToExcel(shifts); // <-- Call export function
+                      exportShiftsToExcel(shifts);
                     }}
                   >
                     Export
@@ -231,9 +242,9 @@ export const Shifts = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Shift Code</th>
-                  <th className="px-4 py-3">From Time</th>
-                  <th className="px-4 py-3">To Time</th>
+                  <th className="px-4 py-3 text-[12px]">Shift Code</th>
+                  <th className="px-4 py-3 text-[12px]">From Time</th>
+                  <th className="px-4 py-3 text-[12px]">To Time</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -247,9 +258,9 @@ export const Shifts = () => {
                       onMouseEnter={() => setHoveredRow(shift.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-3">{shift.shift_code}</td>
-                      <td className="px-4 py-3">{shift.shift_from_time}</td>
-                      <td className="px-4 py-3">{shift.shift_to_time}</td>
+                      <td className="px-4 py-3 text-[12px]">{shift.shift_code}</td>
+                      <td className="px-4 py-3 text-[12px]">{shift.shift_from_time}</td>
+                      <td className="px-4 py-3 text-[12px]">{shift.shift_to_time}</td>
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === shift.id && (
                           <button

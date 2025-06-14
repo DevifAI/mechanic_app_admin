@@ -243,15 +243,15 @@ export const Employees = () => {
             <table className="w-full min-w-[1100px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Emp ID</th>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Age</th>
-                  <th className="px-4 py-3">Blood Group</th>
-                  <th className="px-4 py-3">Position</th>
-                  <th className="px-4 py-3">Shift</th>
-                  <th className="px-4 py-3">Role</th>
-                  <th className="px-4 py-3">Active</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 text-[12px]">Emp ID</th>
+                  <th className="px-4 py-3 text-[12px]">Name</th>
+                  <th className="px-4 py-3 text-[12px]">Age</th>
+                  <th className="px-4 py-3 text-[12px]">Blood Group</th>
+                  <th className="px-4 py-3 text-[12px]">Position</th>
+                  <th className="px-4 py-3 text-[12px]">Shift</th>
+                  <th className="px-4 py-3 text-[12px]">Role</th>
+                  <th className="px-4 py-3 text-[12px]">Active</th>
+                  <th className="px-4 py-3 text-[12px]"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
@@ -264,14 +264,14 @@ export const Employees = () => {
                       onMouseEnter={() => setHoveredRow(employee.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-2">{employee.emp_id}</td>
-                      <td className="px-4 py-2">{employee.emp_name}</td>
-                      <td className="px-4 py-2">{employee.age}</td>
-                      <td className="px-4 py-2">{employee.bloodGroup}</td>
-                      <td className="px-4 py-2">{employee.position}</td>
-                      <td className="px-4 py-2">{employee.shift}</td>
-                      <td className="px-4 py-2">{employee.role}</td>
-                      <td className="px-4 py-2">
+                      <td className="px-4 py-2 text-[12px]">{employee.emp_id}</td>
+                      <td className="px-4 py-2 text-[12px]">{employee.emp_name}</td>
+                      <td className="px-4 py-2 text-[12px]">{employee.age}</td>
+                      <td className="px-4 py-2 text-[12px]">{employee.bloodGroup}</td>
+                      <td className="px-4 py-2 text-[12px]">{employee.position}</td>
+                      <td className="px-4 py-2 text-[12px]">{employee.shift}</td>
+                      <td className="px-4 py-2 text-[12px]">{employee.role}</td>
+                      <td className="px-4 py-2 text-[12px]">
                         {employee.active === true || employee.active === "Yes" ? "Yes" : "No"}
                       </td>
                       <td className="flex justify-center gap-2 relative">

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,32 +12,37 @@ import Title from "../../components/common/Title";
 
 export const ItemGroupPage = () => {
   const [itemGroups, setItemGroups] = useState<ItemGroup[]>([]);
-  const [selectedItemGroup, setSelectedItemGroup] = useState<ItemGroup | null>(
-    null
-  );
+  const [selectedItemGroup, setSelectedItemGroup] = useState<ItemGroup | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  const filteredItemGroups = itemGroups.filter(
+    (group) =>
+      group.group_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      group.group_code.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedItemGroups,
-  } = usePagination(itemGroups, rowsPerPage);
+  } = usePagination(filteredItemGroups, rowsPerPage);
 
   const handleExport = () => {
-    if (!itemGroups.length) {
+    if (!filteredItemGroups.length) {
       toast.warn("No item groups to export.");
       return;
     }
 
     const csvHeaders = ["Group Name", "Group Code"];
-    const csvRows = itemGroups.map((group) =>
+    const csvRows = filteredItemGroups.map((group) =>
       [group.group_name, group.group_code].join(",")
     );
     const csvContent = [csvHeaders.join(","), ...csvRows].join("\n");
@@ -101,7 +105,6 @@ export const ItemGroupPage = () => {
     }
   };
 
-  // Sort handlers
   const handleSortByName = () => {
     setItemGroups((prev) =>
       [...prev].sort((a, b) => a.group_name.localeCompare(b.group_name))
@@ -118,12 +121,21 @@ export const ItemGroupPage = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle="Item Groups" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Item Groups" />
           <div className="flex justify-end items-center mb-4 gap-3">
+             <div className="px-6 ">
+          <input
+            type="text"
+            placeholder="Search by name or code"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-md text-sm dark:bg-gray-700 dark:text-white dark:border-gray-600"
+          />
+        </div>
+
             <button
               onClick={() => navigate("/itemgroup/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -202,6 +214,7 @@ export const ItemGroupPage = () => {
           </div>
         </div>
 
+       
         <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
@@ -213,9 +226,9 @@ export const ItemGroupPage = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Group Name</th>
-                  <th className="px-4 py-3">Group Code</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 text-[12px]">Group Name</th>
+                  <th className="px-4 py-3 text-[12px]">Group Code</th>
+                  <th className="px-4 py-3 text-[12px]"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
@@ -227,8 +240,8 @@ export const ItemGroupPage = () => {
                     onMouseEnter={() => setHoveredRow(group.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3">{group.group_name}</td>
-                    <td className="px-4 py-3">{group.group_code}</td>
+                    <td className="px-4 py-3 text-[12px]">{group.group_name}</td>
+                    <td className="px-4 py-3 text-[12px]">{group.group_code}</td>
                     <td className="flex justify-center gap-2 relative">
                       {hoveredRow === group.id && (
                         <button

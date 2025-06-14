@@ -228,17 +228,18 @@ export const Projects = () => {
                   <table className="w-full min-w-full text-base">
                     <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm sticky top-0 z-10">
                       <tr>
-                        <th className="px-4 py-3">Project No</th>
-                        <th className="px-4 py-3">Customer</th>
-                        <th className="px-4 py-3">Order No</th>
-                        <th className="px-4 py-3">Contract Start</th>
-                        <th className="px-4 py-3">Tenure</th>
-                        <th className="px-4 py-3">Duration</th>
-                        <th className="px-4 py-3">Revenues</th>
-                        <th className="px-4 py-3">Equipments</th>
-                        <th className="px-4 py-3">Staff</th>
-                        <th className="px-4 py-3">Locations</th>
-                        <th className="px-4 py-3"></th>
+                        <th className="px-4 py-3 text-[12px]">Project No</th>
+                        <th className="px-4 py-3 text-[12px]">Customer</th>
+                        <th className="px-4 py-3 text-[12px]">Order No</th>
+                        <th className="px-4 py-3 text-[12px]">Contract Start</th>
+                        <th className="px-4 py-3 text-[12px]">Tenure</th>
+                        <th className="px-4 py-3 text-[12px]">Duration</th>
+                        <th className="px-4 py-3 text-[12px]">Revenues</th>
+                        <th className="px-4 py-3 text-[12px]">Equipments</th>
+                        <th className="px-4 py-3 text-[12px]">Staff</th>
+                        <th className="px-4 py-3 text-[12px]">Locations</th>
+                        <th className="px-4 py-3 text-[12px]"></th>
+
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
@@ -250,16 +251,16 @@ export const Projects = () => {
                           onMouseEnter={() => setHoveredRow(project.projectNo)}
                           onMouseLeave={() => setHoveredRow(null)}
                         >
-                          <td className="px-4 py-2">{project.projectNo}</td>
-                          <td className="px-4 py-2">{project.customer}</td>
-                          <td className="px-4 py-2">{project.orderNo}</td>
-                          <td className="px-4 py-2">{project.contractStart}</td>
-                          <td className="px-4 py-2">{project.tenure}</td>
-                          <td className="px-4 py-2">{project.duration}</td>
-                          <td className="px-4 py-2">{project.revenues}</td>
-                          <td className="px-4 py-2">{project.equipments}</td>
-                          <td className="px-4 py-2">{project.staff}</td>
-                          <td className="px-4 py-2">{project.locations}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.projectNo}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.customer}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.orderNo}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.contractStart}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.tenure}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.duration}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.revenues}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.equipments}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.staff}</td>
+                          <td className="px-4 py-2 text-[12px]">{project.locations}</td>
                           <td className="flex justify-center gap-2 relative">
                             {hoveredRow === project.projectNo && (
                               <button

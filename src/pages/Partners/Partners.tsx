@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { deleteCustomer, fetchCustomers } from "../../apis/customerApi";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
@@ -20,14 +19,8 @@ export const Partners = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData: paginatedPartners,
-  } = usePagination(partners, rowsPerPage);
 
   useEffect(() => {
     const fetchAndSetPartners = async () => {
@@ -42,7 +35,6 @@ export const Partners = () => {
             partner_gst: item.partner_gst,
             partner_geo_id: item.partner_geo_id,
             isCustomer: item.isCustomer,
-            // isActive: item.isActive ?? true,
           }))
         );
       } catch (err) {
@@ -52,6 +44,17 @@ export const Partners = () => {
     };
     fetchAndSetPartners();
   }, []);
+
+  const filteredPartners = partners.filter((partner) =>
+    partner.partner_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedPartners,
+  } = usePagination(filteredPartners, rowsPerPage);
 
   const exportToExcel = (data: any[]) => {
     if (!data || data.length === 0) {
@@ -95,7 +98,6 @@ export const Partners = () => {
       setLoading(true);
       try {
         await deleteCustomer(partner.id);
-        // Refresh the list after deletion
         const data = await fetchCustomers();
         setPartners(
           data.map((item) => ({
@@ -105,7 +107,6 @@ export const Partners = () => {
             partner_gst: item.partner_gst,
             partner_geo_id: item.partner_geo_id,
             isCustomer: item.isCustomer,
-            // isActive: item.isActive ?? true,
           }))
         );
         toast.success("Partner deleted successfully!");
@@ -119,22 +120,25 @@ export const Partners = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle={"Partners"} /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
 
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Partners" />
-
           <div className="flex justify-end items-center mb-4 gap-3">
+            <input
+              type="text"
+              placeholder="Search by name"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="px-3 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
             <button
               onClick={() => navigate("/partners/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
             >
-              <span>
-                <FaPlus />
-              </span>
-              <span className="">New</span>
+              <FaPlus />
+              <span>New</span>
             </button>
             <span
               className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -150,12 +154,11 @@ export const Partners = () => {
                     className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                     onClick={() => {
                       setMoreDropdownOpen(false);
-                      exportToExcel(partners); // <-- use full data, not paginated
+                      exportToExcel(partners);
                     }}
                   >
                     Export
                   </button>
-
                   <button
                     className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
                     onClick={() => {
@@ -171,7 +174,7 @@ export const Partners = () => {
                     onMouseLeave={() => setSortMenuOpen(false)}
                   >
                     <button
-                      className=" w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
+                      className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
                       onClick={() => setSortMenuOpen((prev) => !prev)}
                     >
                       Sort
@@ -221,9 +224,12 @@ export const Partners = () => {
                 <tr>
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Address</th>
+                  <th className="px-4 py-3">State</th>
+                  <th className="px-4 py-3">City</th>
+                  <th className="px-4 py-3">Pincode</th>
                   <th className="px-4 py-3">GST</th>
-                  <th className="px-4 py-3">Geo ID</th>
                   <th className="px-4 py-3">Is Customer</th>
+
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -236,14 +242,24 @@ export const Partners = () => {
                     onMouseEnter={() => setHoveredRow(partner.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3">{partner.partner_name}</td>
-                    <td className="px-4 py-3">{partner.partner_address}</td>
-                    <td className="px-4 py-3">{partner.partner_gst}</td>
-                    <td className="px-4 py-3">{partner.partner_geo_id}</td>
-                    <td className="px-4 py-3">
-                      {partner.isCustomer ? "Yes" : "No"}
+                    <td className="px-4 py-3 text-[12px]">{partner.partner_name}</td>
+                    <td className="px-4 py-3 text-[12px]">
+                      {partner.partner_address?.slice(0, 30) + "..."}
                     </td>
 
+                    <td className="px-4 py-3 text-[12px]">
+                      N/A
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">
+                      N/A
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">
+                      N/A
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">{partner.partner_gst}</td>
+                    <td className="px-4 py-3 text-[12px]">
+                      {partner.isCustomer ? "Yes" : "No"}
+                    </td>
                     <td className="flex justify-center gap-2 relative">
                       {hoveredRow === partner.id && (
                         <button
@@ -294,6 +310,7 @@ export const Partners = () => {
             </table>
           )}
         </div>
+
         <div className="px-6 pb-6 flex justify-end">
           <Pagination
             currentPage={currentPage}

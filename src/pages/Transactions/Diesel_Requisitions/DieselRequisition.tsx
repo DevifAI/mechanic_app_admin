@@ -199,10 +199,10 @@ export const DieselRequisition = () => {
                         <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
                             <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                                 <tr>
-                                    <th className="px-4 py-3">Date</th>
-                                    <th className="px-4 py-3">Created By</th>
-                                    <th className="px-4 py-3">Organisation</th>
-                                    <th className="px-4 py-3">Items Count</th>
+                                    <th className="px-4 py-3 text-[12px]">Date</th>
+                                    <th className="px-4 py-3 text-[12px]">Created By</th>
+                                    <th className="px-4 py-3 text-[12px]">Organisation</th>
+                                    <th className="px-4 py-3 text-[12px]">Items Count</th>
                                     <th className="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -217,9 +217,9 @@ export const DieselRequisition = () => {
                                         // onMouseEnter={() => setHoveredRow(req.id)}
                                         // onMouseLeave={() => setHoveredRow(null)}
                                     >
-                                        <td className="px-4 py-3">{new Date(req.date).toLocaleDateString()}</td>
-                                        <td className="px-4 py-3">{req.createdByEmployee?.emp_name || "N/A"}</td>
-                                        <td className="px-4 py-3">{req.organisation?.org_name || "N/A"}</td>
+                                        <td className="px-4 py-3 text-[12px]">{new Date(req.date).toLocaleDateString()}</td>
+                                        <td className="px-4 py-3 text-[12px]">{req.createdByEmployee?.emp_name || "N/A"}</td>
+                                        <td className="px-4 py-3 text-[12px]">{req.organisation?.org_name || "N/A"}</td>
                                         <td className="px-4 py-3">{req.items?.length || 0}</td>
 
                                     </tr>

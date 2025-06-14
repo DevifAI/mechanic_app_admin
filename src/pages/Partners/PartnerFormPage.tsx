@@ -26,7 +26,11 @@ export default function PartnerFormPage() {
     partner_gst: "",
     partner_geo_id: "",
     isCustomer: true,
+    state: "",
+    city: "",
+    pincode: "",
   });
+
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
 
@@ -42,6 +46,9 @@ export default function PartnerFormPage() {
             partner_gst: data.partner_gst,
             partner_geo_id: data.partner_geo_id,
             isCustomer: data.isCustomer,
+            state: "", // Dummy state value (won't be submitted)
+            city: "",
+            pincode: "",
           });
         })
         .catch(() => toast.error("Failed to load partner"))
@@ -121,8 +128,7 @@ export default function PartnerFormPage() {
       {activeTab === "form" ? (
         <>
           <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-            <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"}{" "}
-            Partner
+            <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"} Partner
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -143,6 +149,7 @@ export default function PartnerFormPage() {
                 />
               </div>
             </div>
+
             <div>
               <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                 <span className="inline-flex items-center gap-2">
@@ -160,6 +167,7 @@ export default function PartnerFormPage() {
                 />
               </div>
             </div>
+
             <div>
               <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                 <span className="inline-flex items-center gap-2">
@@ -177,6 +185,7 @@ export default function PartnerFormPage() {
                 />
               </div>
             </div>
+
             <div>
               <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                 <span className="inline-flex items-center gap-2">
@@ -193,6 +202,47 @@ export default function PartnerFormPage() {
                 />
               </div>
             </div>
+
+            {/* State, City, Pincode (disabled fields) */}
+           <div className="flex flex-wrap gap-4">
+  <div className="flex-1 min-w-[150px]">
+    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+      State
+    </label>
+    <input
+      type="text"
+      value={formData.state}
+      disabled
+      className="w-full px-3 py-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 cursor-not-allowed"
+    />
+  </div>
+
+  <div className="flex-1 min-w-[150px]">
+    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+      City
+    </label>
+    <input
+      type="text"
+      value={formData.city}
+      disabled
+      className="w-full px-3 py-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 cursor-not-allowed"
+    />
+  </div>
+
+  <div className="flex-1 min-w-[150px]">
+    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+      Pincode
+    </label>
+    <input
+      type="text"
+      value={formData.pincode}
+      disabled
+      className="w-full px-3 py-2 border rounded bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-300 cursor-not-allowed"
+    />
+  </div>
+</div>
+
+
             <div className="flex items-center">
               <input
                 type="checkbox"
@@ -205,6 +255,7 @@ export default function PartnerFormPage() {
                 Is Customer
               </label>
             </div>
+
             <div className="flex justify-end gap-4">
               <button
                 type="button"

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-// import PageBreadcrumb from "../../components/common/PageBreadCrumb";
 import { usePagination } from "../../hooks/usePagination";
 import Pagination from "../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
@@ -21,14 +20,26 @@ export const AccountPage = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  const filteredAccounts = accounts.filter((acc) => {
+    const groupName =
+      acc.group?.account_group_name || acc.account_group || "";
+    const search = searchTerm.toLowerCase();
+    return (
+      acc.account_name.toLowerCase().includes(search) ||
+      acc.account_code.toLowerCase().includes(search) ||
+      groupName.toLowerCase().includes(search)
+    );
+  });
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedAccounts,
-  } = usePagination(accounts, rowsPerPage);
+  } = usePagination(filteredAccounts, rowsPerPage);
 
   const handleExportToExcel = () => {
     const exportData = accounts.map((acc) => ({
@@ -90,7 +101,6 @@ export const AccountPage = () => {
     }
   };
 
-  // Sort handlers
   const handleSortByName = () => {
     setAccounts((prev) =>
       [...prev].sort((a, b) => a.account_name.localeCompare(b.account_name))
@@ -107,13 +117,19 @@ export const AccountPage = () => {
 
   return (
     <>
-      {/* <PageBreadcrumb pageTitle="Accounts" /> */}
       <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
         <div className="flex justify-between items-center px-6">
           <Title pageTitle="Accounts" />
 
-          <div className="flex justify-end items-center mb-4 gap-3">
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="text"
+              placeholder="Search account..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
             <button
               onClick={() => navigate("/account/create")}
               className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -274,6 +290,7 @@ export const AccountPage = () => {
             </table>
           )}
         </div>
+
         <div className="px-6 pb-6 flex justify-end">
           <Pagination
             currentPage={currentPage}
