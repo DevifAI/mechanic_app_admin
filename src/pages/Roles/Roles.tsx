@@ -230,14 +230,15 @@ export const Roles = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-[12px]">Code</th>
-                  <th className="px-4 py-3 text-[12px]">Role Name</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Code</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Role Name</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
                 {paginatedRoles &&
-                  paginatedRoles.map((role) => (
+                  paginatedRoles.map((role, i) => (
                     <tr
                       key={role.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -245,8 +246,9 @@ export const Roles = () => {
                       onMouseEnter={() => setHoveredRow(role.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-3 text-[12px]">{role.code}</td>
-                      <td className="px-4 py-3 text-[12px]">{role.name}</td>
+                      <td className="px-4 py-3 text-[12px] text-left">{i + 1}</td>
+                      <td className="px-4 py-3 text-[12px] text-left">{role.code}</td>
+                      <td className="px-4 py-3 text-[12px] text-left">{role.name}</td>
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === role.id && (
                           <button

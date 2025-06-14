@@ -35,6 +35,9 @@ export const Partners = () => {
             partner_gst: item.partner_gst,
             partner_geo_id: item.partner_geo_id,
             isCustomer: item.isCustomer,
+            state: (item as any).state || "N/A",
+            city: (item as any).city || "N/A",
+            pincode: (item as any).pincode || "N/A",
           }))
         );
       } catch (err) {
@@ -222,19 +225,20 @@ export const Partners = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Name</th>
-                  <th className="px-4 py-3">Address</th>
-                  <th className="px-4 py-3">State</th>
-                  <th className="px-4 py-3">City</th>
-                  <th className="px-4 py-3">Pincode</th>
-                  <th className="px-4 py-3">GST</th>
-                  <th className="px-4 py-3">Is Customer</th>
+                  <th className="px-4 py-3 text-left text-[12px]">Serial No.</th>
+                  <th className="px-4 py-3 text-left text-[12px]">Name</th>
+                  <th className="px-4 py-3 text-left text-[12px]">Address</th>
+                  <th className="px-4 py-3 text-left text-[12px]">State</th>
+                  <th className="px-4 py-3 text-left text-[12px]">City</th>
+                  <th className="px-4 py-3 text-left text-[12px]">Pincode</th>
+                  <th className="px-4 py-3 text-left text-[12px]">GST</th>
+                  <th className="px-4 py-3 text-left text-[12px]">Is Customer</th>
 
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {paginatedPartners.map((partner) => (
+                {paginatedPartners.map((partner, i) => (
                   <tr
                     key={partner.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center cursor-pointer"
@@ -242,22 +246,23 @@ export const Partners = () => {
                     onMouseEnter={() => setHoveredRow(partner.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3 text-[12px]">{partner.partner_name}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{i + 1}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{partner.partner_name}</td>
                     <td className="px-4 py-3 text-[12px]">
                       {partner.partner_address?.slice(0, 30) + "..."}
                     </td>
 
-                    <td className="px-4 py-3 text-[12px]">
-                      N/A
+                    <td className="px-4 py-3 text-[12px] text-left">
+                      {partner.state}
                     </td>
-                    <td className="px-4 py-3 text-[12px]">
-                      N/A
+                    <td className="px-4 py-3 text-[12px] text-left">
+                      {partner.city}
                     </td>
-                    <td className="px-4 py-3 text-[12px]">
-                      N/A
+                    <td className="px-4 py-3 text-[12px] text-left">
+                      {partner.pincode}
                     </td>
-                    <td className="px-4 py-3 text-[12px]">{partner.partner_gst}</td>
-                    <td className="px-4 py-3 text-[12px]">
+                    <td className="px-4 py-3 text-[12px] text-left">{partner.partner_gst}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">
                       {partner.isCustomer ? "Yes" : "No"}
                     </td>
                     <td className="flex justify-center gap-2 relative">

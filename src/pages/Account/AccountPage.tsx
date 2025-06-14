@@ -219,14 +219,15 @@ export const AccountPage = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Account Name</th>
-                  <th className="px-4 py-3">Account Code</th>
-                  <th className="px-4 py-3">Account Group</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Account Code</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Account Name</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Account Group</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedAccounts.map((account) => (
+                {paginatedAccounts.map((account, i) => (
                   <tr
                     key={account.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -234,9 +235,10 @@ export const AccountPage = () => {
                     onMouseEnter={() => setHoveredRow(account.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3">{account.account_name}</td>
-                    <td className="px-4 py-3">{account.account_code}</td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 text-[12px] text-left">{i+1}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{account.account_code}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{account.account_name}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">
                       {account.group?.account_group_name ||
                         account.account_group}
                     </td>

@@ -91,11 +91,10 @@ export const Revenue = () => {
 
   return (
     <>
+        <ToastContainer position="bottom-right" autoClose={3000} />
+      <div className="flex justify-between items-center">
       <PageBreadcrumb pageTitle="Revenue" />
-      <ToastContainer position="bottom-right" autoClose={3000} />
-
-      <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
+        <div className="flex justify-end items-center gap-3 px-6">
           <button
             onClick={() => navigate("/revenues/create")}
             className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -174,6 +173,9 @@ export const Revenue = () => {
             )}
           </span>
         </div>
+      </div>
+      <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
+
 
         <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
           {loading ? (
@@ -186,6 +188,7 @@ export const Revenue = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
+                  <th className="px-4 py-3 text-[12px]">Serial No.</th>
                   <th className="px-4 py-3 text-[12px]">Revenue Code</th>
                   <th className="px-4 py-3 text-[12px]">Description</th>
                   <th className="px-4 py-3 text-[12px]">Value</th>
@@ -195,7 +198,7 @@ export const Revenue = () => {
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
                 {paginatedRevenues &&
-                  paginatedRevenues.map((revenue) => (
+                  paginatedRevenues.map((revenue, i) => (
                     <tr
                       key={revenue.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -203,6 +206,7 @@ export const Revenue = () => {
                       onMouseEnter={() => setHoveredRow(revenue.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
+                      <td className="px-4 py-3 text-[12px]">{i + 1}</td>
                       <td className="px-4 py-3 text-[12px]">{revenue.revenue_code}</td>
                       <td className="px-4 py-3 text-[12px]">{revenue.revenue_description}</td>
                       <td className="px-4 py-3 text-[12px]">₹{revenue.revenue_value}</td>

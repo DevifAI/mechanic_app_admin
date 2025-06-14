@@ -228,17 +228,17 @@ export const Projects = () => {
                   <table className="w-full min-w-full text-base">
                     <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm sticky top-0 z-10">
                       <tr>
-                        <th className="px-4 py-3 text-[12px]">Project No</th>
-                        <th className="px-4 py-3 text-[12px]">Customer</th>
-                        <th className="px-4 py-3 text-[12px]">Order No</th>
-                        <th className="px-4 py-3 text-[12px]">Contract Start</th>
-                        <th className="px-4 py-3 text-[12px]">Tenure</th>
-                        <th className="px-4 py-3 text-[12px]">Duration</th>
-                        <th className="px-4 py-3 text-[12px]">Revenues</th>
-                        <th className="px-4 py-3 text-[12px]">Equipments</th>
-                        <th className="px-4 py-3 text-[12px]">Staff</th>
-                        <th className="px-4 py-3 text-[12px]">Locations</th>
-                        <th className="px-4 py-3 text-[12px]"></th>
+                        <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Project No</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Customer</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Order No</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Contract Start</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Duration</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Revenues</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Equipments</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Staff</th>
+                        <th className="px-4 py-3 text-[12px] text-left">Locations</th>
+                        <th className="px-4 py-3 text-[12px] text-left"></th>
 
                       </tr>
                     </thead>
@@ -251,16 +251,16 @@ export const Projects = () => {
                           onMouseEnter={() => setHoveredRow(project.projectNo)}
                           onMouseLeave={() => setHoveredRow(null)}
                         >
-                          <td className="px-4 py-2 text-[12px]">{project.projectNo}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.customer}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.orderNo}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.contractStart}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.tenure}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.duration}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.revenues}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.equipments}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.staff}</td>
-                          <td className="px-4 py-2 text-[12px]">{project.locations}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{idx + 1}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.projectNo}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.customer}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.orderNo}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.contractStart}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.duration}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.revenues}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.equipments}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.staff}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">{project.locations}</td>
                           <td className="flex justify-center gap-2 relative">
                             {hoveredRow === project.projectNo && (
                               <button

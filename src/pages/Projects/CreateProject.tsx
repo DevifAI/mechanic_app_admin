@@ -54,7 +54,7 @@ export const CreateProjectPage = () => {
           </button>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
           {/* Tabs */}
           <div className="border-b border-gray-200 dark:border-gray-700">
             <nav className="flex -mb-px">

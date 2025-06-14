@@ -202,22 +202,23 @@ export const Equipments = () => {
                 Loading...
               </span>
             </div>
-          )  : (
+          ) : (
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-[12px]">Equipment Name</th>
-                  <th className="px-4 py-3 text-[12px]">Serial No</th>
-                  <th className="px-4 py-3 text-[12px]">Additional ID</th>
-                  <th className="px-4 py-3 text-[12px]">Purchase Date</th>
-                  <th className="px-4 py-3 text-[12px]">OEM</th>
-                  <th className="px-4 py-3 text-[12px]">Purchase Cost</th>
-                  <th className="px-4 py-3 text-[12px]">Group</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Serial No</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Equipment Name</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Equipment Serial No</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Additional ID</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Purchase Date</th>
+                  <th className="px-4 py-3 text-[12px] text-left">OEM</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Purchase Cost</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Group</th>
                   <th className="px-4 py-3 text-[12px]"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100">
-                {paginatedEquipments.map((equipment) => (
+                {paginatedEquipments.map((equipment, i) => (
                   <tr
                     key={equipment.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition text-center cursor-pointer"
@@ -225,12 +226,22 @@ export const Equipments = () => {
                     onMouseEnter={() => setHoveredRow(equipment.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3 text-[12px]">{equipment.equipment_name}</td>
-                    <td className="px-4 py-3 text-[12px]">{equipment.equipment_sr_no}</td>
-                    <td className="px-4 py-3 text-[12px]">{equipment.additional_id}</td>
-                    <td className="px-4 py-3 text-[12px]">{equipment.purchase_date}</td>
-                    <td className="px-4 py-3 text-[12px]">{equipment.oem}</td>
-                    <td className="px-4 py-3 text-[12px]">{equipment.purchase_cost}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{i +1}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{equipment.equipment_name}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{equipment.equipment_sr_no}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{equipment.additional_id}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">
+                      {(() => {
+                        const date = new Date(equipment.purchase_date);
+                        const dd = String(date.getDate()).padStart(2, "0");
+                        const mm = String(date.getMonth() + 1).padStart(2, "0");
+                        const yyyy = date.getFullYear();
+                        return `${dd}-${mm}-${yyyy}`;
+                      })()}
+                    </td>
+
+                    <td className="px-4 py-3 text-[12px] text-left">{equipment.oem}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{equipment.purchase_cost}</td>
                     <td className="px-4 py-3 text-[12px]">
                       {
                         equipmentGroups.find(

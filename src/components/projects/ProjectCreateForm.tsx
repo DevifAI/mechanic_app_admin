@@ -25,9 +25,9 @@ type FormData = {
   orderNo: string;
   contractStartDate: string;
   contractEndDate: string; // ✅ Added
-  contractTenure: string;
+  // contractTenure: string;
   revenueMaster: string[];
-  equipments: string[];
+  // equipments: string[];
   staff: string[];
   storeLocations: string[];
 };
@@ -46,9 +46,9 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     orderNo: "",
     contractStartDate: "",
     contractEndDate: "", // ✅ Added
-    contractTenure: "",
+    // contractTenure: "",
     revenueMaster: [],
-    equipments: [],
+    // equipments: [],
     staff: [],
     storeLocations: [],
   });
@@ -74,9 +74,9 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         contractEndDate: initialData.contract_end_date // ✅ Added
           ? new Date(initialData.contract_end_date).toISOString().split("T")[0]
           : "",
-        contractTenure: initialData.contract_tenure || "",
+        // contractTenure: initialData.contract_tenure || "",
         revenueMaster: initialData.revenues?.map((r: any) => r.id) || [],
-        equipments: initialData.equipments?.map((e: any) => e.id) || [],
+        // equipments: initialData.equipments?.map((e: any) => e.id) || [],
         staff: initialData.staff?.map((s: any) => s.id) || [],
         storeLocations: initialData.store_locations?.map((s: any) => s.id) || [],
       });
@@ -253,7 +253,7 @@ console.log({equipments})
         </div>
 
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Contract Tenure
           </label>
@@ -271,7 +271,7 @@ console.log({equipments})
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
 
       <div className="space-y-2">
@@ -286,7 +286,7 @@ console.log({equipments})
         />
       </div>
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Equipments
         </label>
@@ -296,7 +296,7 @@ console.log({equipments})
           defaultSelected={formData.equipments}
           onChange={(values) => handleMultiSelectChange("equipments", values)}
         />
-      </div>
+      </div> */}
 
       {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

@@ -15,6 +15,7 @@ import {
 import { AiFillPlusCircle } from "react-icons/ai";
 import { CgOrganisation } from "react-icons/cg";
 import { SiBaremetrics, SiOrigin } from "react-icons/si";
+import { FaMoneyBillTrendUp } from "react-icons/fa6";
 import { FaLayerGroup } from "react-icons/fa6";
 import { MdAccountBalance } from "react-icons/md";
 import { useSidebar } from "../context/SidebarContext";
@@ -70,6 +71,15 @@ const masterItems: NavItem[] = [
     subItems: [
       { name: "Create Partner", path: "/partners/create" },
       { name: "View Partners", path: "/partners/view" },
+    ],
+  },
+  {
+    icon: <FaMoneyBillTrendUp  size={20} />,
+    name: "Revenues",
+    path: "/revenues/view",
+    subItems: [
+      { name: "Create Revenues", path: "/revenues/create" },
+      { name: "View Revenues", path: "/revenues/view" },
     ],
   },
   {
@@ -133,6 +143,15 @@ const masterItems: NavItem[] = [
     subItems: [
       { name: "Create Uom", path: "/uom/create" },
       { name: "View Uom", path: "/uom/view" },
+    ],
+  },
+  {
+    icon: <SiBaremetrics size={20} />,
+    name: "OEM",
+    path: "/oem/view",
+    subItems: [
+      { name: "Create OEM", path: "/oem/create" },
+      { name: "View OEM", path: "/oem/view" },
     ],
   },
   {

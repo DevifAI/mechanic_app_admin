@@ -224,16 +224,17 @@ export const Consumable = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3">Code</th>
-                  <th className="px-4 py-3">Item Name</th>
-                  <th className="px-4 py-3">Product Type</th>
-                  <th className="px-4 py-3">Quantity</th>
-                  <th className="px-4 py-3">Avg Cost</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Code</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Item Name</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Product Type</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Quantity</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Avg Cost</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedItems.map((item) => (
+                {paginatedItems.map((item, i) => (
                   <tr
                     key={item.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -241,11 +242,12 @@ export const Consumable = () => {
                     onMouseEnter={() => setHoveredRow(item.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3">{item.item_code}</td>
-                    <td className="px-4 py-3">{item.item_name}</td>
-                    <td className="px-4 py-3">{item.product_type}</td>
-                    <td className="px-4 py-3">{item.item_qty_in_hand}</td>
-                    <td className="px-4 py-3">{item.item_avg_cost}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{i +1}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{item.item_code}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{item.item_name}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{item.product_type}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{item.item_qty_in_hand}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{item.item_avg_cost}</td>
                     <td className="flex justify-center gap-2 relative">
                       {hoveredRow === item.id && (
                         <button

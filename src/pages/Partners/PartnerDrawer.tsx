@@ -16,7 +16,7 @@ const PartnerDrawer: React.FC<{
   if (!isOpen || !partner) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] pointer-events-none">
+    <div className="fixed inset-0 z-[99999] ">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-opacity-30 transition-opacity pointer-events-auto"
@@ -25,9 +25,8 @@ const PartnerDrawer: React.FC<{
       />
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ zIndex: 2 }}
       >
         <div className="relative h-full flex flex-col">
@@ -59,7 +58,7 @@ const PartnerDrawer: React.FC<{
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg md:col-span-2">
                 <div className="flex items-center mb-3">
                   <FaBuilding className="text-gray-500 dark:text-gray-300 mr-2" />
                   <h3 className="font-semibold text-gray-700 dark:text-white">
@@ -70,17 +69,51 @@ const PartnerDrawer: React.FC<{
                   {partner.partner_address}
                 </p>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg md:col-span-2">
                 <div className="flex items-center mb-3">
-                  <FaIdCard className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <FaBuilding className="text-gray-500 dark:text-gray-300 mr-2" />
                   <h3 className="font-semibold text-gray-700 dark:text-white">
-                    GST
+                  GST
                   </h3>
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   {partner.partner_gst}
                 </p>
               </div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaBuilding className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                    State
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {partner.state}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaBuilding className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                    City
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {partner.city}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaBuilding className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                    Pin Code
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {partner.pincode}
+                </p>
+              </div>
+             
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaMapMarkerAlt className="text-gray-500 dark:text-gray-300 mr-2" />

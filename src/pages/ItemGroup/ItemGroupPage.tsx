@@ -226,13 +226,14 @@ export const ItemGroupPage = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-[12px]">Group Name</th>
-                  <th className="px-4 py-3 text-[12px]">Group Code</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Group Code</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Group Name</th>
                   <th className="px-4 py-3 text-[12px]"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedItemGroups.map((group) => (
+                {paginatedItemGroups.map((group,i) => (
                   <tr
                     key={group.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -240,8 +241,9 @@ export const ItemGroupPage = () => {
                     onMouseEnter={() => setHoveredRow(group.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3 text-[12px]">{group.group_name}</td>
-                    <td className="px-4 py-3 text-[12px]">{group.group_code}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{i+1}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{group.group_code}</td>
+                    <td className="px-4 py-3 text-[12px] text-left">{group.group_name}</td>
                     <td className="flex justify-center gap-2 relative">
                       {hoveredRow === group.id && (
                         <button

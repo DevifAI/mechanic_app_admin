@@ -243,20 +243,21 @@ export const Employees = () => {
             <table className="w-full min-w-[1100px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-[12px]">Emp ID</th>
-                  <th className="px-4 py-3 text-[12px]">Name</th>
-                  <th className="px-4 py-3 text-[12px]">Age</th>
-                  <th className="px-4 py-3 text-[12px]">Blood Group</th>
-                  <th className="px-4 py-3 text-[12px]">Position</th>
-                  <th className="px-4 py-3 text-[12px]">Shift</th>
-                  <th className="px-4 py-3 text-[12px]">Role</th>
-                  <th className="px-4 py-3 text-[12px]">Active</th>
-                  <th className="px-4 py-3 text-[12px]"></th>
+                  <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Emp ID</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Name</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Age</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Blood Group</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Position</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Shift</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Role</th>
+                  <th className="px-4 py-3 text-[12px] text-left">Active</th>
+                  <th className="px-4 py-3 text-[12px] text-left"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
                 {paginatedEmployees &&
-                  paginatedEmployees.map((employee) => (
+                  paginatedEmployees.map((employee, i) => (
                     <tr
                       key={employee.id}
                       className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -264,14 +265,15 @@ export const Employees = () => {
                       onMouseEnter={() => setHoveredRow(employee.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-2 text-[12px]">{employee.emp_id}</td>
-                      <td className="px-4 py-2 text-[12px]">{employee.emp_name}</td>
-                      <td className="px-4 py-2 text-[12px]">{employee.age}</td>
-                      <td className="px-4 py-2 text-[12px]">{employee.bloodGroup}</td>
-                      <td className="px-4 py-2 text-[12px]">{employee.position}</td>
-                      <td className="px-4 py-2 text-[12px]">{employee.shift}</td>
-                      <td className="px-4 py-2 text-[12px]">{employee.role}</td>
-                      <td className="px-4 py-2 text-[12px]">
+                      <td className="px-4 py-2 text-[12px] text-left ">{i +1}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.emp_id}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.emp_name}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.age}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.bloodGroup}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.position}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.shift}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.role}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">
                         {employee.active === true || employee.active === "Yes" ? "Yes" : "No"}
                       </td>
                       <td className="flex justify-center gap-2 relative">
