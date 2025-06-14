@@ -163,7 +163,7 @@ console.log({equipments})
     }
   };
 
-  const tenureOptions = ["3 months", "6 months", "12 months"];
+  // const tenureOptions = ["3 months", "6 months", "12 months"];
 
   if (isLoading) {
     return (

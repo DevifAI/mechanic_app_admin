@@ -8,7 +8,7 @@ const url = {
 };
 
 const axiosInstance = axios.create({
-  baseURL: url.development,
+  baseURL: url.production,
   headers: {
     "Content-Type": "application/json",
   },

@@ -1,7 +1,7 @@
 import React from "react";
 import {
   FaMapMarkerAlt,
-  FaIdCard,
+  // FaIdCard,
   FaUser,
   FaCheck,
   FaTimes,
