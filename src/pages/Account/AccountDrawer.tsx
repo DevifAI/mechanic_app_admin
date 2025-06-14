@@ -45,10 +45,10 @@ const AccountDrawer: React.FC<{
   );
 
   return (
-    <div className="fixed inset-0 z-[99999] pointer-events-none">
+    <div className="fixed inset-0 z-[99999] ">
       {/* Overlay */}
       <div
-        className="absolute inset-0 bg-opacity-30 transition-opacity pointer-events-auto"
+        className="absolute inset-0 bg-opacity-30 transition-opacity "
         onClick={onClose}
         style={{ zIndex: 1 }}
       />

@@ -8,7 +8,7 @@ const EmployeeDrawer: React.FC<{
   if (!isOpen || !employee) return null;
 
   return (
-    <div className="fixed inset-0 z-[99999] pointer-events-none">
+    <div className="fixed inset-0 z-[99999] ">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-opacity-30 transition-opacity pointer-events-auto"
