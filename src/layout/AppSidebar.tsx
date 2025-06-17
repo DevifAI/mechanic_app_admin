@@ -74,7 +74,7 @@ const masterItems: NavItem[] = [
     ],
   },
   {
-    icon: <FaMoneyBillTrendUp  size={20} />,
+    icon: <FaMoneyBillTrendUp size={20} />,
     name: "Revenues",
     path: "/revenues/view",
     subItems: [
@@ -164,6 +164,15 @@ const masterItems: NavItem[] = [
     ],
   },
   {
+    icon: <FaLayerGroup size={20} />,
+    name: "Equipment Group",
+    path: "/equipmentgroup/view",
+    subItems: [
+      { name: "Create Equipment Group", path: "/equipmentgroup/create" },
+      { name: "View Equipment Group", path: "/equipmentgroup/view" },
+    ],
+  },
+  {
     icon: <MdAccountBalance size={20} />,
     name: "Account",
     path: "/account/view",
@@ -250,10 +259,10 @@ const AppSidebar: React.FC = () => {
         className={`py-4 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center ${!shouldShowText ? "justify-center" : "justify-start"
           }`}
       >
-        
+
         {shouldShowText && (
           <div className="ml-3">
-           <UserDropdown />
+            <UserDropdown />
           </div>
         )}
       </div>
@@ -379,7 +388,7 @@ const AppSidebar: React.FC = () => {
                   <>
                     <li>
                       <div
-                      onClick={() => handleNavigate("/diesel-requisition/view")}
+                        onClick={() => handleNavigate("/diesel-requisition/view")}
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
                         ${!shouldShowText ? "justify-center" : "justify-start"
                           }`}

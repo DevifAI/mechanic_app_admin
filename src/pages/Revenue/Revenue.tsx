@@ -26,14 +26,8 @@ export const Revenue = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-
-  const {
-    currentPage,
-    setCurrentPage,
-    totalPages,
-    paginatedData: paginatedRevenues,
-  } = usePagination(revenues, rowsPerPage);
 
   const fetchAndSetRevenues = async () => {
     setLoading(true);
@@ -89,20 +83,37 @@ export const Revenue = () => {
     }
   };
 
+  // Apply search filter
+  const filteredRevenues = revenues.filter(rev =>
+    rev.revenue_code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const {
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    paginatedData: paginatedRevenues,
+  } = usePagination(filteredRevenues, rowsPerPage);
+
   return (
     <>
-        <ToastContainer position="bottom-right" autoClose={3000} />
+      <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="flex justify-between items-center">
-      <PageBreadcrumb pageTitle="Revenue" />
+        <PageBreadcrumb pageTitle="Revenue" />
         <div className="flex justify-end items-center gap-3 px-6">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by Code"
+            className="px-3 py-1 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
           <button
             onClick={() => navigate("/revenues/create")}
             className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            <span>
-              <FaPlus />
-            </span>
-            <span className="">New</span>
+            <span><FaPlus /></span>
+            <span>New</span>
           </button>
           <span
             className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
@@ -175,8 +186,6 @@ export const Revenue = () => {
         </div>
       </div>
       <div className="min-h-screen h-full w-full dark:bg-gray-900 flex flex-col">
-
-
         <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
@@ -214,7 +223,7 @@ export const Revenue = () => {
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === revenue.id && (
                           <button
-                            onClick={e => {
+                            onClick={(e) => {
                               e.stopPropagation();
                               setDropdownOpen(dropdownOpen === revenue.id ? null : revenue.id);
                             }}
@@ -227,7 +236,7 @@ export const Revenue = () => {
                         {dropdownOpen === revenue.id && (
                           <div
                             className="absolute z-20 right-0 mt-8 w-32 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1"
-                            onClick={e => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <button
                               className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"

@@ -12,6 +12,7 @@ import { OEM } from "../../types/oemTypes";
 
 export const OemPage = () => {
   const [oems, setOems] = useState<OEM[]>([]);
+  const [filteredOems, setFilteredOems] = useState<OEM[]>([]);
   const [selectedOem, setSelectedOem] = useState<OEM | null>(null);
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
@@ -19,6 +20,7 @@ export const OemPage = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
 
   const {
@@ -26,17 +28,19 @@ export const OemPage = () => {
     setCurrentPage,
     totalPages,
     paginatedData: paginatedOems,
-  } = usePagination(oems, rowsPerPage);
+  } = usePagination(filteredOems, rowsPerPage);
 
   const fetchAndSetOems = async () => {
     setLoading(true);
     try {
       const data = await getAllOEMs();
       setOems(data);
+      setFilteredOems(data); // apply to filtered as well
     } catch (err) {
       toast.error("Failed to fetch OEMs");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -44,20 +48,18 @@ export const OemPage = () => {
   }, []);
 
   useEffect(() => {
-    const handleClickOutside = () => setMoreDropdownOpen(false);
-    if (moreDropdownOpen) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
+    if (searchTerm.trim() === "") {
+      setFilteredOems(oems);
+    } else {
+      const lower = searchTerm.toLowerCase();
+      const filtered = oems.filter(
+        (item) =>
+          item.oem_name.toLowerCase().includes(lower) ||
+          item.oem_code.toLowerCase().includes(lower)
+      );
+      setFilteredOems(filtered);
     }
-  }, [moreDropdownOpen]);
-
-  useEffect(() => {
-    const handleClickOutside = () => setDropdownOpen(null);
-    if (dropdownOpen) {
-      document.addEventListener("click", handleClickOutside);
-      return () => document.removeEventListener("click", handleClickOutside);
-    }
-  }, [dropdownOpen]);
+  }, [searchTerm, oems]);
 
   const handleDelete = async (oem: OEM) => {
     if (window.confirm("Are you sure you want to delete this OEM?")) {
@@ -68,32 +70,41 @@ export const OemPage = () => {
         toast.success("OEM deleted successfully!");
       } catch (err) {
         toast.error("Failed to delete OEM!");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
   };
 
-  // Sort handlers
   const handleSortByName = () => {
-    setOems((prev) =>
-      [...prev].sort((a, b) => a.oem_name.localeCompare(b.oem_name))
+    const sorted = [...filteredOems].sort((a, b) =>
+      a.oem_name.localeCompare(b.oem_name)
     );
+    setFilteredOems(sorted);
     toast.info("Sorted by Name");
   };
 
   const handleSortByCode = () => {
-    setOems((prev) =>
-      [...prev].sort((a, b) => a.oem_code.localeCompare(b.oem_code))
+    const sorted = [...filteredOems].sort((a, b) =>
+      a.oem_code.localeCompare(b.oem_code)
     );
+    setFilteredOems(sorted);
     toast.info("Sorted by Code");
   };
 
   return (
     <>
-      <PageBreadcrumb pageTitle="OEMs" />
       <ToastContainer position="bottom-right" autoClose={3000} />
-      <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between px-6 pt-6 mb-4 gap-4">
+        <PageBreadcrumb pageTitle="OEMs" />
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          <input
+            type="text"
+            placeholder="Search by name or code"
+            className="px-4 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <button
             onClick={() => navigate("/oem/create")}
             className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
@@ -112,7 +123,7 @@ export const OemPage = () => {
             {moreDropdownOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-30 py-1">
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
                     toast.info("Export clicked");
@@ -121,7 +132,7 @@ export const OemPage = () => {
                   Export
                 </button>
                 <button
-                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition"
+                  className="block w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 transition"
                   onClick={() => {
                     setMoreDropdownOpen(false);
                     fetchAndSetOems();
@@ -135,7 +146,7 @@ export const OemPage = () => {
                   onMouseLeave={() => setSortMenuOpen(false)}
                 >
                   <button
-                    className="w-full text-left px-4 py-2 text-sm hover:text-white hover:bg-blue-500 dark:hover:bg-gray-700 transition flex justify-between items-center"
+                    className="w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white flex justify-between items-center transition"
                     onClick={() => setSortMenuOpen((prev) => !prev)}
                   >
                     Sort
@@ -144,7 +155,7 @@ export const OemPage = () => {
                   {sortMenuOpen && (
                     <div className="absolute right-full top-0 w-48 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-40 py-1">
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white transition"
                         onClick={() => {
                           setMoreDropdownOpen(false);
                           setSortMenuOpen(false);
@@ -154,7 +165,7 @@ export const OemPage = () => {
                         Sort by Name
                       </button>
                       <button
-                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white transition"
                         onClick={() => {
                           setMoreDropdownOpen(false);
                           setSortMenuOpen(false);
@@ -170,7 +181,10 @@ export const OemPage = () => {
             )}
           </span>
         </div>
-        <div className="overflow-x-auto flex-1 w-full overflow-auto px-6 pb-6">
+      </div>
+
+      <div className="min-h-screen w-full dark:bg-gray-900 flex flex-col">
+        <div className="overflow-x-auto flex-1 w-full px-6 pb-6">
           {loading ? (
             <div className="flex justify-center items-center py-10">
               <span className="text-blue-600 font-semibold text-lg">
@@ -181,9 +195,9 @@ export const OemPage = () => {
             <table className="w-full min-w-[700px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
-                  <th className="px-4 py-3 text-[12px] text-left">OEM Name</th>
-                  <th className="px-4 py-3 text-[12px] text-left">OEM Code</th>
+                  <th className="px-4 py-3 text-left text-[12px]">Serial No.</th>
+                  <th className="px-4 py-3 text-left text-[12px]">OEM Name</th>
+                  <th className="px-4 py-3 text-left text-[12px]">OEM Code</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -196,9 +210,15 @@ export const OemPage = () => {
                     onMouseEnter={() => setHoveredRow(oem.id)}
                     onMouseLeave={() => setHoveredRow(null)}
                   >
-                    <td className="px-4 py-3 text-[12px] text-left">{i+1}</td>
-                    <td className="px-4 py-3 text-[12px] text-left">{oem.oem_name}</td>
-                    <td className="px-4 py-3 text-[12px] text-left">{oem.oem_code}</td>
+                    <td className="px-4 py-3 text-left text-[12px]">
+                      {i + 1 + (currentPage - 1) * rowsPerPage}
+                    </td>
+                    <td className="px-4 py-3 text-left text-[12px]">
+                      {oem.oem_name}
+                    </td>
+                    <td className="px-4 py-3 text-left text-[12px]">
+                      {oem.oem_code}
+                    </td>
                     <td className="flex justify-center gap-2 relative">
                       {hoveredRow === oem.id && (
                         <button
@@ -223,7 +243,7 @@ export const OemPage = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <button
-                            className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white transition"
                             onClick={() => {
                               setDropdownOpen(null);
                               navigate(`/oem/edit/${oem.id}`);
@@ -232,7 +252,7 @@ export const OemPage = () => {
                             Edit
                           </button>
                           <button
-                            className="block w-full text-left px-4 py-2 text-sm hover:bg-red-500 hover:text-white dark:hover:bg-gray-700 transition"
+                            className="block w-full text-left px-4 py-2 text-sm hover:bg-red-500 hover:text-white transition"
                             onClick={() => {
                               setDropdownOpen(null);
                               handleDelete(oem);
@@ -249,6 +269,7 @@ export const OemPage = () => {
             </table>
           )}
         </div>
+
         <div className="px-6 pb-6 flex justify-end">
           <Pagination
             currentPage={currentPage}
@@ -259,6 +280,7 @@ export const OemPage = () => {
           />
         </div>
       </div>
+
       <OemDrawer
         isOpen={!!selectedOem}
         onClose={() => setSelectedOem(null)}

@@ -9,7 +9,6 @@ import {
   FaTimes,
   FaTools,
 } from "react-icons/fa";
-// ...other imports...
 
 const EquipmentDrawer: React.FC<{
   isOpen: boolean;
@@ -18,18 +17,22 @@ const EquipmentDrawer: React.FC<{
 }> = ({ isOpen, onClose, equipment }) => {
   if (!isOpen || !equipment) return null;
 
+  console.log({ equipment })
   const displayEquipment = {
     name: equipment.equipment_name || equipment.name || "",
     serialNo: equipment.equipment_sr_no || equipment.serialNo || "",
     additionalId: equipment.additional_id || equipment.additionalId || "",
     purchaseDate: equipment.purchase_date || equipment.purchaseDate || "",
-    oem: equipment.oem || "",
+    oem: equipment.oem || "", // should already be a name string after backend fix
     purchaseCost: equipment.purchase_cost ?? equipment.purchaseCost ?? "",
     group: equipment.equipment_group_name || equipment.group || "",
+    manual: equipment.equipment_manual || "",
+    maintenanceLog: equipment.maintenance_log || "",
+    otherLog: equipment.other_log || "",
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] ">
+    <div className="">
       {/* Overlay */}
       <div
         className="absolute inset-0 bg-opacity-30 transition-opacity"
@@ -38,9 +41,8 @@ const EquipmentDrawer: React.FC<{
       />
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ zIndex: 2 }}
       >
         <div className="relative h-full flex flex-col">
@@ -57,88 +59,155 @@ const EquipmentDrawer: React.FC<{
           <div className="p-6 overflow-y-auto pt-12">
             <div className="flex items-center mb-6">
               <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-lg mr-4">
-                <FaTools
-                  className="text-blue-600 dark:text-blue-300"
-                  size={24}
-                />
+                <FaTools className="text-blue-600 dark:text-blue-300" size={24} />
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                   {displayEquipment.name}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  Equipment Details
-                </p>
+                <p className="text-gray-600 dark:text-gray-300">Equipment Details</p>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* ...same detail blocks as before... */}
+              {/* Serial No */}
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaBarcode className="text-gray-500 dark:text-gray-300 mr-2" />
-                  <h3 className="font-semibold text-gray-700 dark:text-white">
-                    Serial No
-                  </h3>
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Serial No</h3>
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   {displayEquipment.serialNo}
                 </p>
               </div>
+
+              {/* Additional ID */}
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaTag className="text-gray-500 dark:text-gray-300 mr-2" />
-                  <h3 className="font-semibold text-gray-700 dark:text-white">
-                    Additional ID
-                  </h3>
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Additional ID</h3>
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   {displayEquipment.additionalId}
                 </p>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-                <div className="flex items-center mb-3">
-                  <FaCalendarAlt className="text-gray-500 dark:text-gray-300 mr-2" />
-                  <h3 className="font-semibold text-gray-700 dark:text-white">
-                    Purchase Date
-                  </h3>
-                </div>
-                <p className="text-gray-800 dark:text-gray-200 pl-6">
-                  {displayEquipment.purchaseDate}
-                </p>
-              </div>
+
+              {/* Purchase Date */}
+             <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+  <div className="flex items-center mb-3">
+    <FaCalendarAlt className="text-gray-500 dark:text-gray-300 mr-2" />
+    <h3 className="font-semibold text-gray-700 dark:text-white">Purchase Date</h3>
+  </div>
+  <p className="text-gray-800 dark:text-gray-200 pl-6">
+    {equipment.purchase_date
+      ? new Date(equipment.purchase_date).toLocaleDateString("en-GB")
+      : "-"}
+  </p>
+</div>
+
+
+              {/* OEM */}
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaIndustry className="text-gray-500 dark:text-gray-300 mr-2" />
-                  <h3 className="font-semibold text-gray-700 dark:text-white">
-                    OEM
-                  </h3>
+                  <h3 className="font-semibold text-gray-700 dark:text-white">OEM</h3>
                 </div>
-                <p className="text-gray-800 dark:text-gray-200 pl-6">
-                  {displayEquipment.oem}
-                </p>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">{displayEquipment.oem}</p>
               </div>
+
+              {/* Purchase Cost */}
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaRupeeSign className="text-gray-500 dark:text-gray-300 mr-2" />
-                  <h3 className="font-semibold text-gray-700 dark:text-white">
-                    Purchase Cost
-                  </h3>
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Purchase Cost</h3>
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   ₹{displayEquipment.purchaseCost}
                 </p>
               </div>
+
+              {/* Equipment Manual */}
+              {displayEquipment.manual && (
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg col-span-1 md:col-span-2">
+                  <div className="flex items-center mb-3">
+                    <FaTools className="text-gray-500 dark:text-gray-300 mr-2" />
+                    <h3 className="font-semibold text-gray-700 dark:text-white">
+                      Equipment Manual
+                    </h3>
+                  </div>
+                  <div className="pl-6">
+                    <a
+                      href={displayEquipment.manual}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      📄 View PDF
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Maintenance Log */}
+              {displayEquipment.maintenanceLog && (
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg col-span-1 md:col-span-2">
+                  <div className="flex items-center mb-3">
+                    <FaTools className="text-gray-500 dark:text-gray-300 mr-2" />
+                    <h3 className="font-semibold text-gray-700 dark:text-white">
+                      Maintenance Log
+                    </h3>
+                  </div>
+                  <div className="pl-6">
+
+                    <a
+                      href={displayEquipment.maintenanceLog}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      📄 View PDF
+                    </a>
+                  </div>
+                </div>
+              )}
+
+              {/* Other Log */}
+              {displayEquipment.otherLog && (
+                <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg col-span-1 md:col-span-2">
+                  <div className="flex items-center mb-3">
+                    <FaTools className="text-gray-500 dark:text-gray-300 mr-2" />
+                    <h3 className="font-semibold text-gray-700 dark:text-white">Other Log</h3>
+                  </div>
+                  <div className="pl-6">
+
+                    <a
+                      href={displayEquipment.otherLog}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      📄 View PDF
+                    </a>
+                  </div>
+                </div>
+              )}
+              {/* Project Tag */}
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaTag className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Project Tag</h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.project_tag}</p>
+              </div>
+
+              {/* Equipment Group ID */}
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaLayerGroup className="text-gray-500 dark:text-gray-300 mr-2" />
-                  <h3 className="font-semibold text-gray-700 dark:text-white">
-                    Group
-                  </h3>
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Group ID</h3>
                 </div>
-                <p className="text-gray-800 dark:text-gray-200 pl-6">
-                  {displayEquipment.group}
-                </p>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.equipment_group_id}</p>
               </div>
+
             </div>
             <div className="mt-6 flex justify-end">
               <button

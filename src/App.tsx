@@ -57,8 +57,11 @@ import { AccountPage } from "./pages/Account/AccountPage";
 import AccountFormPage from "./pages/Account/AccountFormPage";
 import ProjectDetailPage from "./pages/Projects/ProjectDetailPage";
 import { DieselRequisition } from "./pages/Transactions/Diesel_Requisitions/DieselRequisition";
-import  DieselRequisitionDetailsPage  from "./pages/Transactions/Diesel_Requisitions/DieselRequisitionDetailsPage";
+import DieselRequisitionDetailsPage from "./pages/Transactions/Diesel_Requisitions/DieselRequisitionDetailsPage";
 import AddEmployeeProject from "./pages/AddEmployee_Project/AddEmployeeProject";
+import { EquipmentGroup } from "./pages/EquipmentGroup/EquipmentGroup";
+import EquipmentGroupCreate from "./pages/EquipmentGroup/EquipmentGroupCreate";
+import EquipmentGroupFormPage from "./pages/EquipmentGroup/EquipmentGroupFormPage";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -127,6 +130,9 @@ export default function App() {
           <Route path="/uom/create" element={<UomFormPage />} />
           <Route path="/uom/edit/:id" element={<UomFormPage />} />
           <Route path="/uom/view" element={<Uom />} />
+          <Route path="/equipmentgroup/view" element={<EquipmentGroup />} />
+          <Route path="/equipmentgroup/create" element={<EquipmentGroupCreate />} />
+          <Route path="/equipment-group/edit/:id" element={<EquipmentGroupFormPage />} />
           <Route path="/itemGroup/create" element={<ItemGroupFormPage />} />
           <Route path="/itemGroup/edit/:id" element={<ItemGroupFormPage />} />
           <Route path="/itemGroup/view" element={<ItemGroupPage />} />

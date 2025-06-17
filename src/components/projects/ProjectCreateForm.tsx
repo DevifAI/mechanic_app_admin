@@ -113,10 +113,10 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         setRevenueOptions(
           revenues.map((rev: any) => ({
             value: rev.id,
-            text: `${rev.revenue_code} - ${rev.revenue_description}`,
+            text: `${rev.revenue_code}`,
           }))
         );
-console.log({equipments})
+        console.log({ equipments })
         setEquipmentOptions(
           equipments.map((eq: any) => ({
             value: eq.id,
@@ -134,8 +134,8 @@ console.log({equipments})
   }, []);
 
 
-  console.log({equipmentOptions})
-  console.log({revenueOptions})
+  console.log({ equipmentOptions })
+  console.log({ revenueOptions })
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {

@@ -1,26 +1,57 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import Select from "react-select";
 import {
   createEquipment,
   updateEquipment,
   fetchEquipmentById,
 } from "../../apis/equipmentApi";
 import { toast, ToastContainer } from "react-toastify";
-import { FaCogs, FaDollarSign, FaTag, FaCalendarAlt } from "react-icons/fa";
+import {
+  FaCogs,
+  FaDollarSign,
+  FaTag,
+  FaCalendarAlt,
+  FaUpload,
+} from "react-icons/fa";
 import { fetchEquipmentGroups } from "../../apis/equipmentGroupApi";
-import { FaUpload } from "react-icons/fa6";
 import EquipmentBulkUpload from "./EquipmentBulkUpload";
+import { fetchProjects } from "../../apis/projectsApi";
+import { MultiSelect } from "../../components/projects/MultiSelect";
+import { getAllOEMs } from "../../apis/oemApi";
+
+const uploadToCloudinary = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "maco_corporation");
+  formData.append("folder", "equipment_docs");
+
+  const cloudName = "dlol2hjj8";
+
+  const response = await axios.post(
+    `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
+    formData
+  );
+  return response.data.secure_url;
+};
 
 export default function EquipmentFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
   const isEdit = Boolean(id);
   const dateInputRef = useRef<HTMLInputElement>(null);
-  const [equipmentGroups, setEquipmentGroups] = useState<
-    { value: string; label: string }[]
-  >([]);
-  // ...inside your EquipmentFormPage component, before the return:
+
   const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
+  const [equipmentGroups, setEquipmentGroups] = useState<
+    { value: string; text: string }[]
+  >([]);
+  const [oemArr, setOem] = useState<{ value: string; label: string }[]>([]);
+  const [projectTags, setProjectTags] = useState<
+    { value: string; text: string }[]
+  >([]);
+  const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+  const [selectedGroup, setSelectedGroup] = useState<string>("");
 
   const [formData, setFormData] = useState({
     equipmentName: "",
@@ -32,23 +63,43 @@ export default function EquipmentFormPage() {
     equipmentManual: "",
     maintenanceLog: "",
     otherLog: "",
-    projectTag: "",
-    equipmentGroup: "",
   });
+
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Fetch equipment groups for select options
     fetchEquipmentGroups()
       .then((groups) => {
         setEquipmentGroups(
           groups.map((g) => ({
             value: g.id,
-            label: g.equipment_group,
+            text: g.equipment_group,
           }))
         );
       })
       .catch(() => toast.error("Failed to load equipment groups"));
+
+    fetchProjects()
+      .then((projects: any[]) => {
+        setProjectTags(
+          projects.map((proj) => ({
+            value: proj.id,
+            text: proj.project_no,
+          }))
+        );
+      })
+      .catch(() => toast.error("Failed to load projects"));
+
+    getAllOEMs()
+      .then((oems: any[]) => {
+        setOem(
+          oems.map((oem) => ({
+            value: oem.id,
+            label: oem.oem_code,
+          }))
+        );
+      })
+      .catch(() => toast.error("Failed to load OEMs"));
   }, []);
 
   useEffect(() => {
@@ -66,9 +117,16 @@ export default function EquipmentFormPage() {
             equipmentManual: data.equipment_manual,
             maintenanceLog: JSON.stringify(data.maintenance_log ?? ""),
             otherLog: JSON.stringify(data.other_log ?? ""),
-            projectTag: JSON.stringify(data.project_tag ?? ""),
-            equipmentGroup: data.equipment_group_id,
           });
+
+          setSelectedProjects(
+            data.project_tag
+              ? Array.isArray(data.project_tag)
+                ? data.project_tag.map((tag: any) => tag.site || tag.value || tag)
+                : [data.project_tag.site || data.project_tag ]
+              : []
+          );
+          setSelectedGroup(data.equipment_group_id || "");
         })
         .catch(() => toast.error("Failed to load equipment"))
         .finally(() => setLoading(false));
@@ -83,16 +141,55 @@ export default function EquipmentFormPage() {
     }));
   };
 
-  function safeParse(jsonString: string) {
-    try {
-      return jsonString ? JSON.parse(jsonString) : {};
-    } catch {
-      return {};
-    }
-  }
+  // const safeParse = (jsonString: string) => {
+  //   try {
+  //     return jsonString ? JSON.parse(jsonString) : {};
+  //   } catch {
+  //     return {};
+  //   }
+  // };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleFileChange = (e: any) => {
+    const { name, files } = e.target;
+    if (files.length > 0 && files[0].type === "application/pdf") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: files[0],
+      }));
+    } else {
+      toast.error("Only PDF files are allowed.");
+    }
+  };
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    // Upload equipment manual if it's a File
+    const equipmentManualUrl =
+      typeof formData.equipmentManual === "object"
+        ? await uploadToCloudinary(formData.equipmentManual)
+        : formData.equipmentManual;
+
+    const maintenanceLogUrl =
+      typeof formData.maintenanceLog === "object"
+        ? await uploadToCloudinary(formData.maintenanceLog)
+        : formData.maintenanceLog;
+
+    const otherLogUrl =
+      typeof formData.otherLog === "object"
+        ? await uploadToCloudinary(formData.otherLog)
+        : formData.otherLog;
+
+    // Map selectedProjects (array of IDs) to a single ProjectTag object (take the first if multiple)
+    const selectedProjectTag = projectTags
+      .filter((proj) => selectedProjects.includes(proj.value))
+      .map((proj) => ({
+        project_no: proj.text,
+        site: proj.value,
+      }))[0] || { project_no: "", site: "" };
+
     const payload = {
       equipment_name: formData.equipmentName,
       equipment_sr_no: formData.serialNo,
@@ -100,29 +197,32 @@ export default function EquipmentFormPage() {
       purchase_date: formData.purchaseDate,
       oem: formData.oem,
       purchase_cost: Number(formData.purchaseCost),
-      equipment_manual: formData.equipmentManual,
-      maintenance_log: safeParse(formData.maintenanceLog),
-      other_log: safeParse(formData.otherLog),
-      project_tag: safeParse(formData.projectTag),
-      equipment_group_id: formData.equipmentGroup,
+      equipment_manual: equipmentManualUrl,
+      maintenance_log:  maintenanceLogUrl , // Ensure object type
+      other_log:  otherLogUrl ,             // Ensure object type
+      project_tag: selectedProjectTag?.site,
+      equipment_group_id: selectedGroup,
     };
 
-    setLoading(true);
-    try {
-      if (isEdit && id) {
-        await updateEquipment(id, payload);
-        toast.success("Equipment updated successfully!");
-      } else {
-        await createEquipment(payload);
-        toast.success("Equipment created successfully!");
-      }
-      setTimeout(() => navigate("/equipments/view"), 800);
-    } catch (error) {
-      toast.error("Failed to save equipment");
-    } finally {
-      setLoading(false);
+    console.log({ payload });
+
+    if (isEdit && id) {
+      await updateEquipment(id, payload as any);
+      toast.success("Equipment updated successfully!");
+    } else {
+      await createEquipment(payload as any);
+      toast.success("Equipment created successfully!");
     }
-  };
+
+    setTimeout(() => navigate("/equipments/view"), 800);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to save equipment");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow">
@@ -130,22 +230,21 @@ export default function EquipmentFormPage() {
       <div className="mb-6 flex gap-4">
         <button
           onClick={() => setActiveTab("form")}
-          className={`flex items-center px-4 py-2 rounded-md transition ${
-            activeTab === "form"
+          className={`flex items-center px-4 py-2 rounded-md transition ${activeTab === "form"
               ? "bg-blue-500 text-white"
               : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-          }`}
+            }`}
         >
           Equipment Form
         </button>
         {!isEdit && (
           <button
             onClick={() => setActiveTab("bulk")}
-            className={`flex items-center px-4 py-2 rounded-md transition ${
-              activeTab === "bulk"
+            disabled={true}
+            className={`cursor-not-allowed flex items-center px-4 py-2 rounded-md transition ${activeTab === "bulk"
                 ? "bg-blue-500 text-white"
                 : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-            }`}
+              }`}
           >
             <FaUpload className="mr-2" /> Bulk Upload
           </button>
@@ -189,16 +288,26 @@ export default function EquipmentFormPage() {
               <FaCalendarAlt
                 className="absolute right-3 top-9 text-gray-400 cursor-pointer"
                 onClick={() => dateInputRef.current?.showPicker?.()}
-                style={{ pointerEvents: "auto" }}
               />
             </div>
-            <InputField
-              icon={<FaCogs />}
-              label="OEM"
-              name="oem"
-              value={formData.oem}
-              onChange={handleChange}
-            />
+
+            <div>
+              <label>OEM</label>
+              <Select
+                options={oemArr}
+                isSearchable
+                onChange={(selectedOption) => {
+                  setFormData((prev) => ({
+                    ...prev,
+                    oem: selectedOption?.value || "",
+                  }));
+                }}
+                value={oemArr.find((opt) => opt.value === formData.oem)}
+                placeholder="Select OEM"
+                className="text-black"
+              />
+            </div>
+
             <InputField
               icon={<FaDollarSign />}
               label="Purchase Cost"
@@ -207,53 +316,48 @@ export default function EquipmentFormPage() {
               onChange={handleChange}
               type="number"
             />
+
+            <FileField
+              icon={<FaCogs />}
+              label="Equipment Manual (PDF only)"
+              name="equipmentManual"
+              onChange={handleFileChange}
+            />
+            <FileField
+              icon={<FaCogs />}
+              label="Maintenance Log (PDF only)"
+              name="maintenanceLog"
+              onChange={handleFileChange}
+            />
+            <FileField
+              icon={<FaCogs />}
+              label="Other Log (PDF only)"
+              name="otherLog"
+              onChange={handleFileChange}
+            />
+
             <div className="md:col-span-2">
-              <TextAreaField
-                icon={<FaCogs />}
-                label="Equipment Manual"
-                name="equipmentManual"
-                value={formData.equipmentManual}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <TextAreaField
-                icon={<FaCogs />}
-                label="Maintenance Log"
-                name="maintenanceLog"
-                value={formData.maintenanceLog}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <TextAreaField
-                icon={<FaCogs />}
-                label="Other Log"
-                name="otherLog"
-                value={formData.otherLog}
-                onChange={handleChange}
-              />
-            </div>
-            <div className="md:col-span-2">
-              <TextAreaField
-                icon={<FaCogs />}
+              <MultiSelect
                 label="Project Tag"
-                name="projectTag"
-                value={formData.projectTag}
-                onChange={handleChange}
+                options={projectTags}
+                defaultSelected={selectedProjects}
+                onChange={(values: string[]) => setSelectedProjects(values)}
               />
             </div>
+
             <div className="md:col-span-2">
-              <SelectField
-                icon={<FaCogs />}
-                label="Equipment Group"
-                name="equipmentGroup"
-                value={formData.equipmentGroup}
-                onChange={handleChange}
+              <label className="block font-medium text-gray-700 dark:text-gray-200 mb-1">
+                Equipment Group
+              </label>
+              <MultiSelect
+                label="Select Equipment Group"
                 options={equipmentGroups}
+                defaultSelected={selectedGroup ? [selectedGroup] : []}
+                onChange={(values: string[]) => setSelectedGroup(values[0] || "")}
               />
             </div>
           </div>
+
           <div className="mt-6 flex justify-end gap-4">
             <button
               type="button"
@@ -272,8 +376,8 @@ export default function EquipmentFormPage() {
                   ? "Updating..."
                   : "Creating..."
                 : isEdit
-                ? "Update"
-                : "Create"}
+                  ? "Update"
+                  : "Create"}
             </button>
           </div>
         </form>
@@ -284,16 +388,8 @@ export default function EquipmentFormPage() {
   );
 }
 
-// Reuse your InputField, TextAreaField, and SelectField from your modal (copy them here)
-const InputField = ({
-  icon,
-  label,
-  name,
-  value,
-  onChange,
-  type = "text",
-  inputRef,
-}: any) => (
+// Reusable InputField
+const InputField = ({ icon, label, name, value, onChange, type = "text", inputRef }: any) => (
   <div>
     <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
       <span className="mr-2">{icon}</span>
@@ -310,40 +406,24 @@ const InputField = ({
   </div>
 );
 
-const TextAreaField = ({ icon, label, name, value, onChange }: any) => (
-  <div>
-    <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
-      <span className="mr-2">{icon}</span>
-      {label}
+// Reusable FileField
+const FileField = ({ icon, label, name, onChange }: any) => (
+  <div className="md:col-span-2 mt-4">
+    <label className="block text-sm font-semibold text-gray-800 mb-2">
+      <span className="inline-flex items-center gap-2">
+        {icon}
+        {label}
+      </span>
     </label>
-    <textarea
+    <input
+      type="file"
       name={name}
-      rows={3}
-      value={value}
+      accept="application/pdf"
       onChange={onChange}
-      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+      className="block w-full cursor-pointer text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md
+        file:border-0 file:text-sm file:font-semibold
+        file:bg-blue-50 file:text-blue-700
+        hover:file:bg-blue-100 transition"
     />
-  </div>
-);
-
-const SelectField = ({ icon, label, name, value, onChange, options }: any) => (
-  <div>
-    <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
-      <span className="mr-2">{icon}</span>
-      {label}
-    </label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-    >
-      <option value="">Select Group</option>
-      {options.map((group: { value: string; label: string }) => (
-        <option key={group.value} value={group.value}>
-          {group.label}
-        </option>
-      ))}
-    </select>
   </div>
 );
