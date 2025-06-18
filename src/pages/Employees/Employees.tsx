@@ -11,6 +11,7 @@ import { handleExportEmployees } from "../../utils/helperFunctions/handleExportE
 import Title from "../../components/common/Title";
 
 type EmployeeRow = {
+  app_access_role: string;
   id: string;
   emp_id: string;
   emp_name: string;
@@ -48,6 +49,17 @@ export const Employees = () => {
     try {
       const data = await fetchEmployees();
 
+      const roleMap: Record<string, string> = {
+        mechanic: "Mechanic",
+        mechanicIncharge: "Mechanic Incharge",
+        siteIncharge: "Site Incharge",
+        storeManager: "Store Manager",
+        accountManager: "Account Manager",
+        projectManager: "Project Manager",
+        
+        // Add other mappings if needed
+      };
+
       const simplified = data.map((e: any) => ({
         id: e.id || "N/A",
         emp_id: e.emp_id || "N/A",
@@ -58,6 +70,7 @@ export const Employees = () => {
         position: e.position || "N/A",
         shift: e.shift || e.shiftcode || "N/A",
         role: e.role || "N/A",
+        app_access_role: roleMap[e.app_access_role] || "N/A",
         active: e.active !== undefined ? e.active : "N/A",
       }));
 
@@ -69,6 +82,7 @@ export const Employees = () => {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchAndSetEmployees();
@@ -232,7 +246,7 @@ export const Employees = () => {
         </div>
 
 
-       
+
 
         <div className="overflow-x-auto flex-1 w-full overflow-auto pb-6">
           {loading ? (
@@ -251,6 +265,7 @@ export const Employees = () => {
                   <th className="px-4 py-3 text-[12px] text-left">Position</th>
                   <th className="px-4 py-3 text-[12px] text-left">Shift</th>
                   <th className="px-4 py-3 text-[12px] text-left">Role</th>
+                  <th className="px-4 py-3 text-[12px] text-left">App Role</th>
                   <th className="px-4 py-3 text-[12px] text-left">Active</th>
                   <th className="px-4 py-3 text-[12px] text-left"></th>
                 </tr>
@@ -265,7 +280,7 @@ export const Employees = () => {
                       onMouseEnter={() => setHoveredRow(employee.id)}
                       onMouseLeave={() => setHoveredRow(null)}
                     >
-                      <td className="px-4 py-2 text-[12px] text-left ">{i +1}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{i + 1}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.emp_id}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.emp_name}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.age}</td>
@@ -273,6 +288,7 @@ export const Employees = () => {
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.position}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.shift}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.role}</td>
+                      <td className="px-4 py-2 text-[12px] text-left ">{employee.app_access_role}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">
                         {employee.active === true || employee.active === "Yes" ? "Yes" : "No"}
                       </td>

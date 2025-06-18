@@ -12,6 +12,17 @@ type EmployeeFormProps = {
   loading?: boolean;
 };
 
+// Define the app access roles as constants
+const APP_ACCESS_ROLES = [
+  { text: "Mechanic", value: "mechanic" },
+  { text: "Mechanic Incharge", value: "mechanicIncharge" },
+  { text: "Site Incharge", value: "siteIncharge" },
+  { text: "Store Manager", value: "storeManager" },
+  { text: "Account Manager", value: "accountManager" },
+  { text: "Project Manager", value: "projectManager" },
+  { text: "admin", value: "admin" },
+];
+
 export const EmployeeForm = ({
   initialData,
   onSubmit,
@@ -25,9 +36,10 @@ export const EmployeeForm = ({
     adress: "",
     position: "",
     is_active: true,
-    shiftcode: "", // change from [] to ""
+    shiftcode: "",
     role_id: "",
-    org_id: "", // Assuming you have an org_id field
+    org_id: "",
+    app_access_role: "", // Add app_access_role to form data
   });
 
   const [roles, setRoles] = useState<Option[]>([]);
@@ -42,31 +54,27 @@ export const EmployeeForm = ({
     }
     const fetchData = async () => {
       try {
-        // Replace these with your actual fetch functions
         const fetchedRoles = await fetchRoles();
-        // console.log({ fetchedRoles });
         setRoles(fetchedRoles);
 
         const fetchedShifts = await fetchShifts();
-        // console.log({ fetchedShifts });
         const mappedShifts = fetchedShifts.map((shift) => ({
           id: shift.id,
-          name: shift.shift_code, // adjust to your property
+          name: shift.shift_code,
         }));
         setShifts(mappedShifts);
 
         const fetchedPositions = await fetchEmpPositions();
-        // console.log({ fetchedPositions });
         const mappedPositions = fetchedPositions.map((pos) => ({
           id: pos.id,
-          name: pos.designation, // replace with actual field name from your data
+          name: pos.designation,
         }));
         setPositions(mappedPositions);
 
         const fetchedOrgs = await getAllOrganisations();
         const mappedOrgs = fetchedOrgs.map((org) => ({
           id: org.id,
-          name: org.org_name, // change if `name` is different
+          name: org.org_name,
         }));
         setOrganisations(mappedOrgs);
       } catch (error) {
@@ -95,20 +103,12 @@ export const EmployeeForm = ({
     }
   };
 
-  // Handle changes from MultiSelect component
-  //   const handleMultiSelectChange = (field: string, values: string[]) => {
-  //     setFormData((prev) => ({
-  //       ...prev,
-  //       [field]: values,
-  //     }));
-  //   };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit(formData);
   };
 
-  // Fields except the 3 multi-selects and checkbox
+  // Fields except the dropdowns and checkbox
   const fields = [
     { label: "Employee ID", name: "emp_id" },
     { label: "Name", name: "emp_name" },
@@ -137,7 +137,28 @@ export const EmployeeForm = ({
           </div>
         ))}
 
-        {/* MultiSelect components */}
+        {/* App Access Role Dropdown */}
+        <div className="w-full sm:w-1/2 px-3 mb-6">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            App Access Role
+          </label>
+          <select
+            name="app_access_role"
+            value={formData.app_access_role}
+            onChange={handleChange}
+            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          >
+            <option value="">Select access role</option>
+            {APP_ACCESS_ROLES.map((role) => (
+              <option key={role.value} value={role.value}>
+                {role.text}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Shift Code Dropdown */}
         <div className="w-full sm:w-1/2 px-3 mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Shift Code
@@ -158,6 +179,7 @@ export const EmployeeForm = ({
           </select>
         </div>
 
+        {/* Role ID Dropdown */}
         <div className="w-full sm:w-1/2 px-3 mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Role ID
@@ -178,6 +200,7 @@ export const EmployeeForm = ({
           </select>
         </div>
 
+        {/* Position Dropdown */}
         <div className="w-full sm:w-1/2 px-3 mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Position
@@ -198,6 +221,7 @@ export const EmployeeForm = ({
           </select>
         </div>
 
+        {/* Organisation Dropdown */}
         <div className="w-full sm:w-1/2 px-3 mb-6">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Organisation
@@ -218,7 +242,7 @@ export const EmployeeForm = ({
           </select>
         </div>
 
-        {/* Checkbox */}
+        {/* Active Checkbox */}
         <div className="w-full sm:w-1/2 px-3 mb-6 flex items-center">
           <input
             type="checkbox"

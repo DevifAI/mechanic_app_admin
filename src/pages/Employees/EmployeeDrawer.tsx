@@ -1,4 +1,4 @@
-import { FaCheck, FaClock, FaIdCard, FaMapMarkerAlt, FaTimes, FaTint, FaUser, FaUserShield, FaUserTie } from "react-icons/fa";
+import { FaCheck, FaClock,  FaMapMarkerAlt, FaTimes, FaTint, FaUser, FaUserShield,  } from "react-icons/fa";
 
 const EmployeeDrawer: React.FC<{
   isOpen: boolean;
@@ -43,7 +43,7 @@ const EmployeeDrawer: React.FC<{
               </div>
               <div>
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-                  {employee.emp_name}
+                  {employee.emp_name} {employee.emp_id}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-300">
                   Employee Details
@@ -51,7 +51,7 @@ const EmployeeDrawer: React.FC<{
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              {/* <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaIdCard className="text-gray-500 dark:text-gray-300 mr-2" />
                   <h3 className="font-semibold text-gray-700 dark:text-white">
@@ -61,8 +61,8 @@ const EmployeeDrawer: React.FC<{
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   {employee.emp_id}
                 </p>
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              </div> */}
+              {/* <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaUserTie className="text-gray-500 dark:text-gray-300 mr-2" />
                   <h3 className="font-semibold text-gray-700 dark:text-white">
@@ -72,7 +72,7 @@ const EmployeeDrawer: React.FC<{
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   {employee.position}
                 </p>
-              </div>
+              </div> */}
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaTint className="text-gray-500 dark:text-gray-300 mr-2" />
@@ -93,6 +93,17 @@ const EmployeeDrawer: React.FC<{
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
                   {employee.role}
+                </p>
+              </div>
+               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaUserShield className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                   App Role
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {employee.app_access_role}
                 </p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
