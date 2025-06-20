@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { fetchRoles } from "../../apis/roleApi";
 import { fetchShifts } from "../../apis/shiftApi";
-import { fetchEmpPositions } from "../../apis/empPositionApi";
+// import { fetchEmpPositions } from "../../apis/empPositionApi";
 import { getAllOrganisations } from "../../apis/organisationApi";
 import { State, City } from "country-state-city";
 
@@ -51,7 +51,7 @@ export const EmployeeForm = ({
 
   const [roles, setRoles] = useState<Option[]>([]);
   const [shifts, setShifts] = useState<Option[]>([]);
-  const [positions, setPositions] = useState<Option[]>([]);
+  // const [positions, setPositions] = useState<Option[]>([]);
   const [organisations, setOrganisations] = useState<Option[]>([]);
   const [states] = useState(State.getStatesOfCountry("IN"));
   const [cities, setCities] = useState<any[]>([]);
@@ -62,16 +62,16 @@ export const EmployeeForm = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [rolesData, shiftsData, positionsData, orgsData] = await Promise.all([
+        const [rolesData, shiftsData,  orgsData] = await Promise.all([
           fetchRoles(),
           fetchShifts(),
-          fetchEmpPositions(),
+          // fetchEmpPositions(),
           getAllOrganisations(),
         ]);
 
         setRoles(rolesData);
         setShifts(shiftsData.map(s => ({ id: s.id, name: s.shift_code })));
-        setPositions(positionsData.map(p => ({ id: p.id, name: p.designation })));
+       
         setOrganisations(orgsData.map(o => ({ id: o.id, name: o.org_name })));
 
         // If editing, populate fields and cities from state
