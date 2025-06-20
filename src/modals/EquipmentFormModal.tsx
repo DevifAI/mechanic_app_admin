@@ -36,6 +36,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
     otherLog: "",
     projectTag: "",
     equipmentGroup: "",
+    hsn_number: 0,
   });
 
   const dateInputRef = useRef<HTMLInputElement>(null);
@@ -56,6 +57,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
         otherLog: "",
         projectTag: "",
         equipmentGroup: "",
+        hsn_number: 0
       });
     }
   }, [equipment]);
@@ -89,6 +91,7 @@ const EquipmentFormModal: React.FC<EquipmentFormModalProps> = ({
       other_log: safeParse(formData.otherLog),
       project_tag: safeParse(formData.projectTag),
       equipment_group_id: formData.equipmentGroup,
+      hsn_number: formData.hsn_number
     };
 
     try {
