@@ -168,6 +168,12 @@ export default function EquipmentFormPage() {
     e.preventDefault();
     setLoading(true);
 
+    // Validate HSN number (must be 8 digits)
+    if (formData.hsn_number.toString().length !== 8) {
+      toast.error("HSN number must be exactly 8 digits");
+      return;
+    }
+
     try {
       // Upload equipment manual if it's a File
       const equipmentManualUrl =
@@ -331,9 +337,9 @@ export default function EquipmentFormPage() {
               <input
                 type="text"
                 name="hsn_number"
-                value={formData.hsn_number === 0 ? "" : formData.hsn_number} // optional: show empty if 0
+                value={formData.hsn_number === 0 ? "" : formData.hsn_number}
                 onChange={(e) => {
-                  const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                  const value = e.target.value.replace(/\D/g, "");
                   if (value.length <= 8) {
                     setFormData((prev) => ({
                       ...prev,
@@ -341,9 +347,12 @@ export default function EquipmentFormPage() {
                     }));
                   }
                 }}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
-                placeholder="Enter HSN Number (max 12 digits)"
+                className={`w-full px-3 py-2 border ${formData.hsn_number.toString().length > 0 && formData.hsn_number.toString().length !== 8 ? "border-red-500" : "border-gray-300"} dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white`}
+                placeholder="Enter HSN Number (8 digits required)"
               />
+              {formData.hsn_number.toString().length > 0 && formData.hsn_number.toString().length !== 8 && (
+                <p className="text-red-500 text-sm mt-1">HSN number must be exactly 8 digits</p>
+              )}
             </div>
 
 
