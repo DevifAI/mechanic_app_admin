@@ -128,19 +128,30 @@ export const CreateEmployeePage = () => {
 const BulkUploadSection = () => {
   const [file, setFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
-  // const navigate = useNavigate();
+
   const dummyData = {
     emp_id: "EMP20701",
     emp_name: "Abir Roy",
     blood_group: "O+",
     age: 31,
     adress: "123 Main St, City",
-    position: "JR Engineer",
+    state: "West Bengal",
+    city: "Kolkata",
+    pincode: "743124",
+    aadhar_number: "592274465400",
+    dob: "1998-08-19",
     is_active: true,
     shiftcode: "SHIFT-M2",
     role_name: "mechanic",
-    organisations: "SoftSkirll"
+    organisations: "SoftSkirll",
+    acc_holder_name: "Sayan Paul",
+    acc_no: "20369767980",
+    app_access_role:
+      "siteIncharge/mechanicIncharge/mechanic/storeManager/projectManager",
+    bank_name: "SBI",
+    ifsc_code: "SBIN0000123",
   };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
@@ -153,7 +164,7 @@ const BulkUploadSection = () => {
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+    if (e.dataTransfer.files.length > 0) {
       setFile(e.dataTransfer.files[0]);
       e.dataTransfer.clearData();
     }
@@ -161,8 +172,8 @@ const BulkUploadSection = () => {
 
   const handleUpload = async () => {
     if (!file) return;
-
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -177,17 +188,16 @@ const BulkUploadSection = () => {
 
       const data = await response.json();
 
-      console.log("Upload response:", data);
-
       if (response.ok) {
-        if (data.errors && data.errors.length > 0) {
-          const errorMessages = data.errors
-            .map((e: any) => `${e.row}: ${e.message}`)
-            .join("<br/>");
+        if (data.errors?.length > 0) {
           toast.error(
             <div
               dangerouslySetInnerHTML={{
-                __html: "Upload failed:<br/>" + errorMessages,
+                __html:
+                  "Upload failed:<br/>" +
+                  data.errors
+                    .map((err: any) => `${err.row}: ${err.message}`)
+                    .join("<br/>"),
               }}
             />
           );
@@ -196,158 +206,97 @@ const BulkUploadSection = () => {
             `Bulk upload completed successfully! Created ${data.createdCount} employees.`
           );
           setFile(null);
-          // navigate("/employees/view");
         }
-
-
-        return;
+      } else {
+        toast.error(data.message || "Upload failed.");
       }
-
-      toast.success(
-        `Bulk upload completed successfully! Created ${data.createdCount} employees.`
-      );
-      setFile(null);
-      // navigate("/employees/view");
-    } catch (error) {
-      console.error("Upload failed:", error);
-      toast.error("Upload failed. Please try again.");
+    } catch (error: any) {
+      toast.error(error.message || "Upload failed. Please try again.");
     } finally {
       setIsUploading(false);
     }
   };
 
-  const DownloadTemplateButton = () => {
-    const handleDownload = () => {
-      // Prepare data replacing IDs with mapped names
-      const exportData = [
-        {
-          emp_id: dummyData.emp_id,
-          emp_name: dummyData.emp_name,
-          blood_group: dummyData.blood_group,
-          age: dummyData.age,
-          adress: dummyData.adress,
-          position: dummyData.position,
-          shiftcode: dummyData.shiftcode,
-          role_name: dummyData.role_name,
-          organisations: dummyData.organisations,
-        },
-      ];
+  const handleDownload = () => {
+    const worksheet = XLSX.utils.json_to_sheet([dummyData]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Employee Template");
 
-      // Create a worksheet from JSON
-      const worksheet = XLSX.utils.json_to_sheet(exportData);
-
-      // Create a new workbook and append the worksheet
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "Employee Data");
-
-      // Generate buffer
-      const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-
-      // Save file
-      const blob = new Blob([wbout], { type: "application/octet-stream" });
-      saveAs(blob, "employee_template.xlsx");
-    };
-
-    return (
-      <button
-        className="flex items-center px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 rounded-md transition-colors"
-        onClick={handleDownload}
-      >
-        <FaDownload className="mr-2" />
-        Download Template
-      </button>
-    );
+    const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([wbout], { type: "application/octet-stream" });
+    saveAs(blob, "employee_template.xlsx");
   };
 
   return (
     <div className="space-y-6">
+      {/* Upload UI */}
       <div
         onDragOver={handleDragOver}
         onDrop={handleDrop}
-        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center cursor-pointer hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
+        className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-blue-400"
       >
-        <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-full">
-            <FaUpload className="h-8 w-8 text-blue-500 dark:text-blue-400" />
-          </div>
-          <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
-            Drag and drop files here
-          </h3>
-          <p className="text-sm text-gray-500 dark:text-gray-400">or</p>
-          <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors">
-            <span>Browse files</span>
-            <input
-              type="file"
-              className="hidden"
-              onChange={handleFileChange}
-              accept=".csv, .xlsx"
-            />
-          </label>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            Supported formats: CSV, Excel (Max 5MB)
-          </p>
-        </div>
-
-        {file && (
-          <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mt-6 border border-gray-200 dark:border-gray-600">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-full">
-                  <FaFileExcel className="text-blue-600 dark:text-blue-300" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    {file.name}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {(file.size / 1024).toFixed(2)} KB
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setFile(null)}
-                className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-600"
-              >
-                <FaTimes />
-              </button>
-            </div>
-          </div>
-        )}
+        <input
+          type="file"
+          accept=".csv,.xlsx"
+          onChange={handleFileChange}
+          className="hidden"
+          id="bulk-upload"
+        />
+        <label htmlFor="bulk-upload" className="cursor-pointer block">
+          <FaUpload className="mx-auto text-blue-600 text-2xl" />
+          <p className="mt-2 text-sm text-gray-600">Browse or drag and drop Excel file</p>
+        </label>
+        <p className="text-xs text-gray-400">Supported formats: CSV, XLSX</p>
       </div>
 
+      {/* Selected File Display */}
+      {file && (
+        <div className="p-4 bg-white dark:bg-gray-700 rounded-md flex justify-between items-center">
+          <div>
+            <p className="text-sm font-semibold">{file.name}</p>
+            <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(2)} KB</p>
+          </div>
+          <button onClick={() => setFile(null)} className="text-red-500">
+            <FaTimes />
+          </button>
+        </div>
+      )}
+
+      {/* Upload Button */}
       <div className="flex justify-end">
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-6 py-2 rounded-md text-white flex items-center ${!file || isUploading
-            ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-            } transition-colors`}
+          className={`px-5 py-2 rounded-md text-white ${
+            !file || isUploading ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {isUploading ? (
             <>
-              <FaSpinner className="animate-spin mr-2" />
+              <FaSpinner className="animate-spin inline-block mr-2" />
               Uploading...
             </>
           ) : (
             <>
-              <FaUpload className="mr-2" />
-              Upload Employees
+              <FaUpload className="inline-block mr-2" />
+              Upload
             </>
           )}
         </button>
       </div>
 
-      <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
-        <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
+      {/* Download Template */}
+      <div className="mt-6 border-t pt-6">
+        <h3 className="text-md font-semibold mb-2">Download Sample Template</h3>
+        <button
+          onClick={handleDownload}
+          className="flex items-center bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md"
+        >
+          <FaDownload className="mr-2" />
           Download Template
-        </h3>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Use our template file to ensure your employee data is formatted
-          correctly.
-        </p>
-        <DownloadTemplateButton />
+        </button>
       </div>
     </div>
   );
 };
+

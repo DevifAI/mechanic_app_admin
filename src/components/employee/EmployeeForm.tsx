@@ -3,7 +3,8 @@ import { fetchRoles } from "../../apis/roleApi";
 import { fetchShifts } from "../../apis/shiftApi";
 import { getAllOrganisations } from "../../apis/organisationApi";
 import { State, City } from "country-state-city";
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 type Option = { id: string; name: string; shift_code?: string };
 
 type EmployeeFormProps = {
@@ -46,6 +47,8 @@ export const EmployeeForm = ({
     bank_name: "",
     acc_no: "",
     ifsc_code: "",
+    dob: null as Date | null,
+    aadhar_number: ""
   });
 
   const [roles, setRoles] = useState<Option[]>([]);
@@ -399,6 +402,61 @@ export const EmployeeForm = ({
           </div>
         </div>
 
+        {/* Bank Details Section */}
+        <div className="w-full px-3 mb-6">
+          <h3 className="text-md font-semibold text-gray-700 dark:text-gray-200 mb-3">
+            Personal Information
+          </h3>
+          <div className="flex flex-wrap -mx-3">
+            <div className="w-full sm:w-1/2 lg:w-1/3 px-3 mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                Aadhar Number <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                name="aadhar_number"
+                value={formData.aadhar_number || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (/^\d{0,12}$/.test(value)) {
+                    setFormData((prev) => ({ ...prev, aadhar_number: value }));
+                  }
+                }}
+                inputMode="numeric"
+                pattern="\d{12}"
+                maxLength={12}
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+              {formData.aadhar_number && formData.aadhar_number.length !== 12 && (
+                <p className="text-red-500 text-xs mt-1">Aadhar number must be exactly 12 digits.</p>
+              )}
+            </div>
+
+            <div className="w-full sm:w-1/2 lg:w-1/3 px-3 mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                Date of Birth <span className="text-red-500">*</span>
+              </label>
+              <DatePicker
+                selected={formData.dob}
+                onChange={(date: Date | null) =>
+                  setFormData((prev) => ({ ...prev, dob: date }))
+                }
+                dateFormat="yyyy-MM-dd"
+                placeholderText="Select date"
+                maxDate={new Date()}
+                showYearDropdown
+                showMonthDropdown
+                dropdownMode="select"
+                required
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              />
+            </div>
+
+
+          </div>
+        </div>
+
         {/* Active Status */}
         <div className="w-full px-3 mb-6 flex items-center">
           <div className="flex items-center h-5">
@@ -420,9 +478,8 @@ export const EmployeeForm = ({
         <button
           type="submit"
           disabled={loading}
-          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 ${
-            loading ? "opacity-70 cursor-not-allowed" : ""
-          }`}
+          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 ${loading ? "opacity-70 cursor-not-allowed" : ""
+            }`}
         >
           {loading ? (
             <>
