@@ -6,7 +6,6 @@ import {
   FaUpload,
   FaPlus,
   FaSpinner,
-  FaFileExcel,
   FaTimes,
   FaDownload,
 } from "react-icons/fa";

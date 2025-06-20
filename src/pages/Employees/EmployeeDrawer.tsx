@@ -206,6 +206,20 @@ const EmployeeDrawer: React.FC<{
                 </div>
               </div>
 
+              <div className="col-span-1 md:col-span-2">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-1">Aadhar Number</h4>
+                    <p className="text-gray-800 dark:text-gray-200">{employee.aadhar_number || "N/A"}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-1">Date of Birth *</h4>
+                    <p className="text-gray-800 dark:text-gray-200">{employee.dob || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
             <div className="mt-6 flex justify-end">
               <button

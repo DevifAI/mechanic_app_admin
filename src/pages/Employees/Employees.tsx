@@ -11,12 +11,13 @@ import { handleExportEmployees } from "../../utils/helperFunctions/handleExportE
 import Title from "../../components/common/Title";
 
 type EmployeeRow = {
-  app_access_role: string;
   id: string;
   emp_id: string;
   emp_name: string;
+  aadhar_number?: string;
+  app_access_role: string;
   bloodGroup: string;
-  age: string;
+  age: number | string;
   address: string;
   shift: string;
   role: string;
@@ -24,11 +25,14 @@ type EmployeeRow = {
   state: string;
   city: string;
   pincode: string;
-  bank_name?: string; 
+  dob?: string; // ISO date string
+  bank_name?: string;
   ifsc_code?: string;
   acc_no: string;
   acc_holder_name: string;
+  position?: string;
 };
+
 
 export const Employees = () => {
   const [employees, setEmployees] = useState<any[]>([]);
@@ -88,6 +92,8 @@ export const Employees = () => {
         ifsc_code: e.ifsc_code || "N/A",
         acc_no: e.acc_no || "N/A",
         acc_holder_name: e.acc_holder_name || "N/A",
+        aadhar_number: e.aadhar_number || "N/A",
+        dob: e.dob || "N/A",
       }));
 
       setEmployees(simplified);
