@@ -25,6 +25,7 @@ export interface EquipmentPayload {
   other_log: OtherLog;
   project_tag: ProjectTag;
   equipment_group_id: string;
+  hsn_number: number;
 }
 
 export interface EquipmentResponse extends EquipmentPayload {

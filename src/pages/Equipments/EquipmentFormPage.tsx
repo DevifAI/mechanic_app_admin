@@ -15,6 +15,7 @@ import {
   FaCalendarAlt,
   FaUpload,
 } from "react-icons/fa";
+import { GoNumber } from "react-icons/go";
 import { fetchEquipmentGroups } from "../../apis/equipmentGroupApi";
 import EquipmentBulkUpload from "./EquipmentBulkUpload";
 import { fetchProjects } from "../../apis/projectsApi";
@@ -63,6 +64,7 @@ export default function EquipmentFormPage() {
     equipmentManual: "",
     maintenanceLog: "",
     otherLog: "",
+    hsn_number: 0
   });
 
   const [loading, setLoading] = useState(false);
@@ -117,13 +119,14 @@ export default function EquipmentFormPage() {
             equipmentManual: data.equipment_manual,
             maintenanceLog: JSON.stringify(data.maintenance_log ?? ""),
             otherLog: JSON.stringify(data.other_log ?? ""),
+            hsn_number: data.hsn_number,
           });
 
           setSelectedProjects(
             data.project_tag
               ? Array.isArray(data.project_tag)
                 ? data.project_tag.map((tag: any) => tag.site || tag.value || tag)
-                : [data.project_tag.site || data.project_tag ]
+                : [data.project_tag.site || data.project_tag]
               : []
           );
           setSelectedGroup(data.equipment_group_id || "");
@@ -161,67 +164,68 @@ export default function EquipmentFormPage() {
     }
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    // Upload equipment manual if it's a File
-    const equipmentManualUrl =
-      typeof formData.equipmentManual === "object"
-        ? await uploadToCloudinary(formData.equipmentManual)
-        : formData.equipmentManual;
+    try {
+      // Upload equipment manual if it's a File
+      const equipmentManualUrl =
+        typeof formData.equipmentManual === "object"
+          ? await uploadToCloudinary(formData.equipmentManual)
+          : formData.equipmentManual;
 
-    const maintenanceLogUrl =
-      typeof formData.maintenanceLog === "object"
-        ? await uploadToCloudinary(formData.maintenanceLog)
-        : formData.maintenanceLog;
+      const maintenanceLogUrl =
+        typeof formData.maintenanceLog === "object"
+          ? await uploadToCloudinary(formData.maintenanceLog)
+          : formData.maintenanceLog;
 
-    const otherLogUrl =
-      typeof formData.otherLog === "object"
-        ? await uploadToCloudinary(formData.otherLog)
-        : formData.otherLog;
+      const otherLogUrl =
+        typeof formData.otherLog === "object"
+          ? await uploadToCloudinary(formData.otherLog)
+          : formData.otherLog;
 
-    // Map selectedProjects (array of IDs) to a single ProjectTag object (take the first if multiple)
-    const selectedProjectTag = projectTags
-      .filter((proj) => selectedProjects.includes(proj.value))
-      .map((proj) => ({
-        project_no: proj.text,
-        site: proj.value,
-      }))[0] || { project_no: "", site: "" };
+      // Map selectedProjects (array of IDs) to a single ProjectTag object (take the first if multiple)
+      const selectedProjectTag = projectTags
+        .filter((proj) => selectedProjects.includes(proj.value))
+        .map((proj) => ({
+          project_no: proj.text,
+          site: proj.value,
+        }))[0] || { project_no: "", site: "" };
 
-    const payload = {
-      equipment_name: formData.equipmentName,
-      equipment_sr_no: formData.serialNo,
-      additional_id: formData.additionalId,
-      purchase_date: formData.purchaseDate,
-      oem: formData.oem,
-      purchase_cost: Number(formData.purchaseCost),
-      equipment_manual: equipmentManualUrl,
-      maintenance_log:  maintenanceLogUrl , // Ensure object type
-      other_log:  otherLogUrl ,             // Ensure object type
-      project_tag: selectedProjectTag?.site,
-      equipment_group_id: selectedGroup,
-    };
+      const payload = {
+        equipment_name: formData.equipmentName,
+        equipment_sr_no: formData.serialNo,
+        additional_id: formData.additionalId,
+        purchase_date: formData.purchaseDate,
+        oem: formData.oem,
+        purchase_cost: Number(formData.purchaseCost),
+        equipment_manual: equipmentManualUrl,
+        maintenance_log: maintenanceLogUrl, // Ensure object type
+        other_log: otherLogUrl,             // Ensure object type
+        project_tag: selectedProjectTag?.site,
+        equipment_group_id: selectedGroup,
+        hsn_number: formData.hsn_number,
+      };
 
-    console.log({ payload });
+      console.log({ payload });
 
-    if (isEdit && id) {
-      await updateEquipment(id, payload as any);
-      toast.success("Equipment updated successfully!");
-    } else {
-      await createEquipment(payload as any);
-      toast.success("Equipment created successfully!");
+      if (isEdit && id) {
+        await updateEquipment(id, payload as any);
+        toast.success("Equipment updated successfully!");
+      } else {
+        await createEquipment(payload as any);
+        toast.success("Equipment created successfully!");
+      }
+
+      setTimeout(() => navigate("/equipments/view"), 800);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save equipment");
+    } finally {
+      setLoading(false);
     }
-
-    setTimeout(() => navigate("/equipments/view"), 800);
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to save equipment");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
 
   return (
@@ -231,8 +235,8 @@ const handleSubmit = async (e: React.FormEvent) => {
         <button
           onClick={() => setActiveTab("form")}
           className={`flex items-center px-4 py-2 rounded-md transition ${activeTab === "form"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
             }`}
         >
           Equipment Form
@@ -242,8 +246,8 @@ const handleSubmit = async (e: React.FormEvent) => {
             onClick={() => setActiveTab("bulk")}
             disabled={true}
             className={`cursor-not-allowed flex items-center px-4 py-2 rounded-md transition ${activeTab === "bulk"
-                ? "bg-blue-500 text-white"
-                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
               }`}
           >
             <FaUpload className="mr-2" /> Bulk Upload
@@ -316,6 +320,33 @@ const handleSubmit = async (e: React.FormEvent) => {
               onChange={handleChange}
               type="number"
             />
+
+            <div>
+              <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
+                <span className="mr-2">
+                  <GoNumber />
+                </span>
+                HSN Number
+              </label>
+              <input
+                type="text"
+                name="hsn_number"
+                value={formData.hsn_number === 0 ? "" : formData.hsn_number} // optional: show empty if 0
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, ""); // remove non-digits
+                  if (value.length <= 8) {
+                    setFormData((prev) => ({
+                      ...prev,
+                      hsn_number: value ? Number(value) : 0,
+                    }));
+                  }
+                }}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+                placeholder="Enter HSN Number (max 12 digits)"
+              />
+            </div>
+
+
 
             <FileField
               icon={<FaCogs />}

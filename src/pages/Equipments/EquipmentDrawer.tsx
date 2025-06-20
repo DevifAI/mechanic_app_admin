@@ -9,6 +9,7 @@ import {
   FaTimes,
   FaTools,
 } from "react-icons/fa";
+import { GoNumber } from "react-icons/go";
 
 const EquipmentDrawer: React.FC<{
   isOpen: boolean;
@@ -17,7 +18,7 @@ const EquipmentDrawer: React.FC<{
 }> = ({ isOpen, onClose, equipment }) => {
   if (!isOpen || !equipment) return null;
 
-  console.log({ equipment })
+  // console.log({ equipment })
   const displayEquipment = {
     name: equipment.equipment_name || equipment.name || "",
     serialNo: equipment.equipment_sr_no || equipment.serialNo || "",
@@ -29,6 +30,7 @@ const EquipmentDrawer: React.FC<{
     manual: equipment.equipment_manual || "",
     maintenanceLog: equipment.maintenance_log || "",
     otherLog: equipment.other_log || "",
+    hsn_number: equipment.hsn_number || "",
   };
 
   return (
@@ -92,17 +94,17 @@ const EquipmentDrawer: React.FC<{
               </div>
 
               {/* Purchase Date */}
-             <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
-  <div className="flex items-center mb-3">
-    <FaCalendarAlt className="text-gray-500 dark:text-gray-300 mr-2" />
-    <h3 className="font-semibold text-gray-700 dark:text-white">Purchase Date</h3>
-  </div>
-  <p className="text-gray-800 dark:text-gray-200 pl-6">
-    {equipment.purchase_date
-      ? new Date(equipment.purchase_date).toLocaleDateString("en-GB")
-      : "-"}
-  </p>
-</div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaCalendarAlt className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Purchase Date</h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {equipment.purchase_date
+                    ? new Date(equipment.purchase_date).toLocaleDateString("en-GB")
+                    : "-"}
+                </p>
+              </div>
 
 
               {/* OEM */}
@@ -206,6 +208,14 @@ const EquipmentDrawer: React.FC<{
                   <h3 className="font-semibold text-gray-700 dark:text-white">Group ID</h3>
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.equipment_group_id}</p>
+              </div>
+
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <GoNumber className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">Hsn No</h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">{equipment.hsn_number}</p>
               </div>
 
             </div>
