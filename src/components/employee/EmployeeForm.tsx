@@ -3,6 +3,7 @@ import { fetchRoles } from "../../apis/roleApi";
 import { fetchShifts } from "../../apis/shiftApi";
 import { fetchEmpPositions } from "../../apis/empPositionApi";
 import { getAllOrganisations } from "../../apis/organisationApi";
+import { State, City } from "country-state-city";
 
 type Option = { id: string; name: string };
 
@@ -12,7 +13,6 @@ type EmployeeFormProps = {
   loading?: boolean;
 };
 
-// Define the app access roles as constants
 const APP_ACCESS_ROLES = [
   { text: "Mechanic", value: "mechanic" },
   { text: "Mechanic Incharge", value: "mechanicIncharge" },
@@ -39,117 +39,182 @@ export const EmployeeForm = ({
     shiftcode: "",
     role_id: "",
     org_id: "",
-    app_access_role: "", // Add app_access_role to form data
+    app_access_role: "",
+    state: "",
+    city: "",
+    pincode: "",
+    acc_holder_name: "",
+    bank_name: "",
+    acc_no: "",
+    ifsc_code: "",
   });
 
   const [roles, setRoles] = useState<Option[]>([]);
   const [shifts, setShifts] = useState<Option[]>([]);
   const [positions, setPositions] = useState<Option[]>([]);
   const [organisations, setOrganisations] = useState<Option[]>([]);
+  const [states] = useState(State.getStatesOfCountry("IN"));
+  const [cities, setCities] = useState<any[]>([]);
 
-  // Fetch roles, shifts, positions on mount
+
+  console.log({ initialData })
+
   useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    }
     const fetchData = async () => {
       try {
-        const fetchedRoles = await fetchRoles();
-        setRoles(fetchedRoles);
+        const [rolesData, shiftsData, positionsData, orgsData] = await Promise.all([
+          fetchRoles(),
+          fetchShifts(),
+          fetchEmpPositions(),
+          getAllOrganisations(),
+        ]);
 
-        const fetchedShifts = await fetchShifts();
-        const mappedShifts = fetchedShifts.map((shift) => ({
-          id: shift.id,
-          name: shift.shift_code,
-        }));
-        setShifts(mappedShifts);
+        setRoles(rolesData);
+        setShifts(shiftsData.map(s => ({ id: s.id, name: s.shift_code })));
+        setPositions(positionsData.map(p => ({ id: p.id, name: p.designation })));
+        setOrganisations(orgsData.map(o => ({ id: o.id, name: o.org_name })));
 
-        const fetchedPositions = await fetchEmpPositions();
-        const mappedPositions = fetchedPositions.map((pos) => ({
-          id: pos.id,
-          name: pos.designation,
-        }));
-        setPositions(mappedPositions);
+        // If editing, populate fields and cities from state
+        if (initialData) {
+          setFormData(initialData);
 
-        const fetchedOrgs = await getAllOrganisations();
-        const mappedOrgs = fetchedOrgs.map((org) => ({
-          id: org.id,
-          name: org.org_name,
-        }));
-        setOrganisations(mappedOrgs);
+          const stateMatch = states.find(s => s.name === initialData.state);
+          if (stateMatch) {
+            const cityData = City.getCitiesOfState("IN", stateMatch.isoCode);
+            setCities(cityData);
+          }
+        }
       } catch (error) {
-        console.error("Error fetching form data:", error);
+        console.error("Error loading form data:", error);
       }
     };
 
     fetchData();
-  }, [loading, initialData]);
+  }, [initialData]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
     const checked = (e.target as HTMLInputElement).checked;
-    if (type === "checkbox") {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: checked,
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedStateCode = e.target.value;
+    const selectedState = states.find((s) => s.isoCode === selectedStateCode);
+
+    setFormData((prev) => ({
+      ...prev,
+      state: selectedState?.name || "",
+      city: "",
+    }));
+
+    setCities(City.getCitiesOfState("IN", selectedStateCode));
+  };
+
+  const handleCityChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFormData((prev) => ({
+      ...prev,
+      city: e.target.value,
+    }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (parseInt(formData.age) < 0 || parseInt(formData.age) > 100) {
+      alert("Age must be between 0 and 100");
+      return;
+    }
     onSubmit(formData);
   };
 
-  // Fields except the dropdowns and checkbox
-  const fields = [
-    { label: "Employee ID", name: "emp_id" },
-    { label: "Name", name: "emp_name" },
-    { label: "Blood Group", name: "blood_group" },
-    { label: "Age", name: "age", type: "number" },
-    { label: "Address", name: "adress" },
-  ];
+  const inputField = (
+    label: string,
+    name: string,
+    type: string = "text",
+    required: boolean = true
+  ) => (
+    <div className="w-full sm:w-1/2 px-3 mb-4">
+      <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={(formData as any)[name]}
+        onChange={handleChange}
+        required={required}
+        className="w-full px-3 py-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+      />
+    </div>
+  );
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-4">
+    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4">
       <div className="flex flex-wrap -mx-3">
-        {fields.map((field) => (
-          <div key={field.name} className="w-full sm:w-1/2 px-3 mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-              {field.label}
-            </label>
-            <input
-              type={field.type || "text"}
-              min={field.type === "number" ? 0 : undefined}
-              name={field.name}
-              value={(formData as any)[field.name]}
-              onChange={handleChange}
-              className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-        ))}
+        {inputField("Employee ID", "emp_id")}
+        {inputField("Name", "emp_name")}
+        {inputField("Blood Group", "blood_group")}
+        {inputField("Age", "age", "number")}
+        {inputField("Address", "adress")}
 
-        {/* App Access Role Dropdown */}
-        <div className="w-full sm:w-1/2 px-3 mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            App Access Role
+        {/* Dropdowns */}
+        <div className="w-full sm:w-1/2 px-3 mb-4">
+          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+            Shift Code <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="shiftcode"
+            value={formData.shiftcode}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Select Shift</option>
+            {shifts.map((s) => (
+              <option key={s.id} value={s.name}>
+                {s.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-full sm:w-1/2 px-3 mb-4">
+          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+            Role ID <span className="text-red-500">*</span>
+          </label>
+          <select
+            name="role_id"
+            value={formData.role_id}
+            onChange={handleChange}
+            required
+            className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
+          >
+            <option value="">Select Role</option>
+            {roles.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="w-full sm:w-1/2 px-3 mb-4">
+          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+            App Access Role <span className="text-red-500">*</span>
           </label>
           <select
             name="app_access_role"
             value={formData.app_access_role}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">Select access role</option>
+            <option value="">Select Role</option>
             {APP_ACCESS_ROLES.map((role) => (
               <option key={role.value} value={role.value}>
                 {role.text}
@@ -158,91 +223,86 @@ export const EmployeeForm = ({
           </select>
         </div>
 
-        {/* Shift Code Dropdown */}
-        <div className="w-full sm:w-1/2 px-3 mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Shift Code
-          </label>
-          <select
-            name="shiftcode"
-            value={formData.shiftcode}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select shift code</option>
-            {shifts.map(({ id, name }) => (
-              <option key={id} value={name}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Role ID Dropdown */}
-        <div className="w-full sm:w-1/2 px-3 mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Role ID
-          </label>
-          <select
-            name="role_id"
-            value={formData.role_id}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select role</option>
-            {roles.map(({ id, name }) => (
-              <option key={id} value={id}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Position Dropdown */}
-        <div className="w-full sm:w-1/2 px-3 mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Position
-          </label>
-          <select
-            name="position"
-            value={formData.position}
-            onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            required
-          >
-            <option value="">Select position</option>
-            {positions.map(({ id, name }) => (
-              <option key={id} value={id}>
-                {name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Organisation Dropdown */}
-        <div className="w-full sm:w-1/2 px-3 mb-6">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Organisation
+        <div className="w-full sm:w-1/2 px-3 mb-4">
+          <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+            Organisation <span className="text-red-500">*</span>
           </label>
           <select
             name="org_id"
             value={formData.org_id}
             onChange={handleChange}
-            className="w-full p-2 border border-gray-300 rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+            className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-700 dark:text-white"
           >
-            <option value="">Select organisation</option>
-            {organisations.map(({ id, name }) => (
-              <option key={id} value={id}>
-                {name}
+            <option value="">Select Organisation</option>
+            {organisations.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.name}
               </option>
             ))}
           </select>
         </div>
 
-        {/* Active Checkbox */}
+        {/* Location */}
+        <div className="w-full px-3 mb-4">
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[150px]">
+              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                State <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={states.find((s) => s.name === formData.state)?.isoCode || ""}
+                onChange={handleStateChange}
+                required
+                className="w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select State</option>
+                {states.map((s) => (
+                  <option key={s.isoCode} value={s.isoCode}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1 min-w-[150px]">
+              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                City <span className="text-red-500">*</span>
+              </label>
+              <select
+                value={formData.city}
+                onChange={handleCityChange}
+                required
+                disabled={!formData.state}
+                className="w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              >
+                <option value="">Select City</option>
+                {cities.map((c) => (
+                  <option key={c.name} value={c.name}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1 min-w-[150px]">
+              {inputField("Pincode", "pincode")}
+            </div>
+          </div>
+        </div>
+
+        {/* Bank Details */}
+        <div className="w-full px-3 mb-6">
+          <h3 className="text-md font-semibold text-gray-700 dark:text-gray-200 mb-3">Bank Details</h3>
+          <div className="flex flex-wrap -mx-3">
+            {inputField("Account Holder Name", "acc_holder_name")}
+            {inputField("Bank Name", "bank_name")}
+            {inputField("Account Number", "acc_no")}
+            {inputField("IFSC Code", "ifsc_code")}
+          </div>
+        </div>
+
+        {/* Active checkbox */}
         <div className="w-full sm:w-1/2 px-3 mb-6 flex items-center">
           <input
             type="checkbox"
@@ -251,42 +311,17 @@ export const EmployeeForm = ({
             onChange={handleChange}
             className="mr-2 h-5 w-5 text-blue-600 rounded border-gray-300 dark:bg-gray-700 dark:border-gray-600"
           />
-          <label className="text-sm text-gray-700 dark:text-gray-300">
-            Active
-          </label>
+          <label className="text-sm text-gray-700 dark:text-gray-300">Active</label>
         </div>
       </div>
 
-      <div className="text-right">
+      <div className="text-right px-3">
         <button
           type="submit"
           disabled={loading}
-          className={`inline-flex items-center bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-            loading ? "opacity-60 cursor-not-allowed" : ""
-          }`}
+          className={`inline-flex items-center bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ${loading ? "opacity-60 cursor-not-allowed" : ""
+            }`}
         >
-          {loading && (
-            <svg
-              className="animate-spin h-5 w-5 mr-2 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              />
-            </svg>
-          )}
           {loading ? "Submitting..." : "Submit"}
         </button>
       </div>

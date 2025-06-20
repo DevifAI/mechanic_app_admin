@@ -9,7 +9,7 @@ const url = {
 
 const axiosInstance = axios.create({
 
-  baseURL: url.production,
+  baseURL: url.production, // Change to url.development for local testing
 
   headers: {
     "Content-Type": "application/json",

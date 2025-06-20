@@ -1,4 +1,4 @@
-import { FaCheck, FaClock,  FaMapMarkerAlt, FaTimes, FaTint, FaUser, FaUserShield,  } from "react-icons/fa";
+import { FaCheck, FaClock, FaMapMarkerAlt, FaTimes, FaTint, FaUser, FaUserShield, } from "react-icons/fa";
 
 const EmployeeDrawer: React.FC<{
   isOpen: boolean;
@@ -6,7 +6,7 @@ const EmployeeDrawer: React.FC<{
   employee: any;
 }> = ({ isOpen, onClose, employee }) => {
   if (!isOpen || !employee) return null;
-
+  console.log({ employee })
   return (
     <div className="fixed inset-0 z-[99999] ">
       {/* Overlay */}
@@ -17,9 +17,8 @@ const EmployeeDrawer: React.FC<{
       />
       {/* Drawer */}
       <div
-        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed right-0 top-0 h-full w-96 bg-white dark:bg-gray-800 shadow-2xl transition-transform duration-300 ${isOpen ? "translate-x-0" : "translate-x-full"
+          }`}
         style={{ zIndex: 2 }}
       >
         <div className="relative h-full flex flex-col">
@@ -95,11 +94,11 @@ const EmployeeDrawer: React.FC<{
                   {employee.role}
                 </p>
               </div>
-               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
                   <FaUserShield className="text-gray-500 dark:text-gray-300 mr-2" />
                   <h3 className="font-semibold text-gray-700 dark:text-white">
-                   App Role
+                    App Role
                   </h3>
                 </div>
                 <p className="text-gray-800 dark:text-gray-200 pl-6">
@@ -130,6 +129,39 @@ const EmployeeDrawer: React.FC<{
               </div>
               <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
                 <div className="flex items-center mb-3">
+                  <FaTint className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                    State
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {employee.state}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaTint className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                    City
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {employee.city}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
+                  <FaTint className="text-gray-500 dark:text-gray-300 mr-2" />
+                  <h3 className="font-semibold text-gray-700 dark:text-white">
+                    Pincode
+                  </h3>
+                </div>
+                <p className="text-gray-800 dark:text-gray-200 pl-6">
+                  {employee.pincode}
+                </p>
+              </div>
+              <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div className="flex items-center mb-3">
                   <FaUser className="text-gray-500 dark:text-gray-300 mr-2" />
                   <h3 className="font-semibold text-gray-700 dark:text-white">
                     Age
@@ -152,6 +184,28 @@ const EmployeeDrawer: React.FC<{
                     : "No"}
                 </p>
               </div>
+              <div className="col-span-1 md:col-span-2">
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Bank Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-1">Account Holder Name</h4>
+                    <p className="text-gray-800 dark:text-gray-200">{employee.acc_holder_name || "N/A"}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-1">Bank Name</h4>
+                    <p className="text-gray-800 dark:text-gray-200">{employee.bank_name || "N/A"}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-1">Account Number</h4>
+                    <p className="text-gray-800 dark:text-gray-200">{employee.acc_no || "N/A"}</p>
+                  </div>
+                  <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                    <h4 className="text-sm font-semibold text-gray-700 dark:text-white mb-1">IFSC Code</h4>
+                    <p className="text-gray-800 dark:text-gray-200">{employee.ifsc_code || "N/A"}</p>
+                  </div>
+                </div>
+              </div>
+
             </div>
             <div className="mt-6 flex justify-end">
               <button

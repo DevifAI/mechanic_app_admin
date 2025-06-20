@@ -18,14 +18,20 @@ type EmployeeRow = {
   bloodGroup: string;
   age: string;
   address: string;
-  position: string;
   shift: string;
   role: string;
   active: boolean | string;
+  state: string;
+  city: string;
+  pincode: string;
+  bank_name?: string; 
+  ifsc_code?: string;
+  acc_no: string;
+  acc_holder_name: string;
 };
 
 export const Employees = () => {
-  const [employees, setEmployees] = useState<EmployeeRow[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
   const [filteredEmployees, setFilteredEmployees] = useState<EmployeeRow[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRow | null>(null);
@@ -44,6 +50,9 @@ export const Employees = () => {
     paginatedData: paginatedEmployees,
   } = usePagination(filteredEmployees, rowsPerPage);
 
+
+  console.log({ employees })
+
   const fetchAndSetEmployees = async () => {
     setLoading(true);
     try {
@@ -56,7 +65,7 @@ export const Employees = () => {
         storeManager: "Store Manager",
         accountManager: "Account Manager",
         projectManager: "Project Manager",
-        
+
         // Add other mappings if needed
       };
 
@@ -72,10 +81,17 @@ export const Employees = () => {
         role: e.role || "N/A",
         app_access_role: roleMap[e.app_access_role] || "N/A",
         active: e.active !== undefined ? e.active : "N/A",
+        state: e.state || "N/A",
+        city: e.city || "N/A",
+        pincode: e.pincode || "N/A",
+        bank_name: e.bank_name || "N/A",
+        ifsc_code: e.ifsc_code || "N/A",
+        acc_no: e.acc_no || "N/A",
+        acc_holder_name: e.acc_holder_name || "N/A",
       }));
 
       setEmployees(simplified);
-      setFilteredEmployees(simplified);
+      setFilteredEmployees(simplified as any);
     } catch (err) {
       console.error("Error loading employees", err);
     } finally {
@@ -262,7 +278,6 @@ export const Employees = () => {
                   <th className="px-4 py-3 text-[12px] text-left">Name</th>
                   <th className="px-4 py-3 text-[12px] text-left">Age</th>
                   <th className="px-4 py-3 text-[12px] text-left">Blood Group</th>
-                  <th className="px-4 py-3 text-[12px] text-left">Position</th>
                   <th className="px-4 py-3 text-[12px] text-left">Shift</th>
                   <th className="px-4 py-3 text-[12px] text-left">Role</th>
                   <th className="px-4 py-3 text-[12px] text-left">App Role</th>
@@ -285,7 +300,6 @@ export const Employees = () => {
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.emp_name}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.age}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.bloodGroup}</td>
-                      <td className="px-4 py-2 text-[12px] text-left ">{employee.position}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.shift}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.role}</td>
                       <td className="px-4 py-2 text-[12px] text-left ">{employee.app_access_role}</td>
