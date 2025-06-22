@@ -20,6 +20,8 @@ import { getAllAccounts } from "../../apis/accountApi";
 import { fetchRevenues } from "../../apis/revenueApi";
 import ConsumableBulkUpload from "./ConsumableBulkUpload";
 
+// (imports stay the same)
+
 export default function ConsumableFormPage() {
   const navigate = useNavigate();
   const { id } = useParams();
@@ -37,6 +39,7 @@ export default function ConsumableFormPage() {
     accOut: "",
     itemGroup: "",
     revenue: "",
+    hsn_number: "",
   });
 
   const [itemGroups, setItemGroups] = useState<ItemGroup[]>([]);
@@ -47,7 +50,6 @@ export default function ConsumableFormPage() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<"form" | "bulk">("form");
 
-  // Enum options for Product Type
   const PRODUCT_TYPE_OPTIONS = [
     { label: "Goods", value: "Goods" },
     { label: "Services", value: "Services" },
@@ -88,6 +90,7 @@ export default function ConsumableFormPage() {
             accOut: data.expense_account_code || "",
             itemGroup: data.item_group_id || "",
             revenue: data.revenue_account_code || "",
+            hsn_number: data.hsn_number || "",
           });
         })
         .catch(() => toast.error("Failed to load consumable"))
@@ -101,10 +104,18 @@ export default function ConsumableFormPage() {
     >
   ) => {
     const { name, value, type } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "number" ? parseFloat(value) : value,
-    }));
+
+    if (name === "hsn_number") {
+      const numeric = value.replace(/\D/g, "");
+      if (numeric.length <= 8) {
+        setFormData((prev) => ({ ...prev, [name]: numeric }));
+      }
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: type === "number" ? parseFloat(value) : value,
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -124,6 +135,7 @@ export default function ConsumableFormPage() {
       inventory_account_code: formData.accIn,
       expense_account_code: formData.accOut,
       revenue_account_code: formData.revenue,
+      hsn_number: formData.hsn_number,
     };
 
     try {
@@ -165,21 +177,12 @@ export default function ConsumableFormPage() {
                 : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
             }`}
           >
-            <span className="mr-2">
-              <svg
-                width="1em"
-                height="1em"
-                viewBox="0 0 16 16"
-                fill="currentColor"
-              >
-                <path d="M.5 9.9a.5.5 0 0 1 .5.5v3.1a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-3.1a.5.5 0 0 1 1 0v3.1A1.5 1.5 0 0 1 15 15H1a1.5 1.5 0 0 1-1.5-1.5v-3.1a.5.5 0 0 1 .5-.5z" />
-                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 1 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z" />
-              </svg>
-            </span>
+            <span className="mr-2">📥</span>
             Bulk Upload
           </button>
         )}
       </div>
+
       {activeTab === "form" ? (
         <>
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
@@ -214,7 +217,6 @@ export default function ConsumableFormPage() {
               onChange={handleChange}
               options={PRODUCT_TYPE_OPTIONS}
             />
-
             <SelectField
               label="Item Group"
               name="itemGroup"
@@ -245,6 +247,12 @@ export default function ConsumableFormPage() {
               value={formData.qtyInHand}
               onChange={handleChange}
               type="number"
+            />
+            <InputFieldHSN
+              label="HSN Number"
+              name="hsn_number"
+              value={formData.hsn_number}
+              onChange={handleChange}
             />
             <SelectField
               label="Inventory Account"
@@ -308,6 +316,7 @@ export default function ConsumableFormPage() {
   );
 }
 
+// Reusable Input Components
 const InputField = ({
   label,
   name,
@@ -331,6 +340,35 @@ const InputField = ({
       value={value}
       onChange={onChange}
       className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+    />
+  </div>
+);
+
+const InputFieldHSN = ({
+  label,
+  name,
+  value,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: string;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+}) => (
+  <div>
+    <label className="mb-1 text-gray-700 dark:text-gray-200 font-medium">
+      {label}
+    </label>
+    <input
+      type="text"
+      name={name}
+      value={value}
+      onChange={onChange}
+      maxLength={8}
+      pattern="\d{8}"
+      inputMode="numeric"
+      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white"
+      placeholder="Enter 8-digit HSN"
     />
   </div>
 );

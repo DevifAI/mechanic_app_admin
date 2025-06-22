@@ -65,7 +65,9 @@ export const deleteEmployee = async (
 };
 
 // Get employees by role ID
-export const fetchEmployeesByRoleId = async (roleId: string): Promise<Employee[]> => {
+export const fetchEmployeesByRoleId = async (
+  roleId: string
+): Promise<Employee[]> => {
   try {
     const res = await axiosInstance.get(`/employee/role/${roleId}`);
     return res.data;
@@ -75,8 +77,29 @@ export const fetchEmployeesByRoleId = async (roleId: string): Promise<Employee[]
   }
 };
 
-export const assignEmployeesToProject = async (project_id: string, employee_ids: string[]) => {
+export const assignEmployeesToProject = async (
+  project_id: string,
+  employee_ids: string[]
+) => {
   const res = await axiosInstance.post("/employee/add/employee/project", {
+    project_id,
+    employee_ids,
+  });
+  return res.data;
+};
+
+export const getEmployyesAssignedToProject = async (project_id: string) => {
+  const res = await axiosInstance.post("/employee/get/employee/project", {
+    project_id,
+  });
+  return res.data;
+};
+
+export const updateEmployeesForProject = async (
+  project_id: string,
+  employee_ids: string[]
+) => {
+  const res = await axiosInstance.post("/employee/edit/employee/project", {
     project_id,
     employee_ids,
   });

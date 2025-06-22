@@ -11,6 +11,7 @@ export interface ItemPostPayload {
   inventory_account_code: string;
   expense_account_code: string;
   revenue_account_code: string;
+  hsn_number: string;
 }
 
 export interface Item {
@@ -27,6 +28,7 @@ export interface Item {
   inventory_account_code: string;
   expense_account_code: string;
   revenue_account_code: string;
+  hsn_number: string;
   createdAt: string;
   updatedAt: string;
   itemGroup: ItemGroup;

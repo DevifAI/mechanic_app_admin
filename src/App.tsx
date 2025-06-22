@@ -62,6 +62,17 @@ import AddEmployeeProject from "./pages/AddEmployee_Project/AddEmployeeProject";
 import { EquipmentGroup } from "./pages/EquipmentGroup/EquipmentGroup";
 import EquipmentGroupCreate from "./pages/EquipmentGroup/EquipmentGroupCreate";
 import EquipmentGroupFormPage from "./pages/EquipmentGroup/EquipmentGroupFormPage";
+import { EditEmployees } from "./pages/Projects/EditEmployees";
+import { DieselReceipt } from "./pages/Transactions/Diesel_Receipt/DieselReceipt";
+import DieselReceiptDetailsPage from "./pages/Transactions/Diesel_Receipt/DieselReceiptDetailsPage";
+import { ConsumptionSheet } from "./pages/Transactions/Consumption_Sheet/ConsumptionSheet";
+import ConsumptionSheetDetailpage from "./pages/Transactions/Consumption_Sheet/ConsumptionSheetDetailsPage";
+import { MaintenanceLog } from "./pages/Transactions/Maintenance_Log/MaintenanceLog";
+import MaintenanceLogDetailsPage from "./pages/Transactions/Maintenance_Log/MaintenanceLogDetails";
+import { DailyProgressReport } from "./pages/Transactions/DPR/DailyProgressReport";
+import DailyProgressReportDetails from "./pages/Transactions/DPR/DailyProgressReportDetails";
+import { MaterialTransactions } from "./pages/Transactions/View_Material_In/MaterialTransacttions";
+import MaterialTransactionPageDetails from "./pages/Transactions/View_Material_In/MaterialTransactionPageDetails";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("user");
@@ -91,7 +102,14 @@ export default function App() {
           <Route path="/projects/create" element={<CreateProjectPage />} />
           <Route path="/projects/:id" element={<ProjectDetailPage />} />
           <Route path="/projects/edit/:id" element={<CreateProjectPage />} />
-          <Route path="/projects/add/employees/:id" element={<AddEmployeeProject />} />
+          <Route
+            path="/projects/add/employees/:id"
+            element={<AddEmployeeProject />}
+          />
+          <Route
+            path="/projects/edit/employees/:id"
+            element={<EditEmployees />}
+          />
           <Route path="/employees/view" element={<Employees />} />
           <Route path="/employees/create" element={<CreateEmployeePage />} />
           <Route path="/employees/edit/:id" element={<CreateEmployeePage />} />
@@ -131,18 +149,56 @@ export default function App() {
           <Route path="/uom/edit/:id" element={<UomFormPage />} />
           <Route path="/uom/view" element={<Uom />} />
           <Route path="/equipmentgroup/view" element={<EquipmentGroup />} />
-          <Route path="/equipmentgroup/create" element={<EquipmentGroupCreate />} />
-          <Route path="/equipment-group/edit/:id" element={<EquipmentGroupFormPage />} />
+          <Route
+            path="/equipmentgroup/create"
+            element={<EquipmentGroupCreate />}
+          />
+          <Route
+            path="/equipment-group/edit/:id"
+            element={<EquipmentGroupFormPage />}
+          />
           <Route path="/itemGroup/create" element={<ItemGroupFormPage />} />
           <Route path="/itemGroup/edit/:id" element={<ItemGroupFormPage />} />
           <Route path="/itemGroup/view" element={<ItemGroupPage />} />
           <Route path="/oem/create" element={<OemFormPage />} />
           <Route path="/oem/edit/:id" element={<OemFormPage />} />
           <Route path="/oem/view" element={<OemPage />} />
-          <Route path="/diesel-requisition/view" element={<DieselRequisition />} />
-          <Route path="/diesel-requisition/:id" element={<DieselRequisitionDetailsPage />} />
-
-
+          <Route
+            path="/diesel-requisition/view"
+            element={<DieselRequisition />}
+          />
+          <Route path="/diesel-receipt/view" element={<DieselReceipt />} />
+          <Route
+            path="/diesel-requisition/:id"
+            element={<DieselRequisitionDetailsPage />}
+          />
+          <Route
+            path="/diesel-receipt/:id"
+            element={<DieselReceiptDetailsPage />}
+          />
+          <Route
+            path="/consumption-sheet/view"
+            element={<ConsumptionSheet />}
+          />
+          <Route path="/maintenance-log/view" element={<MaintenanceLog />} />3
+          <Route
+            path="/maintenance-log/:id"
+            element={<MaintenanceLogDetailsPage />}
+          />
+          <Route path="/dpr/view" element={<DailyProgressReport />} />
+          <Route
+            path="/material-transactions/view"
+            element={<MaterialTransactions />}
+          />
+          <Route
+            path="/material-transactions/:id"
+            element={<MaterialTransactionPageDetails />}
+          />
+          <Route path="/dpr/:id" element={<DailyProgressReportDetails />} />
+          <Route
+            path="/consumption-sheet/:id"
+            element={<ConsumptionSheetDetailpage />}
+          />
           <Route
             path="/accountGroup/create"
             element={<AccountGroupFormPage />}

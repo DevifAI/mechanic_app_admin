@@ -27,7 +27,9 @@ type ProjectRow = {
 
 export const Projects = () => {
   const [projects, setProjects] = useState<ProjectRow[]>([]);
-  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(null);
+  const [selectedProject, setSelectedProject] = useState<ProjectRow | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
@@ -78,11 +80,22 @@ export const Projects = () => {
     const simplified = filtered.map((p: any) => {
       const start = new Date(p.contract_start_date);
       const end = p.contract_end_date ? new Date(p.contract_end_date) : null;
+
       let duration = "Ongoing";
       if (end && !isNaN(start.getTime())) {
         const diffMs = end.getTime() - start.getTime();
         const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-        duration = `${diffDays} Days`;
+
+        const years = Math.floor(diffDays / 365);
+        const months = Math.floor((diffDays % 365) / 30);
+        const days = (diffDays % 365) % 30;
+
+        const parts = [];
+        if (years) parts.push(`${years} year${years > 1 ? "s" : ""}`);
+        if (months) parts.push(`${months} month${months > 1 ? "s" : ""}`);
+        if (days) parts.push(`${days} day${days > 1 ? "s" : ""}`);
+
+        duration = parts.join(" ");
       }
 
       return {
@@ -116,7 +129,7 @@ export const Projects = () => {
   }, []);
 
   const handleExportProjects = () => {
-    const formattedProjects = rawProjects.map(project => {
+    const formattedProjects = rawProjects.map((project) => {
       const {
         createdAt,
         updatedAt,
@@ -170,7 +183,9 @@ export const Projects = () => {
             onClick={() => navigate("/projects/create")}
             className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            <span><FaPlus /></span>
+            <span>
+              <FaPlus />
+            </span>
             <span>New</span>
           </button>
           <span
@@ -218,7 +233,9 @@ export const Projects = () => {
       <div className="flex-1 flex flex-col overflow-hidden dark:bg-gray-900">
         {loading ? (
           <div className="flex justify-center items-center h-full">
-            <span className="text-blue-600 font-semibold text-lg">Loading...</span>
+            <span className="text-blue-600 font-semibold text-lg">
+              Loading...
+            </span>
           </div>
         ) : (
           <>
@@ -228,18 +245,37 @@ export const Projects = () => {
                   <table className="w-full min-w-full text-base">
                     <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm sticky top-0 z-10">
                       <tr>
-                        <th className="px-4 py-3 text-[12px] text-left">Serial No.</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Project No</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Customer</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Order No</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Contract Start</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Duration</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Revenues</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Equipments</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Staff</th>
-                        <th className="px-4 py-3 text-[12px] text-left">Locations</th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Serial No.
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Project No
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Customer
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Order No
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Contract Start
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Duration
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Revenues
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Equipments
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Staff
+                        </th>
+                        <th className="px-4 py-3 text-[12px] text-left">
+                          Locations
+                        </th>
                         <th className="px-4 py-3 text-[12px] text-left"></th>
-
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
@@ -247,33 +283,62 @@ export const Projects = () => {
                         <tr
                           key={idx}
                           className="even:bg-gray-200 dark:even:bg-gray-900 cursor-pointer"
-                          onClick={() => navigate(`/projects/${project.id}`, { state: { project: rawProjects[idx] } })}
+                          onClick={() =>
+                            navigate(`/projects/${project.id}`, {
+                              state: { project: rawProjects[idx] },
+                            })
+                          }
                           onMouseEnter={() => setHoveredRow(project.projectNo)}
                           onMouseLeave={() => setHoveredRow(null)}
                         >
-                          <td className="px-4 py-2 text-[12px] text-left">{idx + 1}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.projectNo}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.customer}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.orderNo}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.contractStart}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.duration}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.revenues}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.equipments}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.staff}</td>
-                          <td className="px-4 py-2 text-[12px] text-left">{project.locations}</td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {idx + 1}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.projectNo}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.customer}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.orderNo}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.contractStart}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.duration}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.revenues}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.equipments}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.staff}
+                          </td>
+                          <td className="px-4 py-2 text-[12px] text-left">
+                            {project.locations}
+                          </td>
                           <td className="flex justify-center gap-2 relative">
                             {hoveredRow === project.projectNo && (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setDropdownOpen(
-                                    dropdownOpen === project.projectNo ? null : project.projectNo
+                                    dropdownOpen === project.projectNo
+                                      ? null
+                                      : project.projectNo
                                   );
                                 }}
                                 className="w-8 h-8 flex items-center justify-center rounded-full transition"
                                 title="Actions"
                               >
-                                <FaCircleChevronDown className="text-blue-500" size={20} />
+                                <FaCircleChevronDown
+                                  className="text-blue-500"
+                                  size={20}
+                                />
                               </button>
                             )}
                             {dropdownOpen === project.projectNo && (
@@ -285,11 +350,26 @@ export const Projects = () => {
                                   className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
                                   onClick={() => {
                                     setDropdownOpen(null);
-                                    navigate(`/projects/add/employees/${project.id}`);
+                                    navigate(
+                                      `/projects/add/employees/${project.id}`
+                                    );
                                   }}
                                 >
                                   Add Employees
                                 </button>
+                                {project.staff > 0 && (
+                                  <button
+                                    className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                                    onClick={() => {
+                                      setDropdownOpen(null);
+                                      navigate(
+                                        `/projects/edit/employees/${project.id}`
+                                      );
+                                    }}
+                                  >
+                                    Edit Employees
+                                  </button>
+                                )}
                                 <button
                                   className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
                                   onClick={() => {
@@ -304,7 +384,9 @@ export const Projects = () => {
                                   onClick={async () => {
                                     try {
                                       await deleteProject(project.id);
-                                      toast.success("Project deleted successfully!");
+                                      toast.success(
+                                        "Project deleted successfully!"
+                                      );
                                       setDropdownOpen(null);
                                       fetchAndSetProjects();
                                     } catch (error) {

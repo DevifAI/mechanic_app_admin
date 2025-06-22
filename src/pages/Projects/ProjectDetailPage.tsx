@@ -169,10 +169,10 @@ const ProjectDetailPage = () => {
                   {project.contract_end_date ? formatDate(project.contract_end_date) : '-'}
                 </p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-lg">
+              {/* <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-500 mb-1">Tenure</p>
                 <p className="text-gray-800 font-medium">{project.contract_tenure || '-'}</p>
-              </div>
+              </div> */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <p className="text-sm text-gray-500 mb-1">Project Duration</p>
                 <p className="text-gray-800 font-medium">{project.duration || '-'}</p>

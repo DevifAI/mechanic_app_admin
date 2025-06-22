@@ -27,11 +27,10 @@ type FormData = {
   contractEndDate: string; // ✅ Added
   // contractTenure: string;
   revenueMaster: string[];
-  // equipments: string[];
+  equipments: string[];
   staff: string[];
   storeLocations: string[];
 };
-
 
 export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   onClose,
@@ -39,7 +38,6 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   initialData,
   isEditMode = false,
 }) => {
-
   const [formData, setFormData] = useState<FormData>({
     projectNo: "",
     customer: "",
@@ -48,7 +46,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     contractEndDate: "", // ✅ Added
     // contractTenure: "",
     revenueMaster: [],
-    // equipments: [],
+    equipments: [],
     staff: [],
     storeLocations: [],
   });
@@ -62,6 +60,8 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   const [isLoading, setIsLoading] = useState(true);
 
   // Initialize form data when initialData changes
+
+  console.log({ initialData });
   useEffect(() => {
     if (initialData) {
       setFormData({
@@ -69,33 +69,36 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         customer: initialData.customer?.id || "",
         orderNo: initialData.order_no || "",
         contractStartDate: initialData.contract_start_date
-          ? new Date(initialData.contract_start_date).toISOString().split("T")[0]
+          ? new Date(initialData.contract_start_date)
+              .toISOString()
+              .split("T")[0]
           : "",
         contractEndDate: initialData.contract_end_date // ✅ Added
           ? new Date(initialData.contract_end_date).toISOString().split("T")[0]
           : "",
         // contractTenure: initialData.contract_tenure || "",
         revenueMaster: initialData.revenues?.map((r: any) => r.id) || [],
-        // equipments: initialData.equipments?.map((e: any) => e.id) || [],
+        equipments: initialData.equipments?.map((e: any) => e.id) || [],
         staff: initialData.staff?.map((s: any) => s.id) || [],
-        storeLocations: initialData.store_locations?.map((s: any) => s.id) || [],
+        storeLocations:
+          initialData.store_locations?.map((s: any) => s.id) || [],
       });
     }
   }, [initialData]);
-
 
   // Fetch all required data
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [customersData, storeData, revenues, equipments] = await Promise.all([
-          fetchCustomers(),
-          // fetchEmployees(),
-          fetchStores(),
-          fetchRevenues(),
-          fetchEquipments(),
-        ]);
+        const [customersData, storeData, revenues, equipments] =
+          await Promise.all([
+            fetchCustomers(),
+            // fetchEmployees(),
+            fetchStores(),
+            fetchRevenues(),
+            fetchEquipments(),
+          ]);
 
         setCustomers(customersData);
         // setEmployeeOptions(
@@ -116,7 +119,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
             text: `${rev.revenue_code}`,
           }))
         );
-        console.log({ equipments })
+        console.log({ equipments });
         setEquipmentOptions(
           equipments.map((eq: any) => ({
             value: eq.id,
@@ -133,9 +136,8 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     fetchData();
   }, []);
 
-
-  console.log({ equipmentOptions })
-  console.log({ revenueOptions })
+  console.log({ equipmentOptions });
+  console.log({ revenueOptions });
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -252,7 +254,6 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           />
         </div>
 
-
         {/* <div className="space-y-2">
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Contract Tenure
@@ -282,11 +283,13 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           label="Revenues"
           options={revenueOptions}
           defaultSelected={formData.revenueMaster}
-          onChange={(values) => handleMultiSelectChange("revenueMaster", values)}
+          onChange={(values) =>
+            handleMultiSelectChange("revenueMaster", values)
+          }
         />
       </div>
 
-      {/* <div className="space-y-2">
+      <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Equipments
         </label>
@@ -296,7 +299,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           defaultSelected={formData.equipments}
           onChange={(values) => handleMultiSelectChange("equipments", values)}
         />
-      </div> */}
+      </div>
 
       {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -319,10 +322,11 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           label="Store Locations"
           options={storeOptions}
           defaultSelected={formData.storeLocations}
-          onChange={(values) => handleMultiSelectChange("storeLocations", values)}
+          onChange={(values) =>
+            handleMultiSelectChange("storeLocations", values)
+          }
         />
       </div>
-
 
       <div className="flex justify-end space-x-4 pt-4">
         <button
@@ -340,14 +344,32 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         >
           {isSubmitting ? (
             <span className="flex items-center justify-center">
-              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              <svg
+                className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                ></path>
               </svg>
               {isEditMode ? "Updating..." : "Creating..."}
             </span>
+          ) : isEditMode ? (
+            "Update Project"
           ) : (
-            isEditMode ? "Update Project" : "Create Project"
+            "Create Project"
           )}
         </button>
       </div>

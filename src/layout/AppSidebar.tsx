@@ -198,7 +198,9 @@ const AppSidebar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [currentView, setCurrentView] = useState<"main" | "master" | "transaction" | "reports">("main");
+  const [currentView, setCurrentView] = useState<
+    "main" | "master" | "transaction" | "reports"
+  >("main");
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const shouldShowText = isExpanded || isHovered || isMobileOpen;
@@ -210,7 +212,7 @@ const AppSidebar: React.FC = () => {
 
   const isParentActive = (nav: NavItem): boolean => {
     if (!nav.subItems) return isActive(nav.path);
-    return nav.subItems.some(sub => isActive(sub.path));
+    return nav.subItems.some((sub) => isActive(sub.path));
   };
 
   const handleCategoryClick = (category: string) => {
@@ -230,7 +232,7 @@ const AppSidebar: React.FC = () => {
   };
 
   const toggleMenu = (menuName: string) => {
-    setOpenMenu(prev => (prev === menuName ? null : menuName));
+    setOpenMenu((prev) => (prev === menuName ? null : menuName));
   };
 
   const handleNavigate = (path: string | undefined) => {
@@ -242,8 +244,7 @@ const AppSidebar: React.FC = () => {
   console.log({
     setIsHovered,
     toggleMenu,
-
-  })
+  });
 
   return (
     <aside
@@ -251,15 +252,15 @@ const AppSidebar: React.FC = () => {
       ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-20"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0`}
-    // onMouseEnter={() => !isExpanded && setIsHovered(true)}
-    // onMouseLeave={() => setIsHovered(false)}
+      // onMouseEnter={() => !isExpanded && setIsHovered(true)}
+      // onMouseLeave={() => setIsHovered(false)}
     >
       {/* Profile */}
       <div
-        className={`py-4 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center ${!shouldShowText ? "justify-center" : "justify-start"
-          }`}
+        className={`py-4 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center ${
+          !shouldShowText ? "justify-center" : "justify-start"
+        }`}
       >
-
         {shouldShowText && (
           <div className="ml-3">
             <UserDropdown />
@@ -278,12 +279,12 @@ const AppSidebar: React.FC = () => {
                     <div
                       onClick={() => handleCategoryClick(category.name)}
                       className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                      ${isActive(category.path)
+                      ${
+                        isActive(category.path)
                           ? "bg-white text-black"
                           : "text-white hover:border-2 hover:border-white"
-                        }
-                      ${!shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                      }
+                      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                     >
                       <span className="text-white">{category.icon}</span>
                       {shouldShowText && (
@@ -300,8 +301,7 @@ const AppSidebar: React.FC = () => {
                   <div
                     onClick={() => setCurrentView("main")}
                     className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                    ${!shouldShowText ? "justify-center" : "justify-start"
-                      }`}
+                    ${!shouldShowText ? "justify-center" : "justify-start"}`}
                   >
                     <MdArrowBack size={20} />
                     {shouldShowText && (
@@ -326,17 +326,19 @@ const AppSidebar: React.FC = () => {
                         <li key={item.name}>
                           <div
                             onClick={() => {
-
                               handleNavigate(item.path);
-
                             }}
                             className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                            ${isParentActive(item)
+                            ${
+                              isParentActive(item)
                                 ? "bg-white text-black"
                                 : "text-white hover:border-2 hover:border-white"
-                              }
-                            ${!shouldShowText ? "justify-center" : "justify-between"
-                              }`}
+                            }
+                            ${
+                              !shouldShowText
+                                ? "justify-center"
+                                : "justify-between"
+                            }`}
                           >
                             <div className="flex items-center">
                               <span className="text-white">{item.icon}</span>
@@ -344,18 +346,22 @@ const AppSidebar: React.FC = () => {
                                 <span className="ml-3">{item.name}</span>
                               )}
                             </div>
-                            {shouldShowText && hasSub && createSub && createSub.path && (
-                              <AiFillPlusCircle
-                                className={`transform text-white transition-transform duration-200 ${isOpen ? "rotate-90" : ""
+                            {shouldShowText &&
+                              hasSub &&
+                              createSub &&
+                              createSub.path && (
+                                <AiFillPlusCircle
+                                  className={`transform text-white transition-transform duration-200 ${
+                                    isOpen ? "rotate-90" : ""
                                   } cursor-pointer`}
-                                size={16}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleNavigate(createSub.path);
-                                }}
-                                title={createSub.name}
-                              />
-                            )}
+                                  size={16}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleNavigate(createSub.path);
+                                  }}
+                                  title={createSub.name}
+                                />
+                              )}
                           </div>
 
                           {/* Sub-items */}
@@ -366,10 +372,11 @@ const AppSidebar: React.FC = () => {
                                   <div
                                     onClick={() => handleNavigate(subItem.path)}
                                     className={`flex items-center px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer
-                                    ${isActive(subItem.path)
+                                    ${
+                                      isActive(subItem.path)
                                         ? "bg-blue-600 text-white"
                                         : "text-gray-300 hover:border-2 hover:border-blue-500"
-                                      }`}
+                                    }`}
                                   >
                                     {subItem.name}
                                   </div>
@@ -388,10 +395,14 @@ const AppSidebar: React.FC = () => {
                   <>
                     <li>
                       <div
-                        onClick={() => handleNavigate("/diesel-requisition/view")}
+                        onClick={() =>
+                          handleNavigate("/diesel-requisition/view")
+                        }
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${!shouldShowText ? "justify-center" : "justify-start"
-                          }`}
+                          
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
                       >
                         {shouldShowText && (
                           <span className="ml-3"> View Diesel Requisition</span>
@@ -400,9 +411,11 @@ const AppSidebar: React.FC = () => {
                     </li>
                     <li>
                       <div
+                        onClick={() => handleNavigate("/diesel-receipt/view")}
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${!shouldShowText ? "justify-center" : "justify-start"
-                          }`}
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
                       >
                         {shouldShowText && (
                           <span className="ml-3">View Diesel Receipt</span>
@@ -411,9 +424,13 @@ const AppSidebar: React.FC = () => {
                     </li>
                     <li>
                       <div
+                        onClick={() =>
+                          handleNavigate("/consumption-sheet/view")
+                        }
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${!shouldShowText ? "justify-center" : "justify-start"
-                          }`}
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
                       >
                         {shouldShowText && (
                           <span className="ml-3">View Consumption Sheet</span>
@@ -422,15 +439,52 @@ const AppSidebar: React.FC = () => {
                     </li>
                     <li>
                       <div
+                        onClick={() => handleNavigate("/maintenance-log/view")}
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${!shouldShowText ? "justify-center" : "justify-start"
-                          }`}
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
                       >
                         {shouldShowText && (
                           <span className="ml-3">View Maintenance Log</span>
                         )}
                       </div>
                     </li>
+
+                    <li>
+                      <div
+                        onClick={() =>
+                          handleNavigate("/material-transactions/view")
+                        }
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">
+                            View Material Transacitons
+                          </span>
+                        )}
+                      </div>
+                    </li>
+                    {/* <li>
+                      <div
+                        onClick={() =>
+                          handleNavigate("/equipment-transactions/view")
+                        }
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">
+                            View Equipment Transacitons
+                          </span>
+                        )}
+                      </div>
+                    </li> */}
                   </>
                 )}
 
@@ -439,23 +493,16 @@ const AppSidebar: React.FC = () => {
                   <>
                     <li>
                       <div
+                        onClick={() => handleNavigate("/dpr/view")}
                         className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${!shouldShowText ? "justify-center" : "justify-start"
-                          }`}
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3">Report Item 1</span>
-                        )}
-                      </div>
-                    </li>
-                    <li>
-                      <div
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${!shouldShowText ? "justify-center" : "justify-start"
-                          }`}
-                      >
-                        {shouldShowText && (
-                          <span className="ml-3">Report Item 2</span>
+                          <span className="ml-3">
+                            View Daily Progress Report
+                          </span>
                         )}
                       </div>
                     </li>
@@ -476,8 +523,9 @@ const AppSidebar: React.FC = () => {
           title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
         >
           <svg
-            className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
-              }`}
+            className={`transition-transform duration-200 ${
+              isExpanded ? "rotate-180" : ""
+            }`}
             width="20"
             height="20"
             fill="none"
@@ -492,7 +540,6 @@ const AppSidebar: React.FC = () => {
             />
           </svg>
         </button>
-
       </div>
     </aside>
   );
