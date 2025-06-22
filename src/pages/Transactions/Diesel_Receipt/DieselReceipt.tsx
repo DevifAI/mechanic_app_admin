@@ -5,7 +5,6 @@ import { usePagination } from "../../../hooks/usePagination";
 import Pagination from "../../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
 import { IoIosMore } from "react-icons/io";
-import { getAllDieselRequisitions } from "../../../apis/dieselRequisitions.ts";
 import * as XLSX from "xlsx";
 import { getAllDieselReceipt } from "../../../apis/dieselReceipt.ts";
 

@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { DieselRequisition } from "../../../types/dieselRequisition"; // Adjust path if needed
 
 const ConsumptionSheetDetailpage = () => {
   const { state } = useLocation();
