@@ -214,8 +214,8 @@ export const DieselRequisition = () => {
                                         onClick={() => navigate(`/diesel-requisition/${req.id}`, { state: { requisition: req } })}
 
 
-                                        // onMouseEnter={() => setHoveredRow(req.id)}
-                                        // onMouseLeave={() => setHoveredRow(null)}
+                                    // onMouseEnter={() => setHoveredRow(req.id)}
+                                    // onMouseLeave={() => setHoveredRow(null)}
                                     >
                                         <td className="px-4 py-3 text-[12px]">{new Date(req.date).toLocaleDateString()}</td>
                                         <td className="px-4 py-3 text-[12px]">{req.createdByEmployee?.emp_name || "N/A"}</td>

@@ -4,9 +4,9 @@ export interface DieselRequisition {
   id: string;
   date: string;
   createdBy: string;
-  is_approve_mic: boolean;
-  is_approve_sic: boolean;
-  is_approve_pm: boolean;
+  is_approve_mic: string;
+  is_approve_sic: string;
+  is_approve_pm: string;
   org_id: string;
   project_id: string;
   createdAt: string;

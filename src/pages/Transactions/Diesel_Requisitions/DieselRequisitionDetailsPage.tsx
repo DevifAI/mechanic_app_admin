@@ -7,6 +7,8 @@ const DieselRequisitionDetailsPage = () => {
 
   const requisition: DieselRequisition | null = state?.requisition;
 
+  console.log(requisition)
+
   if (!requisition) {
     return (
       <div className="p-6 text-red-600 dark:text-red-400">
@@ -41,8 +43,20 @@ const DieselRequisitionDetailsPage = () => {
         <div>
           <p>
             <span className="font-semibold">Mechanic Incharge Approval:</span>{" "}
-            <span className={requisition.is_approve_mic ? "text-green-600" : "text-yellow-600"}>
-              {requisition.is_approve_mic ? "Approved" : "Pending"}
+            <span
+              className={
+                requisition.is_approve_mic === "approved"
+                  ? "text-green-600"
+                  : requisition.is_approve_mic === "rejected"
+                    ? "text-red-600"
+                    : "text-yellow-600"
+              }
+            >
+              {requisition.is_approve_mic === "approved"
+                ? "Approved"
+                : requisition.is_approve_mic === "rejected"
+                  ? "Rejected"
+                  : "Pending"}
             </span>
           </p>
 
@@ -50,28 +64,41 @@ const DieselRequisitionDetailsPage = () => {
             <span className="font-semibold">Site Incharge Approval:</span>{" "}
             <span
               className={
-                requisition.is_approve_sic === true
+                requisition.is_approve_sic === "approved"
                   ? "text-green-600"
-                  : requisition.is_approve_sic === false
-                  ? "text-red-600"
-                  : "text-yellow-600"
+                  : requisition.is_approve_sic === "rejected"
+                    ? "text-red-600"
+                    : "text-yellow-600"
               }
             >
-              {requisition.is_approve_sic === true
+              {requisition.is_approve_sic === "approved"
                 ? "Approved"
-                : requisition.is_approve_sic === false
-                ? "Rejected"
-                : "Pending"}
+                : requisition.is_approve_sic === "rejected"
+                  ? "Rejected"
+                  : "Pending"}
             </span>
           </p>
 
           <p>
             <span className="font-semibold">Project Manager Approval:</span>{" "}
-            <span className={requisition.is_approve_pm ? "text-green-600" : "text-yellow-600"}>
-              {requisition.is_approve_pm ? "Approved" : "Pending"}
+            <span
+              className={
+                requisition.is_approve_pm === "approved"
+                  ? "text-green-600"
+                  : requisition.is_approve_pm === "rejected"
+                    ? "text-red-600"
+                    : "text-yellow-600"
+              }
+            >
+              {requisition.is_approve_pm === "approved"
+                ? "Approved"
+                : requisition.is_approve_pm === "rejected"
+                  ? "Rejected"
+                  : "Pending"}
             </span>
           </p>
         </div>
+
       </div>
 
       <h2 className="text-2xl font-semibold mt-10 mb-4">Requisitioned Items</h2>
