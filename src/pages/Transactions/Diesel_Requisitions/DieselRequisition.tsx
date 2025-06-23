@@ -203,6 +203,7 @@ export const DieselRequisition = () => {
                                     <th className="px-4 py-3 text-[12px]">Created By</th>
                                     <th className="px-4 py-3 text-[12px]">Organisation</th>
                                     <th className="px-4 py-3 text-[12px]">Items Count</th>
+                                    <th className="px-4 py-3 text-[12px]">Status</th>
                                     <th className="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -221,6 +222,19 @@ export const DieselRequisition = () => {
                                         <td className="px-4 py-3 text-[12px]">{req.createdByEmployee?.emp_name || "N/A"}</td>
                                         <td className="px-4 py-3 text-[12px]">{req.organisation?.org_name || "N/A"}</td>
                                         <td className="px-4 py-3">{req.items?.length || 0}</td>
+                                        <td className="px-4 py-3 text-[12px]">
+                                            {req.is_approve_mic === "rejected" ||
+                                                req.is_approve_sic === "rejected" ||
+                                                req.is_approve_pm === "rejected" ? (
+                                                <span className="text-red-600 font-medium">Rejected</span>
+                                            ) : req.is_approve_mic === "approved" &&
+                                                req.is_approve_sic === "approved" &&
+                                                req.is_approve_pm === "approved" ? (
+                                                <span className="text-green-600 font-medium">Approved</span>
+                                            ) : (
+                                                <span className="text-yellow-600 font-medium">Pending</span>
+                                            )}
+                                        </td>
 
                                     </tr>
                                 ))}
