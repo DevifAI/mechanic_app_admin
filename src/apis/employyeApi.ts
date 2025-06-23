@@ -14,7 +14,7 @@ export const fetchEmployees = async (): Promise<Employee[]> => {
 };
 
 // Get employee by ID
-export const fetchEmployeeById = async (id: string): Promise<Employee> => {
+export const fetchEmployeeById = async (id: string) => {
   try {
     const res = await axiosInstance.get(`/employee/get/${id}`);
     return res.data;
