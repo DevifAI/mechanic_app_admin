@@ -15,23 +15,25 @@ export default function DownloadTemplateButtonForConsumableItems() {
         "unit_of_measurement_name",
         "item_qty_in_hand",
         "item_avg_cost",
+        "hsn_number",
         "inventory_account_code_name",
         "expense_account_code_name",
         "revenue_account_code_name",
       ],
       [
-        "ITEM001",
-        "Printer Ink",
-        "High-quality ink cartridge",
+        "test2",
+        "Subhojit Dutta",
+        "test",
         "Goods",
-        "Diesel",
-        "OEM1",
-        "Litre",
-        "100",
-        "299.99",
-        "Inventory Account",
-        "Expense Account",
-        "REV-002",
+        "sdsad",          // From item_group_id
+        "sadsadsa",           // From item_make
+        "23123",                // From unit_of_measurement
+        12,
+        0,
+        "12345678",
+        "sadsad",   // From inventory_account_code
+        "sadsad",     // From expense_account_code
+        "REV-003",     // From revenue_account_code
       ],
     ];
 
