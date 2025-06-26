@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ProjectCreateForm } from "../../components/projects/ProjectCreateForm";
 import {
@@ -23,7 +23,7 @@ export const CreateProjectPage = () => {
   const [editData, setEditData] = useState<any | null>(null);
 
   const { id } = useParams<{ id: any }>();
-  console.log({ editData })
+  console.log({ editData });
   useEffect(() => {
     if (id) {
       const fetchEditData = async () => {
@@ -60,24 +60,28 @@ export const CreateProjectPage = () => {
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab("form")}
-                className={`flex items-center px-4 py-3 text-sm font-medium ${activeTab === "form"
-                  ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                  }`}
+                className={`flex items-center px-4 py-3 text-sm font-medium ${
+                  activeTab === "form"
+                    ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+                    : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                }`}
               >
                 <FaPlus className="mr-2" />
                 Single Project
               </button>
-              {!id && (<button
-                onClick={() => setActiveTab("bulk")}
-                className={`flex items-center px-4 py-3 text-sm font-medium ${activeTab === "bulk"
-                  ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
-                  : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              {!id && (
+                <button
+                  onClick={() => setActiveTab("bulk")}
+                  className={`flex items-center px-4 py-3 text-sm font-medium ${
+                    activeTab === "bulk"
+                      ? "border-b-2 border-blue-500 text-blue-600 dark:text-blue-400"
+                      : "text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                   }`}
-              >
-                <FaUpload className="mr-2" />
-                Bulk Upload
-              </button>)}
+                >
+                  <FaUpload className="mr-2" />
+                  Bulk Upload
+                </button>
+              )}
             </nav>
           </div>
 
@@ -102,7 +106,7 @@ export const CreateProjectPage = () => {
 
                     if (error instanceof Error) {
                       errorMessage = error.message;
-                    } else if (typeof error === 'string') {
+                    } else if (typeof error === "string") {
                       errorMessage = error;
                     }
 
@@ -126,18 +130,19 @@ export const CreateProjectPage = () => {
 };
 
 const BulkUploadSection = () => {
-  const [file, setFile] = React.useState<File | null>(null);
-  const [isUploading, setIsUploading] = React.useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      e.target.value = ""; // Clear the input so the same file can be selected again
     }
   };
 
-  // Drag & Drop handlers
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault(); // IMPORTANT: allow drop
+    e.preventDefault(); // Allow drop
   };
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
@@ -148,7 +153,6 @@ const BulkUploadSection = () => {
     }
   };
 
-
   const handleUpload = async () => {
     if (!file) return;
 
@@ -157,19 +161,27 @@ const BulkUploadSection = () => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await axiosInstance.post("/project/bulk-upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data", // Required for file uploads
-        },
-      });
+      const response = await axiosInstance.post(
+        "/project/bulk-upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       const data = response.data;
 
       if (data?.results && Array.isArray(data.results)) {
-        let message = `Bulk Upload ${data.results[data.results.length - 1].status}:\n\n`;
+        let message = `Bulk Upload ${
+          data.results[data.results.length - 1].status
+        }:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Project: ${item.projectNo}\n   Status: ${item.status}\n   Message: ${item.message}\n\n`;
+          message += `${index + 1}. Project: ${item.projectNo}\n   Status: ${
+            item.status
+          }\n   Message: ${item.message}\n\n`;
         });
 
         alert(message);
@@ -178,6 +190,9 @@ const BulkUploadSection = () => {
       }
 
       setFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ""; // Clear input manually
+      }
     } catch (error) {
       console.error("Upload failed:", error);
       alert("Upload failed. Please try again.");
@@ -201,6 +216,7 @@ const BulkUploadSection = () => {
         <label className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
           <span>Browse files</span>
           <input
+            ref={fileInputRef}
             type="file"
             className="hidden"
             onChange={handleFileChange}
@@ -211,7 +227,7 @@ const BulkUploadSection = () => {
           Supported formats: CSV, Excel
         </p>
       </div>
-      {/* Show file preview */}
+
       {file && (
         <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg mt-4">
           <div className="flex items-center justify-between">
@@ -229,7 +245,10 @@ const BulkUploadSection = () => {
               </div>
             </div>
             <button
-              onClick={() => setFile(null)}
+              onClick={() => {
+                setFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
               className="text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
             >
               <FaTimes />
@@ -237,15 +256,16 @@ const BulkUploadSection = () => {
           </div>
         </div>
       )}
-      {/* Upload button */}
+
       <div className="flex justify-end mt-4">
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
-            ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
-            : "bg-blue-600 hover:bg-blue-700"
-            }`}
+          className={`px-4 py-2 rounded-md text-white flex items-center ${
+            !file || isUploading
+              ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
           {isUploading ? (
             <>
@@ -260,6 +280,7 @@ const BulkUploadSection = () => {
           )}
         </button>
       </div>
+
       <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6 text-left">
         <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-3">
           Download Template

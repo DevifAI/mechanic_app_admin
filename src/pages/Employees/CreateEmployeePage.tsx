@@ -178,7 +178,7 @@ const BulkUploadSection = () => {
       formData.append("file", file);
 
       const response = await fetch(
-        "https://www.devifai.website/api/master/super/admin/employee/bulk-upload",
+        "http://www.devifai.website/api/master/super/admin/employee/bulk-upload",
         {
           method: "POST",
           body: formData,

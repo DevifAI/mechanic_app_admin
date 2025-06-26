@@ -7,7 +7,7 @@ import {
   updateEquipmentGroup,
 } from "../../apis/equipmentGroupApi";
 import { FaUpload } from "react-icons/fa6";
-// import EquipmentGroupBulkUpload from "./EquipmentGroupBulkUpload";
+import EquipmentGroupBulkUpload from "./EquipmentgroupBulkUpload";
 
 export default function EquipmentGroupFormPage() {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export default function EquipmentGroupFormPage() {
     if (isEdit && id) {
       setLoading(true);
       fetchEquipmentGroupById(id)
-        .then((data : any) => {
+        .then((data: any) => {
           setFormData({
             equip_grp_code: data.equip_grp_code || "",
             equipment_group: data.equipment_group || "",
@@ -133,8 +133,7 @@ export default function EquipmentGroupFormPage() {
           </form>
         </>
       ) : (
-        // <EquipmentGroupBulkUpload />
-        <></>
+        <EquipmentGroupBulkUpload />
       )}
     </div>
   );

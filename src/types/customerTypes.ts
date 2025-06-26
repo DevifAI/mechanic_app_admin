@@ -1,4 +1,7 @@
 export type Customer = {
+  state: string;
+  city: string;
+  pincode: string;
   id: string;
   partner_name: string;
   partner_address: string;

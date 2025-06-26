@@ -442,7 +442,7 @@ export const EmployeeForm = ({
                 onChange={(date: Date | null) =>
                   setFormData((prev) => ({ ...prev, dob: date }))
                 }
-                dateFormat="yyyy-MM-dd"
+                dateFormat="dd-MM-yyyy"
                 placeholderText="Select date"
                 maxDate={new Date()}
                 showYearDropdown

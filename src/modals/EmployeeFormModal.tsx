@@ -68,6 +68,7 @@ const EmployeeFormModal: React.FC<EmployeeFormModalProps> = ({
 
   useEffect(() => {
     if (employee) {
+      console.log({ employee });
       setFormData({ ...employee });
     } else {
       setFormData({

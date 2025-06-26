@@ -2,13 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { CreateItemGroupPayload } from "../../types/itemGroupTypes";
-import {
-  getItemGroupById,
-  updateItemGroup,
-} from "../../apis/intemGroupApi";
+import { getItemGroupById, updateItemGroup } from "../../apis/intemGroupApi";
 import { FaUpload } from "react-icons/fa6";
 import { createEquipmentGroup } from "../../apis/equipmentGroupApi";
-// import ItemGroupBulkUpload from "./ItemGroupBulkUpload";
+
+import EquipmentgroupBulkUpload from "./EquipmentgroupBulkUpload";
 
 export default function EquipmentGroupCreate() {
   const navigate = useNavigate();
@@ -53,7 +51,10 @@ export default function EquipmentGroupCreate() {
         await updateItemGroup({ id, ...formData });
         toast.success("Equipment Group updated successfully!");
       } else {
-        await createEquipmentGroup({ equip_grp_code: formData.group_code, equipment_group: formData.group_name });
+        await createEquipmentGroup({
+          equip_grp_code: formData.group_code,
+          equipment_group: formData.group_name,
+        });
         toast.success("Equipment Group created successfully!");
       }
       setTimeout(() => navigate("/equipments/view"), 800);
@@ -70,20 +71,22 @@ export default function EquipmentGroupCreate() {
       <div className="mb-6 flex gap-4">
         <button
           onClick={() => setActiveTab("form")}
-          className={`flex items-center px-4 py-2 rounded-md transition ${activeTab === "form"
-            ? "bg-blue-500 text-white"
-            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-            }`}
+          className={`flex items-center px-4 py-2 rounded-md transition ${
+            activeTab === "form"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          }`}
         >
           Equipment Group Form
         </button>
         {!isEdit && (
           <button
             onClick={() => setActiveTab("bulk")}
-            className={`flex items-center px-4 py-2 rounded-md transition ${activeTab === "bulk"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-              }`}
+            className={`flex items-center px-4 py-2 rounded-md transition ${
+              activeTab === "bulk"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
             <FaUpload className="mr-2" /> Bulk Upload
           </button>
@@ -121,14 +124,13 @@ export default function EquipmentGroupCreate() {
                   ? "Updating..."
                   : "Creating..."
                 : isEdit
-                  ? "Update"
-                  : "Create"}
+                ? "Update"
+                : "Create"}
             </button>
           </div>
         </form>
       ) : (
-        // <ItemGroupBulkUpload />
-        <></>
+        <EquipmentgroupBulkUpload />
       )}
     </div>
   );

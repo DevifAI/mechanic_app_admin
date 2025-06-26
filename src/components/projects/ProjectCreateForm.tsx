@@ -6,6 +6,7 @@ import { fetchCustomers } from "../../apis/customerApi";
 // import { fetchEmployees } from "../../apis/employeeApi";
 import { fetchStores } from "../../apis/storeApi";
 import { Customer } from "../../types/customerTypes";
+import Select from "react-select";
 
 type ProjectFormProps = {
   onClose: () => void;
@@ -27,7 +28,7 @@ type FormData = {
   contractEndDate: string; // ✅ Added
   // contractTenure: string;
   revenueMaster: string[];
-  equipments: string[];
+  // equipments: string[];
   staff: string[];
   storeLocations: string[];
 };
@@ -46,7 +47,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     contractEndDate: "", // ✅ Added
     // contractTenure: "",
     revenueMaster: [],
-    equipments: [],
+    // equipments: [],
     staff: [],
     storeLocations: [],
   });
@@ -58,6 +59,11 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
   const [storeOptions, setStoreOptions] = useState<Option[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const customerOptions = customers.map((cust) => ({
+    value: cust.id,
+    label: cust.partner_name,
+  }));
 
   // Initialize form data when initialData changes
 
@@ -78,7 +84,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           : "",
         // contractTenure: initialData.contract_tenure || "",
         revenueMaster: initialData.revenues?.map((r: any) => r.id) || [],
-        equipments: initialData.equipments?.map((e: any) => e.id) || [],
+        // equipments: initialData.equipments?.map((e: any) => e.id) || [],
         staff: initialData.staff?.map((s: any) => s.id) || [],
         storeLocations:
           initialData.store_locations?.map((s: any) => s.id) || [],
@@ -158,11 +164,30 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
     setIsSubmitting(true);
     try {
       await onSubmit(formData);
+      setFormData({
+        projectNo: "",
+        customer: "",
+        orderNo: "",
+        contractStartDate: "",
+        contractEndDate: "", // ✅ Added
+        // contractTenure: "",
+        revenueMaster: [],
+        // equipments: [],
+        staff: [],
+        storeLocations: [],
+      });
     } catch (error) {
       console.error("Error submitting form", error);
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleCustomerChange = (selectedOption: any) => {
+    setFormData((prev) => ({
+      ...prev,
+      customer: selectedOption?.value || "",
+    }));
   };
 
   // const tenureOptions = ["3 months", "6 months", "12 months"];
@@ -212,20 +237,17 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Customer
           </label>
-          <select
-            name="customer"
-            value={formData.customer}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2"
-            required
-          >
-            <option value="">Select Customer</option>
-            {customers.map((cust) => (
-              <option key={cust.id} value={cust.id}>
-                {cust.partner_name}
-              </option>
-            ))}
-          </select>
+          <Select
+            options={customerOptions}
+            value={customerOptions.find(
+              (opt) => opt.value === formData.customer
+            )}
+            onChange={handleCustomerChange}
+            isClearable
+            placeholder="Select Customer"
+            className="react-select-container"
+            classNamePrefix="react-select"
+          />
         </div>
 
         <div className="space-y-2">
@@ -289,7 +311,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
         />
       </div>
 
-      <div className="space-y-2">
+      {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
           Equipments
         </label>
@@ -299,7 +321,7 @@ export const ProjectCreateForm: React.FC<ProjectFormProps> = ({
           defaultSelected={formData.equipments}
           onChange={(values) => handleMultiSelectChange("equipments", values)}
         />
-      </div>
+      </div> */}
 
       {/* <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">

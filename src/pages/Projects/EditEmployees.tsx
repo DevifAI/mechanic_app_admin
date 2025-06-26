@@ -14,15 +14,17 @@ export const EditEmployees: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  console.log({ selectedEmployees });
   useEffect(() => {
     const fetchEmployees = async () => {
       if (!projectId) return;
 
       try {
         const data = await getEmployyesAssignedToProject(projectId);
-        console.log({ data });
-        setEmployees(data.data || []);
-        setSelectedEmployees((data.data || []).map((e: any) => e.id));
+        const employeeList = data.data || [];
+        console.log({ employeeList });
+        setEmployees(employeeList);
+        setSelectedEmployees(employeeList.map((e: any) => e.emp_id)); // Use emp_id here
       } catch (err) {
         console.error("Error fetching employees", err);
       } finally {
@@ -42,21 +44,20 @@ export const EditEmployees: React.FC = () => {
   };
 
   const handleSelectAll = () => {
+    const allEmpIds = filteredEmployees.map((emp) => emp.emp_id);
     if (selectedEmployees.length === filteredEmployees.length) {
-      setSelectedEmployees([]); // deselect all
+      setSelectedEmployees([]);
     } else {
-      setSelectedEmployees(filteredEmployees.map((emp) => emp.id)); // select all
+      setSelectedEmployees(allEmpIds);
     }
   };
 
   const handleSave = async () => {
     if (!projectId) return;
-
+    console.log({ projectId, selectedEmployees });
     setSaving(true);
-    console.log({ selectedEmployees });
-
     try {
-      await updateEmployeesForProject(projectId, selectedEmployees);
+      await updateEmployeesForProject(projectId, selectedEmployees); // Send emp_id values only
       alert("Employees updated successfully.");
       navigate("/projects/view");
     } catch (err) {
@@ -98,7 +99,7 @@ export const EditEmployees: React.FC = () => {
                   checked={
                     filteredEmployees.length > 0 &&
                     filteredEmployees.every((emp) =>
-                      selectedEmployees.includes(emp.id)
+                      selectedEmployees.includes(emp.emp_id)
                     )
                   }
                 />
@@ -109,12 +110,12 @@ export const EditEmployees: React.FC = () => {
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredEmployees.map((emp) => (
-              <tr key={emp.id} className="hover:bg-gray-50">
+              <tr key={emp.emp_id} className="hover:bg-gray-50">
                 <td className="px-4 py-2">
                   <input
                     type="checkbox"
-                    checked={selectedEmployees.includes(emp.id)}
-                    onChange={() => handleToggle(emp.id)}
+                    checked={selectedEmployees.includes(emp.emp_id)}
+                    onChange={() => handleToggle(emp.emp_id)}
                     className="w-4 h-4"
                   />
                 </td>

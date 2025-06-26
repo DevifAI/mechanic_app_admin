@@ -47,6 +47,8 @@ export default function PartnerFormPage() {
     pincode: "",
   });
 
+  console.log({ formData });
+
   const [states, setStates] = useState<IState[]>([]);
   const [cities, setCities] = useState<ICity[]>([]);
   const [loading, setLoading] = useState(false);
@@ -58,10 +60,15 @@ export default function PartnerFormPage() {
   }, []);
 
   useEffect(() => {
-    if (isEdit && id) {
-      setLoading(true);
-      fetchCustomerById(id)
-        .then((data) => {
+    const loadInitialData = async () => {
+      const indianStates = State.getStatesOfCountry("IN");
+      setStates(indianStates);
+
+      if (isEdit && id) {
+        setLoading(true);
+        try {
+          const data = await fetchCustomerById(id);
+
           setFormData((prev) => ({
             ...prev,
             partner_name: data.partner_name,
@@ -69,14 +76,30 @@ export default function PartnerFormPage() {
             partner_gst: data.partner_gst,
             partner_geo_id: data.partner_geo_id,
             isCustomer: data.isCustomer,
-            state: "",
-            city: "",
-            pincode: "",
+            state: data.state,
+            city: data.city,
+            pincode: data.pincode,
           }));
-        })
-        .catch(() => toast.error("Failed to load partner"))
-        .finally(() => setLoading(false));
-    }
+
+          const selectedState = indianStates.find((s) => s.name === data.state);
+          if (selectedState) {
+            const citiesInState = City.getCitiesOfState(
+              "IN",
+              selectedState.isoCode
+            );
+            setCities(citiesInState);
+          } else {
+            setCities([]);
+          }
+        } catch (err) {
+          toast.error("Failed to load partner");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadInitialData();
   }, [id, isEdit]);
 
   const handleChange = (
@@ -85,17 +108,22 @@ export default function PartnerFormPage() {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : value,
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
   const handleStateChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedStateCode = e.target.value;
-    const selectedState = states.find((s) => s.isoCode === selectedStateCode);
+    const selectedState = states.find(
+      (s) => s.isoCode === selectedStateCode || formData.state
+    );
     const stateName = selectedState?.name || "";
-    const citiesInState = City.getCitiesOfState("IN", selectedStateCode);
+    const citiesInState = City.getCitiesOfState(
+      "IN",
+      selectedStateCode || formData.city
+    );
+    console.log({ citiesInState });
     setCities(citiesInState);
 
     setFormData((prev) => ({
@@ -173,7 +201,8 @@ export default function PartnerFormPage() {
       {activeTab === "form" ? (
         <>
           <h2 className="text-2xl font-bold mb-6 text-gray-800 dark:text-white flex items-center gap-2">
-            <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"} Partner
+            <FaUser className="text-blue-600" /> {isEdit ? "Edit" : "Create"}{" "}
+            Partner
           </h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Partner Name */}
@@ -287,11 +316,14 @@ export default function PartnerFormPage() {
                   className="w-full px-3 py-2 border rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
                   <option value="">Select City</option>
-                  {cities.map((city) => (
-                    <option key={city.name} value={city.name}>
-                      {city.name}
-                    </option>
-                  ))}
+                  {cities.map((city) => {
+                    console.log({ city }); // ✅ valid here
+                    return (
+                      <option key={city.name} value={city.name}>
+                        {city.name}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
 

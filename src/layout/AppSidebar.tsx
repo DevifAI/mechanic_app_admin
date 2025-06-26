@@ -248,7 +248,7 @@ const AppSidebar: React.FC = () => {
 
   return (
     <aside
-      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-[#5b6eee] text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
+      className={`fixed mt-16 flex flex-col lg:mt-0 top-0 left-0 bg-[#5399f5] text-white dark:bg-gray-800 h-screen transition-all duration-300 ease-in-out z-50 border-r border-gray-200 dark:border-gray-700
       ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-20"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0`}
@@ -341,7 +341,13 @@ const AppSidebar: React.FC = () => {
                             }`}
                           >
                             <div className="flex items-center">
-                              <span className="text-white">{item.icon}</span>
+                              <span
+                                className={`text-${
+                                  isParentActive(item) ? "black" : "white"
+                                }`}
+                              >
+                                {item.icon}
+                              </span>
                               {shouldShowText && (
                                 <span className="ml-3">{item.name}</span>
                               )}
@@ -351,8 +357,12 @@ const AppSidebar: React.FC = () => {
                               createSub &&
                               createSub.path && (
                                 <AiFillPlusCircle
-                                  className={`transform text-white transition-transform duration-200 ${
+                                  className={`transform transition-transform duration-200 ${
                                     isOpen ? "rotate-90" : ""
+                                  } ${
+                                    isParentActive(item)
+                                      ? "text-black"
+                                      : "text-white"
                                   } cursor-pointer`}
                                   size={16}
                                   onClick={(e) => {
@@ -468,6 +478,21 @@ const AppSidebar: React.FC = () => {
                         )}
                       </div>
                     </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/dpr/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
+                        ${
+                          !shouldShowText ? "justify-center" : "justify-start"
+                        }`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">
+                            View Daily Progress Report
+                          </span>
+                        )}
+                      </div>
+                    </li>
                     {/* <li>
                       <div
                         onClick={() =>
@@ -489,25 +514,7 @@ const AppSidebar: React.FC = () => {
                 )}
 
                 {/* Reports items (dummy) */}
-                {currentView === "reports" && (
-                  <>
-                    <li>
-                      <div
-                        onClick={() => handleNavigate("/dpr/view")}
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
-                      >
-                        {shouldShowText && (
-                          <span className="ml-3">
-                            View Daily Progress Report
-                          </span>
-                        )}
-                      </div>
-                    </li>
-                  </>
-                )}
+                {currentView === "reports" && <></>}
               </div>
             )}
           </ul>

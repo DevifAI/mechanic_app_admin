@@ -64,7 +64,7 @@ export default function EquipmentFormPage() {
     equipmentManual: "",
     maintenanceLog: "",
     otherLog: "",
-    hsn_number: 0
+    hsn_number: 0,
   });
 
   const [loading, setLoading] = useState(false);
@@ -125,7 +125,9 @@ export default function EquipmentFormPage() {
           setSelectedProjects(
             data.project_tag
               ? Array.isArray(data.project_tag)
-                ? data.project_tag.map((tag: any) => tag.site || tag.value || tag)
+                ? data.project_tag.map(
+                    (tag: any) => tag.site || tag.value || tag
+                  )
                 : [data.project_tag.site || data.project_tag]
               : []
           );
@@ -208,7 +210,7 @@ export default function EquipmentFormPage() {
         purchase_cost: Number(formData.purchaseCost),
         equipment_manual: equipmentManualUrl,
         maintenance_log: maintenanceLogUrl, // Ensure object type
-        other_log: otherLogUrl,             // Ensure object type
+        other_log: otherLogUrl, // Ensure object type
         project_tag: selectedProjectTag?.site,
         equipment_group_id: selectedGroup,
         hsn_number: formData.hsn_number,
@@ -233,17 +235,17 @@ export default function EquipmentFormPage() {
     }
   };
 
-
   return (
     <div className="max-w-3xl mx-auto p-8 bg-white dark:bg-gray-800 rounded-xl shadow">
       <ToastContainer position="bottom-right" autoClose={3000} />
       <div className="mb-6 flex gap-4">
         <button
           onClick={() => setActiveTab("form")}
-          className={`flex items-center px-4 py-2 rounded-md transition ${activeTab === "form"
-            ? "bg-blue-500 text-white"
-            : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-            }`}
+          className={`flex items-center px-4 py-2 rounded-md transition ${
+            activeTab === "form"
+              ? "bg-blue-500 text-white"
+              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+          }`}
         >
           Equipment Form
         </button>
@@ -251,10 +253,11 @@ export default function EquipmentFormPage() {
           <button
             onClick={() => setActiveTab("bulk")}
             disabled={true}
-            className={`cursor-not-allowed flex items-center px-4 py-2 rounded-md transition ${activeTab === "bulk"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
-              }`}
+            className={`cursor-not-allowed flex items-center px-4 py-2 rounded-md transition ${
+              activeTab === "bulk"
+                ? "bg-blue-500 text-white"
+                : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
+            }`}
           >
             <FaUpload className="mr-2" /> Bulk Upload
           </button>
@@ -347,15 +350,21 @@ export default function EquipmentFormPage() {
                     }));
                   }
                 }}
-                className={`w-full px-3 py-2 border ${formData.hsn_number.toString().length > 0 && formData.hsn_number.toString().length !== 8 ? "border-red-500" : "border-gray-300"} dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white`}
+                className={`w-full px-3 py-2 border ${
+                  formData.hsn_number.toString().length > 0 &&
+                  formData.hsn_number.toString().length !== 8
+                    ? "border-red-500"
+                    : "border-gray-300"
+                } dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-800 dark:text-white`}
                 placeholder="Enter HSN Number (8 digits required)"
               />
-              {formData.hsn_number.toString().length > 0 && formData.hsn_number.toString().length !== 8 && (
-                <p className="text-red-500 text-sm mt-1">HSN number must be exactly 8 digits</p>
-              )}
+              {formData.hsn_number.toString().length > 0 &&
+                formData.hsn_number.toString().length !== 8 && (
+                  <p className="text-red-500 text-sm mt-1">
+                    HSN number must be exactly 8 digits
+                  </p>
+                )}
             </div>
-
-
 
             <FileField
               icon={<FaCogs />}
@@ -393,7 +402,9 @@ export default function EquipmentFormPage() {
                 label="Select Equipment Group"
                 options={equipmentGroups}
                 defaultSelected={selectedGroup ? [selectedGroup] : []}
-                onChange={(values: string[]) => setSelectedGroup(values[0] || "")}
+                onChange={(values: string[]) =>
+                  setSelectedGroup(values[0] || "")
+                }
               />
             </div>
           </div>
@@ -416,8 +427,8 @@ export default function EquipmentFormPage() {
                   ? "Updating..."
                   : "Creating..."
                 : isEdit
-                  ? "Update"
-                  : "Create"}
+                ? "Update"
+                : "Create"}
             </button>
           </div>
         </form>
@@ -429,7 +440,15 @@ export default function EquipmentFormPage() {
 }
 
 // Reusable InputField
-const InputField = ({ icon, label, name, value, onChange, type = "text", inputRef }: any) => (
+const InputField = ({
+  icon,
+  label,
+  name,
+  value,
+  onChange,
+  type = "text",
+  inputRef,
+}: any) => (
   <div>
     <label className="flex items-center mb-1 text-gray-700 dark:text-gray-200 font-medium">
       <span className="mr-2">{icon}</span>

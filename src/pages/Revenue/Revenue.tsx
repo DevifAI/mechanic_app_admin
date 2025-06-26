@@ -19,7 +19,9 @@ type RevenueRow = {
 
 export const Revenue = () => {
   const [revenues, setRevenues] = useState<RevenueRow[]>([]);
-  const [selectedRevenue, setSelectedRevenue] = useState<RevenueRow | null>(null);
+  const [selectedRevenue, setSelectedRevenue] = useState<RevenueRow | null>(
+    null
+  );
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
   const [hoveredRow, setHoveredRow] = useState<string | null>(null);
@@ -84,7 +86,7 @@ export const Revenue = () => {
   };
 
   // Apply search filter
-  const filteredRevenues = revenues.filter(rev =>
+  const filteredRevenues = revenues.filter((rev) =>
     rev.revenue_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -112,7 +114,9 @@ export const Revenue = () => {
             onClick={() => navigate("/revenues/create")}
             className="flex items-center justify-center gap-2 px-4 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
           >
-            <span><FaPlus /></span>
+            <span>
+              <FaPlus />
+            </span>
             <span>New</span>
           </button>
           <span
@@ -201,7 +205,6 @@ export const Revenue = () => {
                   <th className="px-4 py-3 text-[12px]">Revenue Code</th>
                   <th className="px-4 py-3 text-[12px]">Description</th>
                   <th className="px-4 py-3 text-[12px]">Value</th>
-                  <th className="px-4 py-3 text-[12px]">Linked Projects</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -216,21 +219,32 @@ export const Revenue = () => {
                       onMouseLeave={() => setHoveredRow(null)}
                     >
                       <td className="px-4 py-3 text-[12px]">{i + 1}</td>
-                      <td className="px-4 py-3 text-[12px]">{revenue.revenue_code}</td>
-                      <td className="px-4 py-3 text-[12px]">{revenue.revenue_description}</td>
-                      <td className="px-4 py-3 text-[12px]">₹{revenue.revenue_value}</td>
-                      <td className="px-4 py-3 text-[12px]">{revenue.linkedProjects}</td>
+                      <td className="px-4 py-3 text-[12px]">
+                        {revenue.revenue_code}
+                      </td>
+                      <td className="px-4 py-3 text-[12px]">
+                        {revenue.revenue_description}
+                      </td>
+                      <td className="px-4 py-3 text-[12px]">
+                        ₹{revenue.revenue_value}
+                      </td>
+
                       <td className="flex justify-center gap-2 relative">
                         {hoveredRow === revenue.id && (
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              setDropdownOpen(dropdownOpen === revenue.id ? null : revenue.id);
+                              setDropdownOpen(
+                                dropdownOpen === revenue.id ? null : revenue.id
+                              );
                             }}
                             className="w-8 h-8 flex items-center justify-center rounded-full transition"
                             title="Actions"
                           >
-                            <FaCircleChevronDown className="text-blue-500" size={20} />
+                            <FaCircleChevronDown
+                              className="text-blue-500"
+                              size={20}
+                            />
                           </button>
                         )}
                         {dropdownOpen === revenue.id && (

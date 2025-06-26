@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { FaUpload, FaFileExcel, FaTimes, FaSpinner } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosInstance";
-// ...imports and axiosInstance same as before
-import DownloadTemplateButton from "../../utils/helperFunctions/create_excel_template";
+import DownloadPartnerTemplateButton from "../../utils/helperFunctions/download_partner.template";
 
 const PartnerBulkUpload: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -49,8 +48,9 @@ const PartnerBulkUpload: React.FC = () => {
         let message = `Bulk Upload Results:\n\n`;
 
         data.results.forEach((item: any, index: number) => {
-          message += `${index + 1}. Row: ${item.row}\n   Status: ${item.status
-            }\n   Message: ${item.message || "No additional info"}\n\n`;
+          message += `${index + 1}. Row: ${item.row}\n   Status: ${
+            item.status
+          }\n   Message: ${item.message || "No additional info"}\n\n`;
         });
 
         alert(message);
@@ -123,10 +123,11 @@ const PartnerBulkUpload: React.FC = () => {
         <button
           onClick={handleUpload}
           disabled={!file || isUploading}
-          className={`px-4 py-2 rounded-md text-white flex items-center ${!file || isUploading
+          className={`px-4 py-2 rounded-md text-white flex items-center ${
+            !file || isUploading
               ? "bg-blue-400 dark:bg-blue-600 cursor-not-allowed"
               : "bg-blue-600 hover:bg-blue-700"
-            }`}
+          }`}
         >
           {isUploading ? (
             <>
@@ -149,7 +150,7 @@ const PartnerBulkUpload: React.FC = () => {
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
           Use our template file to ensure your data is formatted correctly.
         </p>
-        <DownloadTemplateButton />
+        <DownloadPartnerTemplateButton />
       </div>
     </div>
   );

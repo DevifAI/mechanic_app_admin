@@ -26,8 +26,8 @@ export const EquipmentGroup = () => {
     const navigate = useNavigate();
 
     const filteredEquipmentGroups = equipmentGroups.filter((group) =>
-        group.equipment_group.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        group.equip_grp_code.toLowerCase().includes(searchTerm.toLowerCase())
+        group.equipment_group?.toLowerCase()?.includes(searchTerm.toLowerCase()) ||
+        group.equip_grp_code?.toLowerCase()?.includes(searchTerm.toLowerCase())
     );
 
     const {
