@@ -4,7 +4,7 @@ const isProduction = false;
 
 const url = {
   production: "https://www.devifai.website/api/master/mechanic",
-  development: "https://www.devifai.website/api/master/mechanic",
+  development: "http://localhost:5000/api/master/super/mechanic",
 };
 
 const axiosDiesel = axios.create({
