@@ -6,6 +6,7 @@ import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 import { adminLogin } from "../../apis/authApi";
+import axiosInstance from "../../utils/axiosInstance";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -14,22 +15,26 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  // In your SignInForm component
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const res = await adminLogin({
-        admin_id: email, // or use a separate admin_id field if needed
+        admin_id: email,
         password,
       });
+
+      // Set token and admin info
       localStorage.setItem("token", res.token);
       localStorage.setItem("admin", JSON.stringify(res.admin));
-      navigate("/");
+
+      // Force axios to use the new token
+      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.token}`;
+
+      // Navigate after everything is set
+      navigate("/", { replace: true }); // Use replace to prevent going back to login
     } catch (err: any) {
-      if (err.response && err.response.data && err.response.data.message) {
-        alert(err.response.data.message);
-      } else {
-        alert("Login failed");
-      }
+      // Error handling
     }
   };
 

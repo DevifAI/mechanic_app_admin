@@ -24,3 +24,8 @@ export const adminLogin = async (
   const res = await axiosInstance.post(`/login`, payload);
   return res.data;
 };
+
+export const adminLogout = async (): Promise<{ message: string }> => {
+  const res = await axiosInstance.post(`/logout`);
+  return res.data;
+};

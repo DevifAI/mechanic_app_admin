@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const isProduction = false;
+const isProduction = true; // Change this to false for development
 
 const url = {
   production: "https://www.devifai.website/api/master/mechanic",

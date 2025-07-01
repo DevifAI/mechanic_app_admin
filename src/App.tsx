@@ -75,7 +75,7 @@ import { MaterialTransactions } from "./pages/Transactions/View_Material_In/Mate
 import MaterialTransactionPageDetails from "./pages/Transactions/View_Material_In/MaterialTransactionPageDetails";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
-  const user = localStorage.getItem("user");
+  const user = localStorage.getItem("token");
   return user ? <>{children}</> : <Navigate to="/signin" replace />;
 }
 

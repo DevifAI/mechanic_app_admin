@@ -1,11 +1,11 @@
 // utils/axiosInstance.ts
 import axios from "axios";
 
-const isProduction = false; // Change this to false for development
+const isProduction = true; // Change this to false for development
 
 const url = {
   production: "https://www.devifai.website/api/master/super/admin",
-  development: "http://localhost:5000/api/master/super/admin",
+  development: "http://localhost:8000/api/master/super/admin",
 };
 
 const axiosInstance = axios.create({
@@ -15,7 +15,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add request interceptor to include token
+// utils/axiosInstance.ts
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -33,6 +33,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.log(error);
     if (error.response?.status === 401) {
       // Handle unauthorized access (token expired/invalid)
       localStorage.removeItem("token");

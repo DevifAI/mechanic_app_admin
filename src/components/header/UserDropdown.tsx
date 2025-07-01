@@ -1,12 +1,27 @@
 import { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
+import { adminLogout } from "../../apis/authApi";
+import Button from './../ui/button/Button';
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleDropdown = () => setIsOpen(!isOpen);
   const closeDropdown = () => setIsOpen(false);
+
+  const handleLogout = async () => {
+    try {
+      await adminLogout();
+    } catch (err) {
+      // Optionally handle error
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("admin");
+      navigate("/signin");
+    }
+  };
 
   return (
     <div className="relative">
@@ -42,8 +57,8 @@ export default function UserDropdown() {
         onClose={closeDropdown}
         className="absolute left-0 mt-1 w-[160px] rounded-md border border-gray-200 bg-white shadow-md z-50"
       >
-        <Link
-          to="/signin"
+        <Button
+          onClick={handleLogout}
           className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-100"
         >
           <svg
@@ -60,7 +75,7 @@ export default function UserDropdown() {
             />
           </svg>
           Sign out
-        </Link>
+        </Button>
       </Dropdown>
     </div>
   );
