@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
@@ -13,28 +13,43 @@ export default function SignInForm() {
   const [isChecked, setIsChecked] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // In your SignInForm component
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     try {
       const res = await adminLogin({
         admin_id: email,
         password,
       });
 
-      // Set token and admin info
-      localStorage.setItem("token", res.token);
-      localStorage.setItem("admin", JSON.stringify(res.admin));
+      // Type guard for isMultipleLogin
+      if ("isMultipleLogin" in res && res.isMultipleLogin) {
+        navigate("/logout");
+        return;
+      }
 
-      // Force axios to use the new token
-      axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.token}`;
-
-      // Navigate after everything is set
-      navigate("/", { replace: true }); // Use replace to prevent going back to login
+      if (res.status) {
+        localStorage.setItem("token", res.token);
+        localStorage.setItem("admin", JSON.stringify(res.admin));
+        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${res.token}`;
+        navigate("/", { replace: true });
+      } else {
+        setError(res.message || "Login failed");
+      }
     } catch (err: any) {
-      // Error handling
+      // If error is 403, navigate to /logout
+      if (err.response && err.response.status === 403) {
+        navigate("/logout");
+        return;
+      }
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Login failed");
+      }
     }
   };
 
@@ -51,9 +66,11 @@ export default function SignInForm() {
             </p>
           </div>
           <div>
-
             <form onSubmit={handleSubmit}>
               <div className="space-y-6">
+                {error && (
+                  <div className="text-error-500 text-sm">{error}</div>
+                )}
                 <div>
                   <Label>
                     Email <span className="text-error-500">*</span>{" "}
@@ -63,6 +80,7 @@ export default function SignInForm() {
                     placeholder="info@gmail.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+
                   />
                 </div>
                 <div>
@@ -75,6 +93,7 @@ export default function SignInForm() {
                       placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -95,7 +114,6 @@ export default function SignInForm() {
                       Keep me logged in
                     </span>
                   </div>
-
                 </div>
                 <div>
                   <Button className="w-full" size="sm" type="submit">

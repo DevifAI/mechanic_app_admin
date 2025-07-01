@@ -73,6 +73,7 @@ import { DailyProgressReport } from "./pages/Transactions/DPR/DailyProgressRepor
 import DailyProgressReportDetails from "./pages/Transactions/DPR/DailyProgressReportDetails";
 import { MaterialTransactions } from "./pages/Transactions/View_Material_In/MaterialTransacttions";
 import MaterialTransactionPageDetails from "./pages/Transactions/View_Material_In/MaterialTransactionPageDetails";
+import LogoutButton from "./layout/LogoutButton";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("token");
@@ -229,6 +230,7 @@ export default function App() {
 
         {/* Public Routes (Auth) */}
         <Route path="/signin" element={<SignIn />} />
+        <Route path="/logout" element={<LogoutButton />} />
         <Route path="/signup" element={<SignUp />} />
 
         {/* Fallback */}

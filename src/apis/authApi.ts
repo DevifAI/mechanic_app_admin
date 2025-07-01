@@ -1,13 +1,12 @@
 import axiosInstance from "../utils/axiosInstance";
 
-// const BASE_PATH = "/admin";
-
 export interface AdminLoginPayload {
   admin_id: string;
   password: string;
 }
 
-export interface AdminLoginResponse {
+export interface AdminLoginSuccess {
+  status: true;
   message: string;
   token: string;
   admin: {
@@ -17,6 +16,22 @@ export interface AdminLoginResponse {
     email: string;
   };
 }
+
+export interface AdminLoginMultipleLogin {
+  isMultipleLogin: true;
+  message: string;
+  status?: false;
+}
+
+export interface AdminLoginError {
+  status?: false;
+  message: string;
+}
+
+export type AdminLoginResponse =
+  | AdminLoginSuccess
+  | AdminLoginMultipleLogin
+  | AdminLoginError;
 
 export const adminLogin = async (
   payload: AdminLoginPayload
