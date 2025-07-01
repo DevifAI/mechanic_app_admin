@@ -9,7 +9,8 @@ export default function LogoutButton() {
     const handleLogout = async () => {
         setIsLoggingOut(true);
         try {
-            await adminLogout();
+          const res  = await adminLogout();
+          console.log(res)
         } catch (err) {
             console.error("Logout error:", err);
         } finally {
