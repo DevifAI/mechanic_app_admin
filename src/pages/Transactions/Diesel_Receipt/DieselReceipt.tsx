@@ -81,8 +81,8 @@ export const DieselReceipt = () => {
             req.is_approve_sic === true
               ? "Approved"
               : req.is_approve_sic === false
-              ? "Rejected"
-              : "Pending",
+                ? "Rejected"
+                : "Pending",
           "Approved by PM": req.is_approve_pm ? "Yes" : "Pending",
         });
       });
@@ -202,6 +202,7 @@ export const DieselReceipt = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
+                  <th className="px-4 py-3 text-[12px]">S.No</th>
                   <th className="px-4 py-3 text-[12px]">Date</th>
                   <th className="px-4 py-3 text-[12px]">Created By</th>
                   <th className="px-4 py-3 text-[12px]">Organisation</th>
@@ -210,7 +211,7 @@ export const DieselReceipt = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedRequisitions.map((req) => (
+                {paginatedRequisitions.map((req, index) => (
                   <tr
                     key={req.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -219,10 +220,10 @@ export const DieselReceipt = () => {
                         state: { requisition: req },
                       })
                     }
-
-                    // onMouseEnter={() => setHoveredRow(req.id)}
-                    // onMouseLeave={() => setHoveredRow(null)}
                   >
+                    <td className="px-4 py-3 text-[12px]">
+                      {(currentPage - 1) * rowsPerPage + index + 1}
+                    </td>
                     <td className="px-4 py-3 text-[12px]">
                       {new Date(req.date).toLocaleDateString()}
                     </td>

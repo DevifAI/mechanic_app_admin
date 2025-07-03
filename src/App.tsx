@@ -74,6 +74,14 @@ import DailyProgressReportDetails from "./pages/Transactions/DPR/DailyProgressRe
 import { MaterialTransactions } from "./pages/Transactions/View_Material_In/MaterialTransacttions";
 import MaterialTransactionPageDetails from "./pages/Transactions/View_Material_In/MaterialTransactionPageDetails";
 import LogoutButton from "./layout/LogoutButton";
+import { MaterialBillTransaction } from "./pages/Transactions/MaterialBill/MaterialBillTransaction";
+import MaterialBillTransactionDetails from "./pages/Transactions/MaterialBill/MaterialBillTransactionDetails";
+import { AllExpenses } from "./pages/Transactions/Expenses/AllExpenses";
+import ExpenseDetails from "./pages/Transactions/Expenses/ExpenseDetails";
+import { RevenueInvoice } from "./pages/Transactions/Revenue/RevenueInvoice";
+import RevenueInvoiceDetails from "./pages/Transactions/Revenue/RevenueInvoiceDetails";
+import { EquipmentTransactions } from "./pages/Transactions/EquipmentTransactions/EquipmentTransactions";
+import EquipmentTransactionsDetails from "./pages/Transactions/EquipmentTransactions/EquipmentTransactionsDetails";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("token");
@@ -186,6 +194,12 @@ export default function App() {
             path="/maintenance-log/:id"
             element={<MaintenanceLogDetailsPage />}
           />
+          <Route path="/equipment-transactions/view" element={<EquipmentTransactions />} />
+          <Route path="/equipment-transactions/:id" element={<EquipmentTransactionsDetails />} />
+          <Route
+            path="/maintenance-log/:id"
+            element={<MaintenanceLogDetailsPage />}
+          />
           <Route path="/dpr/view" element={<DailyProgressReport />} />
           <Route
             path="/material-transactions/view"
@@ -194,6 +208,32 @@ export default function App() {
           <Route
             path="/material-transactions/:id"
             element={<MaterialTransactionPageDetails />}
+          />
+
+          <Route
+            path="/material-bill-transactions/view"
+            element={<MaterialBillTransaction />}
+          />
+          <Route
+            path="/material-bill-transactions/:id"
+            element={< MaterialBillTransactionDetails />}
+          />
+
+          <Route
+            path="/expenses/view"
+            element={<AllExpenses />}
+          />
+          <Route
+            path="/expenses/:id"
+            element={< ExpenseDetails />}
+          />
+          <Route
+            path="/revenueInvoice/view"
+            element={<RevenueInvoice />}
+          />
+          <Route
+            path="/revenueInvoice-detail/:id"
+            element={<RevenueInvoiceDetails />}
           />
           <Route path="/dpr/:id" element={<DailyProgressReportDetails />} />
           <Route

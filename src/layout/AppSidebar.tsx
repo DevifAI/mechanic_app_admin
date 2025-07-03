@@ -252,14 +252,13 @@ const AppSidebar: React.FC = () => {
       ${isExpanded || isMobileOpen ? "w-64" : isHovered ? "w-64" : "w-20"}
       ${isMobileOpen ? "translate-x-0" : "-translate-x-full"}
       lg:translate-x-0`}
-      // onMouseEnter={() => !isExpanded && setIsHovered(true)}
-      // onMouseLeave={() => setIsHovered(false)}
+    // onMouseEnter={() => !isExpanded && setIsHovered(true)}
+    // onMouseLeave={() => setIsHovered(false)}
     >
       {/* Profile */}
       <div
-        className={`py-4 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center ${
-          !shouldShowText ? "justify-center" : "justify-start"
-        }`}
+        className={`py-4 px-4 border-b border-gray-200 dark:border-gray-700 flex items-center ${!shouldShowText ? "justify-center" : "justify-start"
+          }`}
       >
         {shouldShowText && (
           <div className="ml-3">
@@ -279,11 +278,10 @@ const AppSidebar: React.FC = () => {
                     <div
                       onClick={() => handleCategoryClick(category.name)}
                       className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                      ${
-                        isActive(category.path)
+                      ${isActive(category.path)
                           ? "bg-white text-black"
                           : "text-white hover:border-2 hover:border-white"
-                      }
+                        }
                       ${!shouldShowText ? "justify-center" : "justify-start"}`}
                     >
                       <span className="text-white">{category.icon}</span>
@@ -329,22 +327,19 @@ const AppSidebar: React.FC = () => {
                               handleNavigate(item.path);
                             }}
                             className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
-                            ${
-                              isParentActive(item)
+                            ${isParentActive(item)
                                 ? "bg-white text-black"
                                 : "text-white hover:border-2 hover:border-white"
-                            }
-                            ${
-                              !shouldShowText
+                              }
+                            ${!shouldShowText
                                 ? "justify-center"
                                 : "justify-between"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center">
                               <span
-                                className={`text-${
-                                  isParentActive(item) ? "black" : "white"
-                                }`}
+                                className={`text-${isParentActive(item) ? "black" : "white"
+                                  }`}
                               >
                                 {item.icon}
                               </span>
@@ -357,13 +352,11 @@ const AppSidebar: React.FC = () => {
                               createSub &&
                               createSub.path && (
                                 <AiFillPlusCircle
-                                  className={`transform transition-transform duration-200 ${
-                                    isOpen ? "rotate-90" : ""
-                                  } ${
-                                    isParentActive(item)
+                                  className={`transform transition-transform duration-200 ${isOpen ? "rotate-90" : ""
+                                    } ${isParentActive(item)
                                       ? "text-black"
                                       : "text-white"
-                                  } cursor-pointer`}
+                                    } cursor-pointer`}
                                   size={16}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -382,11 +375,10 @@ const AppSidebar: React.FC = () => {
                                   <div
                                     onClick={() => handleNavigate(subItem.path)}
                                     className={`flex items-center px-3 py-2 text-xs rounded-lg transition-colors cursor-pointer
-                                    ${
-                                      isActive(subItem.path)
+                                    ${isActive(subItem.path)
                                         ? "bg-blue-600 text-white"
                                         : "text-gray-300 hover:border-2 hover:border-blue-500"
-                                    }`}
+                                      }`}
                                   >
                                     {subItem.name}
                                   </div>
@@ -405,27 +397,26 @@ const AppSidebar: React.FC = () => {
                   <>
                     <li>
                       <div
-                        onClick={() =>
-                          handleNavigate("/diesel-requisition/view")
-                        }
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                          
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        onClick={() => handleNavigate("/diesel-requisition/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/diesel-requisition/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3"> View Diesel Requisition</span>
+                          <span className="ml-3">View Diesel Requisition</span>
                         )}
                       </div>
                     </li>
                     <li>
                       <div
                         onClick={() => handleNavigate("/diesel-receipt/view")}
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/diesel-receipt/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
                           <span className="ml-3">View Diesel Receipt</span>
@@ -434,13 +425,12 @@ const AppSidebar: React.FC = () => {
                     </li>
                     <li>
                       <div
-                        onClick={() =>
-                          handleNavigate("/consumption-sheet/view")
-                        }
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        onClick={() => handleNavigate("/consumption-sheet/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/consumption-sheet/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
                           <span className="ml-3">View Consumption Sheet</span>
@@ -450,66 +440,101 @@ const AppSidebar: React.FC = () => {
                     <li>
                       <div
                         onClick={() => handleNavigate("/maintenance-log/view")}
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/maintenance-log/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
                           <span className="ml-3">View Maintenance Log</span>
                         )}
                       </div>
                     </li>
-
                     <li>
                       <div
-                        onClick={() =>
-                          handleNavigate("/material-transactions/view")
-                        }
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        onClick={() => handleNavigate("/material-transactions/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/material-transactions/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3">
-                            View Material Transacitons
-                          </span>
+                          <span className="ml-3">View Material Transactions</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/equipment-transactions/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/equipment-transactions/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">View Equipment Transactions</span>
                         )}
                       </div>
                     </li>
                     <li>
                       <div
                         onClick={() => handleNavigate("/dpr/view")}
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/dpr/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3">
-                            View Daily Progress Report
-                          </span>
+                          <span className="ml-3">View Daily Progress Report</span>
                         )}
                       </div>
                     </li>
-                    {/* <li>
+                    <li>
                       <div
-                        onClick={() =>
-                          handleNavigate("/equipment-transactions/view")
-                        }
-                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer text-white hover:border-2 hover:border-blue-500
-                        ${
-                          !shouldShowText ? "justify-center" : "justify-start"
-                        }`}
+                        onClick={() => handleNavigate("/material-bill-transactions/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/material-bill-transactions/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
                       >
                         {shouldShowText && (
-                          <span className="ml-3">
-                            View Equipment Transacitons
-                          </span>
+                          <span className="ml-3">View Material Bill Transactions</span>
                         )}
                       </div>
-                    </li> */}
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/expenses/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/expenses/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">View All Expenses</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/revenueInvoice/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/revenueInvoice/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">View All Revenue Invoice</span>
+                        )}
+                      </div>
+                    </li>
                   </>
                 )}
 
@@ -530,9 +555,8 @@ const AppSidebar: React.FC = () => {
           title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
         >
           <svg
-            className={`transition-transform duration-200 ${
-              isExpanded ? "rotate-180" : ""
-            }`}
+            className={`transition-transform duration-200 ${isExpanded ? "rotate-180" : ""
+              }`}
             width="20"
             height="20"
             fill="none"
