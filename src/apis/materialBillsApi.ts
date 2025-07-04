@@ -2,7 +2,7 @@
 import axiosInstance from "../utils/axiosInstance";
 import { MaterialBillTransaction } from "../types/materialBillTransactionTypes";
 
-const isProduction = false;
+const isProduction = true;
 
 const BASE_PATH = isProduction
   ? "https://www.devifai.website/api/master/account_manager"

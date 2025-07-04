@@ -1,9 +1,18 @@
 import axiosInstance from "../utils/axiosInstance";
 
-const BASE_PATH =
-  "https://www.devifai.website/api/master/store_manager/get/transactions";
+// Toggle this flag depending on environment
+const isProduction = true;
 
-export const getAllMaterialTransactions = async (): Promise<[]> => {
-  const res = await axiosInstance.get(`${BASE_PATH}`);
-  return res.data;
+const BASE_PATH = isProduction
+  ? "https://www.devifai.website/api/master/store_manager/get/transactions"
+  : "http://localhost:8000/api/master/store_manager/get/transactions";
+
+export const getAllMaterialTransactions = async (): Promise<any[]> => {
+  try {
+    const res = await axiosInstance.get(`${BASE_PATH}`);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch material transactions", error);
+    throw error;
+  }
 };

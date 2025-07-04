@@ -2,7 +2,7 @@
 import { RevenueInvoice } from "../types/revenueInvoiceTypes";
 import axiosInstance from "../utils/axiosInstance";
 
-const isProduction = false;
+const isProduction = true;
 
 const BASE_PATH = isProduction
   ? "https://www.devifai.website/api/master/account_manager"

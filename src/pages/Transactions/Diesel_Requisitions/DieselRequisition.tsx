@@ -106,31 +106,7 @@ export const DieselRequisition = () => {
     toast.info("Sorted by Employee");
   };
 
-  const getStatusBadge = (req: any) => {
-    if (req.is_approve_mic === "rejected" || 
-        req.is_approve_sic === "rejected" || 
-        req.is_approve_pm === "rejected") {
-      return (
-        <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">
-          Rejected
-        </span>
-      );
-    }
-    if (req.is_approve_mic === "approved" && 
-        req.is_approve_sic === "approved" && 
-        req.is_approve_pm === "approved") {
-      return (
-        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
-          Approved
-        </span>
-      );
-    }
-    return (
-      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
-        Pending
-      </span>
-    );
-  };
+
 
   return (
     <>

@@ -1,7 +1,7 @@
 // src/api/dieselRequisitionApi.ts
 import axiosInstance from "../utils/axiosInstance";
 
-const isProduction = false;
+const isProduction = true;
 
 const BASE_PATH = isProduction
   ? "https://www.devifai.website/api/master/mechanic/diselrequisition"

@@ -1,8 +1,18 @@
 import axiosInstance from "../utils/axiosInstance";
 
-const BASE_PATH = "https://www.devifai.website/api/master/mechanic/maintenancesheet";
+// Toggle this flag depending on environment
+const isProduction = true;
 
-export const getAllMaintenanceSheet = async (): Promise<[]> => {
-  const res = await axiosInstance.get(`${BASE_PATH}`);
-  return res.data;
+const BASE_PATH = isProduction
+  ? "https://www.devifai.website/api/master/mechanic/maintenancesheet"
+  : "http://localhost:8000/api/master/mechanic/maintenancesheet";
+
+export const getAllMaintenanceSheet = async (): Promise<any[]> => {
+  try {
+    const res = await axiosInstance.get(`${BASE_PATH}`);
+    return res.data;
+  } catch (error) {
+    console.error("Failed to fetch maintenance sheet data", error);
+    throw error;
+  }
 };
