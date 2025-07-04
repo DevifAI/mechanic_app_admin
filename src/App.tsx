@@ -82,6 +82,8 @@ import { RevenueInvoice } from "./pages/Transactions/Revenue/RevenueInvoice";
 import RevenueInvoiceDetails from "./pages/Transactions/Revenue/RevenueInvoiceDetails";
 import { EquipmentTransactions } from "./pages/Transactions/EquipmentTransactions/EquipmentTransactions";
 import EquipmentTransactionsDetails from "./pages/Transactions/EquipmentTransactions/EquipmentTransactionsDetails";
+import { DieselInvoice } from "./pages/Transactions/DieselInvoice/DieselInvoice";
+import DieselInvoiceDetails from "./pages/Transactions/DieselInvoice/DieselInvoiceDetails";
 
 function ProtectedRoute({ children }: { children: ComponentChildren }) {
   const user = localStorage.getItem("token");
@@ -196,6 +198,8 @@ export default function App() {
           />
           <Route path="/equipment-transactions/view" element={<EquipmentTransactions />} />
           <Route path="/equipment-transactions/:id" element={<EquipmentTransactionsDetails />} />
+          <Route path="/diesel-invoice/view" element={<DieselInvoice />} />
+          <Route path="/diesel-invoice/:id" element={<DieselInvoiceDetails />} />
           <Route
             path="/maintenance-log/:id"
             element={<MaintenanceLogDetailsPage />}

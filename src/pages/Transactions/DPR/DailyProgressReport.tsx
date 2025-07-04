@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import PageBreadcrumb from "../../../components/common/PageBreadCrumb.tsx";
-import { usePagination } from "../../../hooks/usePagination.ts";
-import Pagination from "../../../utils/Pagination.tsx";
+import PageBreadcrumb from "../../../components/common/PageBreadCrumb";
+import { usePagination } from "../../../hooks/usePagination";
+import Pagination from "../../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
 import { IoIosMore } from "react-icons/io";
 import * as XLSX from "xlsx";
-import { getAllDPR } from "../../../apis/dailyProgressReport.ts";
+import { getAllDPR } from "../../../apis/dailyProgressReport";
 
 export const DailyProgressReport = () => {
   const [dprLogs, setDprLogs] = useState<any[]>([]);
@@ -15,21 +15,29 @@ export const DailyProgressReport = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  const filteredDprLogs = dprLogs.filter(
+    (log) =>
+      log.dpr_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.project?.project_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.mechanic?.emp_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.shift?.shift_code?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedDprLogs,
-  } = usePagination(dprLogs, rowsPerPage);
+  } = usePagination(filteredDprLogs, rowsPerPage);
 
   const fetchAndSetDprLogs = async () => {
     setLoading(true);
     try {
       const data = await getAllDPR();
       setDprLogs(data);
-      console.log({ data });
     } catch (err) {
       toast.error("Failed to fetch DPR Logs");
     }
@@ -104,11 +112,29 @@ export const DailyProgressReport = () => {
     toast.info("Sorted by Project");
   };
 
+  const handleSortByDprNo = () => {
+    setDprLogs((prev) =>
+      [...prev].sort((a, b) =>
+        (a.dpr_no || "").localeCompare(b.dpr_no || "")
+      )
+    );
+    toast.info("Sorted by DPR No");
+  };
+
   return (
     <>
-      <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex justify-between items-center px-6 mb-2">
         <PageBreadcrumb pageTitle="Daily Progress Reports" />
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
+        <div className="flex justify-end items-center gap-3 px-6">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search by DPR No, Project or Mechanic..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded-md dark:bg-gray-900 dark:border-gray-700 text-sm"
+            />
+          </div>
           <span
             className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
             onClick={(e) => {
@@ -171,6 +197,16 @@ export const DailyProgressReport = () => {
                       >
                         Sort by Project
                       </button>
+                      <button
+                        className="block w-full text-left px-4 py-2 text-sm hover:bg-blue-500 hover:text-white dark:hover:bg-gray-700 transition"
+                        onClick={() => {
+                          setMoreDropdownOpen(false);
+                          setSortMenuOpen(false);
+                          handleSortByDprNo();
+                        }}
+                      >
+                        Sort by DPR No
+                      </button>
                     </div>
                   )}
                 </div>
@@ -192,6 +228,7 @@ export const DailyProgressReport = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
+                  <th className="px-4 py-3 text-[12px]">S.No</th>
                   <th className="px-4 py-3 text-[12px]">Date</th>
                   <th className="px-4 py-3 text-[12px]">DPR No</th>
                   <th className="px-4 py-3 text-[12px]">Project</th>
@@ -202,7 +239,7 @@ export const DailyProgressReport = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedDprLogs.map((log) => (
+                {paginatedDprLogs.map((log, index) => (
                   <tr
                     key={log.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -212,6 +249,9 @@ export const DailyProgressReport = () => {
                       })
                     }
                   >
+                    <td className="px-4 py-3 text-[12px]">
+                      {(currentPage - 1) * rowsPerPage + index + 1}
+                    </td>
                     <td className="px-4 py-3 text-[12px]">{log.date}</td>
                     <td className="px-4 py-3 text-[12px]">{log.dpr_no}</td>
                     <td className="px-4 py-3 text-[12px]">
@@ -228,13 +268,13 @@ export const DailyProgressReport = () => {
                     </td>
                     <td className="px-4 py-3 text-[12px]">
                       <span
-                        className={
+                        className={`px-2 py-1 rounded-full text-xs ${
                           log.is_approve_pm === "approved"
-                            ? "text-green-600"
+                            ? "bg-green-100 text-green-800"
                             : log.is_approve_pm === "rejected"
-                            ? "text-red-600"
-                            : "text-yellow-600"
-                        }
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
                       >
                         {log.is_approve_pm === "approved"
                           ? "Approved"
@@ -245,6 +285,13 @@ export const DailyProgressReport = () => {
                     </td>
                   </tr>
                 ))}
+                {paginatedDprLogs.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="text-center px-4 py-3">
+                      No DPR logs found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           )}

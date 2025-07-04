@@ -535,6 +535,20 @@ const AppSidebar: React.FC = () => {
                         )}
                       </div>
                     </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/diesel-invoice/view")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+      ${isActive("/diesel-invoice/view")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+      ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">View All Diesel Invoice</span>
+                        )}
+                      </div>
+                    </li>
                   </>
                 )}
 

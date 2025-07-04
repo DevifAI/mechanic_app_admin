@@ -5,8 +5,8 @@ import { usePagination } from "../../../hooks/usePagination";
 import Pagination from "../../../utils/Pagination";
 import { toast, ToastContainer } from "react-toastify";
 import { IoIosMore } from "react-icons/io";
-import { getAllDieselRequisitions } from "../../../apis/dieselRequisitions.ts";
 import * as XLSX from "xlsx";
+import { getAllDieselRequisitions } from "../../../apis/dieselRequisitions.ts";
 
 export const DieselRequisition = () => {
   const [requisitions, setRequisitions] = useState<any[]>([]);
@@ -15,21 +15,28 @@ export const DieselRequisition = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  const filteredRequisitions = requisitions.filter(
+    (req) =>
+      req.createdByEmployee?.emp_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      req.organisation?.org_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      new Date(req.date).toLocaleDateString().includes(searchTerm)
+  );
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedRequisitions,
-  } = usePagination(requisitions, rowsPerPage);
+  } = usePagination(filteredRequisitions, rowsPerPage);
 
   const fetchAndSetRequisitions = async () => {
     setLoading(true);
     try {
-      const data = await getAllDieselRequisitions(); // fetch diesel requisitions
+      const data = await getAllDieselRequisitions();
       setRequisitions(data);
-      console.log({ data });
     } catch (err) {
       toast.error("Failed to fetch Diesel Requisitions");
     }
@@ -62,39 +69,23 @@ export const DieselRequisition = () => {
       return;
     }
 
-    const exportData: any[] = [];
-
-    requisitions.forEach((req) => {
-      req.items.forEach((item: any) => {
-        exportData.push({
-          Date: new Date(req.date).toLocaleDateString(),
-          "Created By": req.createdByEmployee?.emp_name || "N/A",
-          Organisation: req.organisation?.org_name || "N/A",
-          "Item Name": item.consumableItem?.item_name || "N/A",
-          "Item Description": item.consumableItem?.item_description || "N/A",
-          Quantity: item.quantity,
-          Unit: item.unitOfMeasurement?.unit_name || "N/A",
-          Notes: item.Notes || "",
-          "Approved by MIC": req.is_approve_mic ? "Yes" : "Pending",
-          "Approved by SIC":
-            req.is_approve_sic === true
-              ? "Approved"
-              : req.is_approve_sic === false
-              ? "Rejected"
-              : "Pending",
-          "Approved by PM": req.is_approve_pm ? "Yes" : "Pending",
-        });
-      });
-    });
+    const exportData: any[] = requisitions.map((req) => ({
+      "Requisition ID": req.id,
+      Date: new Date(req.date).toLocaleDateString(),
+      "Created By": req.createdByEmployee?.emp_name || "N/A",
+      Organisation: req.organisation?.org_name || "N/A",
+      "Items Count": req.items?.length || 0,
+      "MIC Status": req.is_approve_mic || "Pending",
+      "SIC Status": req.is_approve_sic || "Pending",
+      "PM Status": req.is_approve_pm || "Pending"
+    }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Diesel Requisitions");
-
     XLSX.writeFile(workbook, "diesel_requisitions.xlsx");
   };
 
-  // Sort handlers (example: by date or createdByEmployee.emp_name)
   const handleSortByDate = () => {
     setRequisitions((prev) =>
       [...prev].sort(
@@ -107,17 +98,54 @@ export const DieselRequisition = () => {
   const handleSortByEmployee = () => {
     setRequisitions((prev) =>
       [...prev].sort((a, b) =>
-        a.createdByEmployee.emp_name.localeCompare(b.createdByEmployee.emp_name)
+        (a.createdByEmployee?.emp_name || "").localeCompare(
+          b.createdByEmployee?.emp_name || ""
+        )
       )
     );
     toast.info("Sorted by Employee");
   };
 
+  const getStatusBadge = (req: any) => {
+    if (req.is_approve_mic === "rejected" || 
+        req.is_approve_sic === "rejected" || 
+        req.is_approve_pm === "rejected") {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">
+          Rejected
+        </span>
+      );
+    }
+    if (req.is_approve_mic === "approved" && 
+        req.is_approve_sic === "approved" && 
+        req.is_approve_pm === "approved") {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+          Approved
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
+        Pending
+      </span>
+    );
+  };
+
   return (
     <>
-      <div className="flex justify-between items-center px-6 mb-2 ">
+      <div className="flex justify-between items-center px-6 mb-2">
         <PageBreadcrumb pageTitle="Diesel Requisitions" />
-        <div className="flex justify-end items-center  gap-3 px-6">
+        <div className="flex justify-end items-center gap-3 px-6">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search by employee, organisation or date..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded-md dark:bg-gray-900 dark:border-gray-700 text-sm"
+            />
+          </div>
           <span
             className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
             onClick={(e) => {
@@ -201,17 +229,16 @@ export const DieselRequisition = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
-                  <th className="px-4 py-3 text-[12px]">S.No</th>{" "}
-                  {/* Serial No. column */}
+                  <th className="px-4 py-3 text-[12px]">S.No</th>
                   <th className="px-4 py-3 text-[12px]">Date</th>
                   <th className="px-4 py-3 text-[12px]">Created By</th>
                   <th className="px-4 py-3 text-[12px]">Organisation</th>
                   <th className="px-4 py-3 text-[12px]">Items Count</th>
-                  <th className="px-4 py-3 text-[12px]">Status</th>
-                  <th className="px-4 py-3"></th>
+                  <th className="px-4 py-3 text-[12px]">MIC Status</th>
+                  <th className="px-4 py-3 text-[12px]">SIC Status</th>
+                  <th className="px-4 py-3 text-[12px]">PM Status</th>
                 </tr>
               </thead>
-
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
                 {paginatedRequisitions.map((req, index) => (
                   <tr
@@ -225,8 +252,7 @@ export const DieselRequisition = () => {
                   >
                     <td className="px-4 py-3 text-[12px]">
                       {(currentPage - 1) * rowsPerPage + index + 1}
-                    </td>{" "}
-                    {/* Serial No. cell */}
+                    </td>
                     <td className="px-4 py-3 text-[12px]">
                       {new Date(req.date).toLocaleDateString()}
                     </td>
@@ -236,28 +262,57 @@ export const DieselRequisition = () => {
                     <td className="px-4 py-3 text-[12px]">
                       {req.organisation?.org_name || "N/A"}
                     </td>
-                    <td className="px-4 py-3">{req.items?.length || 0}</td>
                     <td className="px-4 py-3 text-[12px]">
-                      {req.is_approve_mic === "rejected" ||
-                      req.is_approve_sic === "rejected" ||
-                      req.is_approve_pm === "rejected" ? (
-                        <span className="text-red-600 font-medium">
-                          Rejected
-                        </span>
-                      ) : req.is_approve_mic === "approved" &&
-                        req.is_approve_sic === "approved" &&
-                        req.is_approve_pm === "approved" ? (
-                        <span className="text-green-600 font-medium">
-                          Approved
-                        </span>
-                      ) : (
-                        <span className="text-yellow-600 font-medium">
-                          Pending
-                        </span>
-                      )}
+                      {req.items?.length || 0}
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          req.is_approve_mic === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : req.is_approve_mic === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {req.is_approve_mic || "Pending"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          req.is_approve_sic === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : req.is_approve_sic === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {req.is_approve_sic || "Pending"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs ${
+                          req.is_approve_pm === "approved"
+                            ? "bg-green-100 text-green-800"
+                            : req.is_approve_pm === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                        }`}
+                      >
+                        {req.is_approve_pm || "Pending"}
+                      </span>
                     </td>
                   </tr>
                 ))}
+                {paginatedRequisitions.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="text-center px-4 py-3">
+                      No requisitions found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           )}

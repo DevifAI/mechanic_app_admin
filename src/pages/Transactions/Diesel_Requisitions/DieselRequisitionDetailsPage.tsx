@@ -1,37 +1,37 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { DieselRequisition } from "../../../types/dieselRequisition";
-import { FaCalendarAlt, FaUser, FaBuilding, FaSearch } from "react-icons/fa";
+import { FaCalendarAlt, FaUser, FaBuilding, FaSearch, FaCheckCircle, FaTimesCircle, FaClock } from "react-icons/fa";
 
 const DieselRequisitionDetailsPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const requisition: DieselRequisition | null = state?.requisition;
-
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
   if (!requisition) {
     return (
-      <div className="p-6 text-red-600 dark:text-red-400">
-        <p className="mb-4">No requisition data available.</p>
+      <div className="p-6 max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow">
         <button
-          onClick={() => navigate("/diesel-requisitions")}
-          className="text-blue-600 hover:underline dark:text-blue-400"
+          onClick={() => navigate("/diesel-requisition/view")}
+          className="text-blue-600 dark:text-blue-400 hover:underline mb-6"
         >
           ← Back to Diesel Requisitions
         </button>
+        <div className="p-6 text-red-600 dark:text-red-400">
+          <p className="mb-4">Requisition not found.</p>
+        </div>
       </div>
     );
   }
 
-  // Filtered and paginated items
-  const filteredItems = requisition.items.filter((item) =>
+  const filteredItems = requisition.items?.filter((item: any) =>
     item.consumableItem?.item_name
       ?.toLowerCase()
       .includes(searchTerm.toLowerCase())
-  );
+  ) || [];
 
   const paginatedItems = filteredItems.slice(
     (currentPage - 1) * itemsPerPage,
@@ -39,6 +39,17 @@ const DieselRequisitionDetailsPage = () => {
   );
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+
+  const getApprovalStatusIcon = (status: string) => {
+    switch (status) {
+      case "approved":
+        return <FaCheckCircle className="text-green-500" />;
+      case "rejected":
+        return <FaTimesCircle className="text-red-500" />;
+      default:
+        return <FaClock className="text-yellow-500" />;
+    }
+  };
 
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow">
@@ -51,7 +62,7 @@ const DieselRequisitionDetailsPage = () => {
 
       <h1 className="text-2xl font-bold mb-6">Diesel Requisition Details</h1>
 
-      {/* Info Cards */}
+      {/* Basic Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <InfoCard
           icon={<FaCalendarAlt />}
@@ -65,34 +76,63 @@ const DieselRequisitionDetailsPage = () => {
         />
         <InfoCard
           icon={<FaBuilding />}
-          label="Org."
+          label="Organisation"
           value={requisition.organisation?.org_name || "N/A"}
         />
       </div>
 
-      {/* Approval & Items Section */}
-      <div className="grid sm:grid-cols-2 gap-6 mb-6">
-        {/* Approval Card */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border dark:border-gray-700">
-          <h2 className="text-lg font-semibold mb-4">Approval:</h2>
-          <ApprovalRow
-            label="Mechanic Incharge Approval"
-            status={requisition.is_approve_mic}
-          />
-          <ApprovalRow
-            label="Site Incharge Approval"
-            status={requisition.is_approve_sic}
-          />
-          <ApprovalRow
-            label="Project Manager Approval"
-            status={requisition.is_approve_pm}
-          />
-        </div>
+      {/* Approval Status Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <InfoCard
+          icon={getApprovalStatusIcon(requisition.is_approve_mic)}
+          label="Mechanic Incharge"
+          value={
+            <span className={
+              requisition.is_approve_mic === "approved"
+                ? "text-green-600"
+                : requisition.is_approve_mic === "rejected"
+                ? "text-red-600"
+                : "text-yellow-600"
+            }>
+              {requisition.is_approve_mic || "Pending"}
+            </span>
+          }
+        />
+        <InfoCard
+          icon={getApprovalStatusIcon(requisition.is_approve_sic)}
+          label="Site Incharge"
+          value={
+            <span className={
+              requisition.is_approve_sic === "approved"
+                ? "text-green-600"
+                : requisition.is_approve_sic === "rejected"
+                ? "text-red-600"
+                : "text-yellow-600"
+            }>
+              {requisition.is_approve_sic || "Pending"}
+            </span>
+          }
+        />
+        <InfoCard
+          icon={getApprovalStatusIcon(requisition.is_approve_pm)}
+          label="Project Manager"
+          value={
+            <span className={
+              requisition.is_approve_pm === "approved"
+                ? "text-green-600"
+                : requisition.is_approve_pm === "rejected"
+                ? "text-red-600"
+                : "text-yellow-600"
+            }>
+              {requisition.is_approve_pm || "Pending"}
+            </span>
+          }
+        />
       </div>
 
-      {/* Table with Search & Pagination */}
+      {/* Items Table */}
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border dark:border-gray-700">
-        <h2 className="text-lg font-semibold mb-4">Requisitioned Items</h2>
+        <h2 className="text-lg font-semibold mb-4">Requisitioned Items ({requisition.items?.length || 0})</h2>
 
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
@@ -108,6 +148,9 @@ const DieselRequisitionDetailsPage = () => {
               className="px-3 py-1 border rounded-md dark:bg-gray-900 dark:border-gray-700 text-sm"
             />
           </div>
+          <span className="text-sm text-gray-600 dark:text-gray-300">
+            Showing {paginatedItems.length} of {filteredItems.length} items
+          </span>
         </div>
 
         <div className="overflow-x-auto">
@@ -117,12 +160,13 @@ const DieselRequisitionDetailsPage = () => {
                 <th className="px-3 py-2">#</th>
                 <th className="px-3 py-2">Item</th>
                 <th className="px-3 py-2">Description</th>
-                <th className="px-3 py-2">Quantity</th>
+                <th className="px-3 py-2">Qty</th>
+                <th className="px-3 py-2">UOM</th>
                 <th className="px-3 py-2">Notes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-300 dark:divide-gray-600">
-              {paginatedItems.map((item, index) => (
+              {paginatedItems.map((item: any, index: number) => (
                 <tr
                   key={item.id}
                   className="hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -136,16 +180,19 @@ const DieselRequisitionDetailsPage = () => {
                   <td className="px-3 py-2">
                     {item.consumableItem?.item_description || "N/A"}
                   </td>
+                  <td className="px-3 py-2">{item.quantity}</td>
                   <td className="px-3 py-2">
-                    {item.quantity} {item.unitOfMeasurement?.unit_name || ""}
+                    {item.unitOfMeasurement?.unit_name || "N/A"}
                   </td>
                   <td className="px-3 py-2">{item.Notes || "N/A"}</td>
                 </tr>
               ))}
               {paginatedItems.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="text-center px-3 py-4">
-                    No items found.
+                  <td colSpan={6} className="text-center px-3 py-4">
+                    {filteredItems.length === 0
+                      ? "No items found matching your search."
+                      : "No items to display."}
                   </td>
                 </tr>
               )}
@@ -180,17 +227,23 @@ const DieselRequisitionDetailsPage = () => {
   );
 };
 
-// InfoCard
+// InfoCard component
 const InfoCard = ({
   icon,
   label,
   value,
+  fullWidth = false,
 }: {
   icon: React.ReactNode;
   label: string;
-  value: string;
+  value: React.ReactNode;
+  fullWidth?: boolean;
 }) => (
-  <div className="flex items-center gap-3 bg-blue-50 dark:bg-gray-800 border border-blue-200 dark:border-gray-700 p-4 rounded-lg">
+  <div
+    className={`flex items-center gap-3 bg-blue-50 dark:bg-gray-800 border border-blue-200 dark:border-gray-700 p-4 rounded-lg ${
+      fullWidth ? "col-span-3" : ""
+    }`}
+  >
     <div className="text-blue-600 dark:text-blue-400">{icon}</div>
     <div>
       <p className="text-sm text-gray-600 dark:text-gray-300">{label}</p>
@@ -200,36 +253,5 @@ const InfoCard = ({
     </div>
   </div>
 );
-
-// ApprovalRow
-const ApprovalRow = ({ label, status }: { label: string; status: string }) => {
-  const badgeColor = statusColor(status);
-
-  return (
-    <div className="flex items-center justify-between mb-3">
-      <div className="flex items-center gap-2">
-        <span className="w-3 h-3 rounded-full bg-gray-400 inline-block"></span>
-        <p className="text-sm text-gray-800 dark:text-gray-200">{label}</p>
-      </div>
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-medium ${badgeColor}`}
-      >
-        {status?.charAt(0).toUpperCase() + status?.slice(1) || "Pending"}
-      </span>
-    </div>
-  );
-};
-
-// Status color
-const statusColor = (status: string) => {
-  switch (status) {
-    case "approved":
-      return "bg-green-100 text-green-700";
-    case "rejected":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-yellow-100 text-yellow-700"; // ✅ yellow for pending
-  }
-};
 
 export default DieselRequisitionDetailsPage;

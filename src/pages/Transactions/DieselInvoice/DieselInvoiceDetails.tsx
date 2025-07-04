@@ -1,37 +1,75 @@
-import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
-import { FaBuilding, FaCalendarAlt, FaFileInvoice, FaSearch, FaUserTie } from "react-icons/fa";
+import { useParams, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { 
+  FaCalendarAlt, 
+  FaBuilding, 
+  FaFileInvoice,
+  FaMoneyBillWave,
+  FaInfoCircle
+} from "react-icons/fa";
 
+import { toast } from "react-toastify";
+import { getDieselInvoiceById } from "../../../apis/dieselInvoiceApi";
 
-const MaterialTransactionPageDetails = () => {
-  const { state } = useLocation();
+const DieselInvoiceDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const transaction = state?.transaction;
+  const [invoice, setInvoice] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  if (!transaction) {
+  useEffect(() => {
+    const fetchInvoice = async () => {
+      try {
+        setLoading(true);
+        if (id) {
+          const data = await getDieselInvoiceById(id);
+          setInvoice(data);
+        }
+      } catch (error) {
+        toast.error("Failed to fetch invoice details");
+        console.error("Error fetching invoice:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInvoice();
+  }, [id]);
+
+  if (loading) {
     return (
       <div className="p-6 max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow">
-        <button
-          onClick={() => navigate("/material-transactions/view")}
-          className="text-blue-600 dark:text-blue-400 hover:underline mb-6"
-        >
-          ← Back to Material Transactions
-        </button>
-        <div className="p-6 text-red-600 dark:text-red-400">
-          <p className="mb-4">Transaction not found.</p>
+        <div className="flex justify-center items-center py-20">
+          <span className="text-blue-600 font-semibold text-lg">Loading invoice details...</span>
         </div>
       </div>
     );
   }
 
-  const filteredItems = transaction.formItems?.filter((item: any) =>
+  if (!invoice) {
+    return (
+      <div className="p-6 max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow">
+        <button
+          onClick={() => navigate("/diesel-invoice/view")}
+          className="text-blue-600 dark:text-blue-400 hover:underline mb-6"
+        >
+          ← Back to Diesel Invoices
+        </button>
+        <div className="p-6 text-red-600 dark:text-red-400">
+          <p className="mb-4">Invoice not found.</p>
+        </div>
+      </div>
+    );
+  }
+
+  const filteredItems = invoice.formItems.filter((item: any) =>
     item.consumableItem?.item_name
       ?.toLowerCase()
       .includes(searchTerm.toLowerCase())
-  ) || [];
+  );
 
   const paginatedItems = filteredItems.slice(
     (currentPage - 1) * itemsPerPage,
@@ -40,83 +78,63 @@ const MaterialTransactionPageDetails = () => {
 
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
 
+  const totalValue = invoice.formItems?.reduce((sum: number, item: any) => sum + (item.total_value || 0), 0) || 0;
+
   return (
     <div className="p-6 max-w-6xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow">
       <button
-        onClick={() => navigate("/material-transactions/view")}
+        onClick={() => navigate("/diesel-invoice/view")}
         className="text-blue-600 dark:text-blue-400 hover:underline mb-6"
       >
-        ← Back to Material Transactions
+        ← Back to Diesel Invoices
       </button>
 
-      <h1 className="text-2xl font-bold mb-6">Material Transaction Details</h1>
-
-      {/* Transaction Type Card */}
-      <div className="mb-6">
-        <InfoCard
-          icon={<FaFileInvoice />}
-          label="Transaction Type"
-          value={transaction.data_type === "material_in" ? "Material In" : "Material Out"}
-          fullWidth
-        />
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Diesel Invoice Details</h1>
 
       {/* Basic Info Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <InfoCard
           icon={<FaCalendarAlt />}
           label="Date"
-          value={transaction.date.split("-").reverse().join("-")}
-        />
-        <InfoCard
-          icon={<FaFileInvoice />}
-          label="Challan No"
-          value={transaction.challan_no || "N/A"}
+          value={new Date(invoice.date).toLocaleDateString()}
         />
         <InfoCard
           icon={<FaBuilding />}
           label="Project No"
-          value={transaction.project?.project_no || "N/A"}
+          value={invoice.project?.project_no || "N/A"}
         />
-      </div>
-
-      {/* Approval Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
         <InfoCard
-          icon={<FaUserTie />}
-          label="PM Approval Status"
+          icon={<FaFileInvoice />}
+          label="Invoice Status"
           value={
-            <span className={
-              transaction.is_approve_pm === "approved"
-                ? "text-green-600"
-                : transaction.is_approve_pm === "rejected"
-                ? "text-red-600"
-                : "text-yellow-600"
-            }>
-              {transaction.is_approve_pm === "approved"
-                ? "Approved"
-                : transaction.is_approve_pm === "rejected"
-                ? "Rejected"
-                : "Pending"}
+            <span className={`px-2 py-1 rounded-full text-xs ${
+              invoice.is_invoiced === "invoiced" 
+                ? "bg-green-100 text-green-800" 
+                : "bg-gray-100 text-gray-800"
+            }`}>
+              {invoice.is_invoiced || "Draft"}
             </span>
           }
         />
-        {transaction.partnerDetails && (
-          <InfoCard
-            icon={<FaUserTie />}
-            label="Partner"
-            value={transaction.partnerDetails.partner_name || "N/A"}
-          />
-        )}
+      </div>
+
+      {/* Total Value Card */}
+      <div className="mb-6">
+        <InfoCard
+          icon={<FaMoneyBillWave />}
+          label="Total Invoice Value"
+          value={`₹${totalValue}`}
+          fullWidth
+        />
       </div>
 
       {/* Items Table */}
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border dark:border-gray-700">
-        <h2 className="text-lg font-semibold mb-4">Material Items ({transaction.formItems?.length || 0})</h2>
+        <h2 className="text-lg font-semibold mb-4">Invoice Items ({invoice.formItems?.length || 0})</h2>
 
         <div className="flex justify-between items-center mb-4">
           <div className="flex items-center gap-2">
-            <FaSearch className="text-gray-500" />
+            <FaInfoCircle className="text-gray-500" />
             <input
               type="text"
               placeholder="Search by item name..."
@@ -141,6 +159,8 @@ const MaterialTransactionPageDetails = () => {
                 <th className="px-3 py-2">Item</th>
                 <th className="px-3 py-2">Code</th>
                 <th className="px-3 py-2">Qty</th>
+                <th className="px-3 py-2">Unit Rate</th>
+                <th className="px-3 py-2">Total Value</th>
                 <th className="px-3 py-2">UOM</th>
                 <th className="px-3 py-2">Notes</th>
               </tr>
@@ -161,6 +181,8 @@ const MaterialTransactionPageDetails = () => {
                     {item.consumableItem?.item_code || "N/A"}
                   </td>
                   <td className="px-3 py-2">{item.qty}</td>
+                  <td className="px-3 py-2">₹{item.unit_rate}</td>
+                  <td className="px-3 py-2">₹{item.total_value}</td>
                   <td className="px-3 py-2">
                     {item.unitOfMeasure?.unit_name || "N/A"} ({item.unitOfMeasure?.unit_code || "N/A"})
                   </td>
@@ -169,7 +191,7 @@ const MaterialTransactionPageDetails = () => {
               ))}
               {paginatedItems.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center px-3 py-4">
+                  <td colSpan={8} className="text-center px-3 py-4">
                     {filteredItems.length === 0
                       ? "No items found matching your search."
                       : "No items to display."}
@@ -207,7 +229,7 @@ const MaterialTransactionPageDetails = () => {
   );
 };
 
-// Reuse the same InfoCard component from MaterialBillTransactionDetails
+// InfoCard component
 const InfoCard = ({
   icon,
   label,
@@ -227,11 +249,11 @@ const InfoCard = ({
     <div className="text-blue-600 dark:text-blue-400">{icon}</div>
     <div>
       <p className="text-sm text-gray-600 dark:text-gray-300">{label}</p>
-      <p className="text-base font-semibold text-gray-800 dark:text-white">
+      <div className="text-base font-semibold text-gray-800 dark:text-white">
         {value}
-      </p>
+      </div>
     </div>
   </div>
 );
 
-export default MaterialTransactionPageDetails;
+export default DieselInvoiceDetails;

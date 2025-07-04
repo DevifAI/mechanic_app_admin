@@ -15,15 +15,19 @@ export const MaterialTransactions = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const [showMaterialIn, setShowMaterialIn] = useState(true);
   const [showMaterialOut, setShowMaterialOut] = useState(true);
   const navigate = useNavigate();
 
   const filteredTransactions = transactions.filter(
     (txn) =>
-      (txn.data_type === "material_in" && showMaterialIn) ||
-      (txn.data_type === "material_out" && showMaterialOut)
-  );
+      ((txn.data_type === "material_in" && showMaterialIn) ||
+        (txn.data_type === "material_out" && showMaterialOut)) &&
+      (txn.project?.project_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        txn.challan_no?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        txn.date?.toLowerCase().includes(searchTerm.toLowerCase())
+      ));
 
   const {
     currentPage,
@@ -116,9 +120,18 @@ export const MaterialTransactions = () => {
 
   return (
     <>
-      <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex justify-between items-center px-6 mb-2">
         <PageBreadcrumb pageTitle="Material Transactions" />
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
+        <div className="flex justify-end items-center gap-3 px-6">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search by Project, Challan No or Date..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded-md dark:bg-gray-900 dark:border-gray-700 text-sm"
+            />
+          </div>
           <span
             className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
             onClick={(e) => {
@@ -221,6 +234,7 @@ export const MaterialTransactions = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
+                  <th className="px-4 py-3 text-[12px]">S.No</th>
                   <th className="px-4 py-3 text-[12px]">Date</th>
                   <th className="px-4 py-3 text-[12px]">Project</th>
                   <th className="px-4 py-3 text-[12px]">Type</th>
@@ -230,7 +244,7 @@ export const MaterialTransactions = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedTransactions.map((txn) => (
+                {paginatedTransactions.map((txn, index) => (
                   <tr
                     key={txn.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -240,6 +254,9 @@ export const MaterialTransactions = () => {
                       })
                     }
                   >
+                    <td className="px-4 py-3 text-[12px]">
+                      {(currentPage - 1) * rowsPerPage + index + 1}
+                    </td>
                     <td className="px-4 py-3 text-[12px]">
                       {txn.date.split("-").reverse().join("-")}
                     </td>
@@ -259,23 +276,29 @@ export const MaterialTransactions = () => {
                     </td>
                     <td className="px-4 py-3 text-[12px]">
                       <span
-                        className={
-                          txn.is_approve_pm === "approved"
-                            ? "text-green-600"
-                            : txn.is_approve_pm === "rejected"
-                            ? "text-red-600"
-                            : "text-yellow-600"
-                        }
+                        className={`px-2 py-1 rounded-full text-xs ${txn.is_approve_pm === "approved"
+                          ? "bg-green-100 text-green-800"
+                          : txn.is_approve_pm === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-yellow-100 text-yellow-800"
+                          }`}
                       >
                         {txn.is_approve_pm === "approved"
                           ? "Approved"
                           : txn.is_approve_pm === "rejected"
-                          ? "Rejected"
-                          : "Pending"}
+                            ? "Rejected"
+                            : "Pending"}
                       </span>
                     </td>
                   </tr>
                 ))}
+                {paginatedTransactions.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="text-center px-4 py-3">
+                      No transactions found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           )}

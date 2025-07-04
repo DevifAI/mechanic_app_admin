@@ -15,21 +15,29 @@ export const MaintenanceLog = () => {
   const [moreDropdownOpen, setMoreDropdownOpen] = useState(false);
   const [sortMenuOpen, setSortMenuOpen] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(20);
+  const [searchTerm, setSearchTerm] = useState("");
   const navigate = useNavigate();
+
+  const filteredMaintenanceLogs = maintenanceLogs.filter(
+    (log) =>
+      log.equipmentData?.equipment_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.createdByUser?.emp_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      log.organisation?.org_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      new Date(log.date).toLocaleDateString().includes(searchTerm)
+  );
 
   const {
     currentPage,
     setCurrentPage,
     totalPages,
     paginatedData: paginatedMaintenanceLogs,
-  } = usePagination(maintenanceLogs, rowsPerPage);
+  } = usePagination(filteredMaintenanceLogs, rowsPerPage);
 
   const fetchAndSetMaintenanceLogs = async () => {
     setLoading(true);
     try {
       const data = await getAllMaintenanceSheet();
       setMaintenanceLogs(data);
-      console.log({ data });
     } catch (err) {
       toast.error("Failed to fetch Maintenance Logs");
     }
@@ -62,31 +70,22 @@ export const MaintenanceLog = () => {
       return;
     }
 
-    const exportData: any[] = [];
-
-    logs.forEach((log) => {
-      exportData.push({
-        "Maintenance ID": log.id,
-        Date: new Date(log.date).toLocaleDateString(),
-        Equipment: log.equipmentData?.equipment_name || "N/A",
-        "Serial Number": log.equipmentData?.equipment_sr_no || "N/A",
-        "Created By": log.createdByUser?.emp_name || "N/A",
-        Organisation: log.organisation?.org_name || "N/A",
-        Notes: log.notes || "",
-        "Action Planned": log.action_planned || "",
-        "Next Date": log.next_date
-          ? new Date(log.next_date).toLocaleDateString()
-          : "N/A",
-        "Approved by MIC": log.is_approved_mic || "Pending",
-        "Approved by SIC": log.is_approved_sic || "Pending",
-        "Approved by PM": log.is_approved_pm || "Pending",
-      });
-    });
+    const exportData = logs.map((log) => ({
+      "Maintenance ID": log.id,
+      Date: new Date(log.date).toLocaleDateString(),
+      Equipment: log.equipmentData?.equipment_name || "N/A",
+      "Serial Number": log.equipmentData?.equipment_sr_no || "N/A",
+      "Created By": log.createdByUser?.emp_name || "N/A",
+      Organisation: log.organisation?.org_name || "N/A",
+      "MIC Status": log.is_approved_mic || "Pending",
+      "SIC Status": log.is_approved_sic || "Pending",
+      "PM Status": log.is_approved_pm || "Pending",
+      "Items Count": log.items?.length || 0
+    }));
 
     const worksheet = XLSX.utils.json_to_sheet(exportData);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Maintenance Logs");
-
     XLSX.writeFile(workbook, "maintenance_logs.xlsx");
   };
 
@@ -99,22 +98,57 @@ export const MaintenanceLog = () => {
     toast.info("Sorted by Date");
   };
 
-  const handleSortByEmployee = () => {
+  const handleSortByEquipment = () => {
     setMaintenanceLogs((prev) =>
       [...prev].sort((a, b) =>
-        (a.createdByUser?.emp_name || "").localeCompare(
-          b.createdByUser?.emp_name || ""
+        (a.equipmentData?.equipment_name || "").localeCompare(
+          b.equipmentData?.equipment_name || ""
         )
       )
     );
-    toast.info("Sorted by Employee");
+    toast.info("Sorted by Equipment");
+  };
+
+  const getStatusBadge = (log: any) => {
+    if (log.is_approved_mic === "rejected" || 
+        log.is_approved_sic === "rejected" || 
+        log.is_approved_pm === "rejected") {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">
+          Rejected
+        </span>
+      );
+    }
+    if (log.is_approved_mic === "approved" && 
+        log.is_approved_sic === "approved" && 
+        log.is_approved_pm === "approved") {
+      return (
+        <span className="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">
+          Approved
+        </span>
+      );
+    }
+    return (
+      <span className="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">
+        Pending
+      </span>
+    );
   };
 
   return (
     <>
-      <div className="flex justify-between items-center px-6 py-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex justify-between items-center px-6 mb-2">
         <PageBreadcrumb pageTitle="Maintenance Log" />
-        <div className="flex justify-end items-center mb-4 gap-3 px-6 pt-6">
+        <div className="flex justify-end items-center gap-3 px-6">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search by equipment, employee or organisation..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-3 py-1 border rounded-md dark:bg-gray-900 dark:border-gray-700 text-sm"
+            />
+          </div>
           <span
             className="p-2 bg-gray-200 border-2 border-gray-50 rounded-lg cursor-pointer relative"
             onClick={(e) => {
@@ -172,10 +206,10 @@ export const MaintenanceLog = () => {
                         onClick={() => {
                           setMoreDropdownOpen(false);
                           setSortMenuOpen(false);
-                          handleSortByEmployee();
+                          handleSortByEquipment();
                         }}
                       >
-                        Sort by Employee
+                        Sort by Equipment
                       </button>
                     </div>
                   )}
@@ -198,15 +232,17 @@ export const MaintenanceLog = () => {
             <table className="w-full min-w-[900px] text-base bg-white dark:bg-gray-800">
               <thead className="bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 uppercase text-sm">
                 <tr>
+                  <th className="px-4 py-3 text-[12px]">S.No</th>
                   <th className="px-4 py-3 text-[12px]">Date</th>
                   <th className="px-4 py-3 text-[12px]">Equipment</th>
                   <th className="px-4 py-3 text-[12px]">Created By</th>
                   <th className="px-4 py-3 text-[12px]">Organisation</th>
+                  <th className="px-4 py-3 text-[12px]">Items Count</th>
                   <th className="px-4 py-3 text-[12px]">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-800 dark:text-gray-100 text-center">
-                {paginatedMaintenanceLogs.map((log) => (
+                {paginatedMaintenanceLogs.map((log, index) => (
                   <tr
                     key={log.id}
                     className="hover:bg-gray-50 dark:hover:bg-gray-700 transition cursor-pointer"
@@ -216,6 +252,9 @@ export const MaintenanceLog = () => {
                       })
                     }
                   >
+                    <td className="px-4 py-3 text-[12px]">
+                      {(currentPage - 1) * rowsPerPage + index + 1}
+                    </td>
                     <td className="px-4 py-3 text-[12px]">
                       {new Date(log.date).toLocaleDateString()}
                     </td>
@@ -229,14 +268,20 @@ export const MaintenanceLog = () => {
                       {log.organisation?.org_name || "N/A"}
                     </td>
                     <td className="px-4 py-3 text-[12px]">
-                      {log.is_approved_mic === "approved" &&
-                      log.is_approved_sic === "approved" &&
-                      log.is_approved_pm === "approved"
-                        ? "Approved"
-                        : "Pending"}
+                      {log.items?.length || 0}
+                    </td>
+                    <td className="px-4 py-3 text-[12px]">
+                      {getStatusBadge(log)}
                     </td>
                   </tr>
                 ))}
+                {paginatedMaintenanceLogs.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="text-center px-4 py-3">
+                      No maintenance logs found
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           )}
