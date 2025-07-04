@@ -553,7 +553,164 @@ const AppSidebar: React.FC = () => {
                 )}
 
                 {/* Reports items (dummy) */}
-                {currentView === "reports" && <></>}
+                {currentView === "reports" && (
+                  <>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/daily-progress")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/daily-progress")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Daily Progress Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/daily-diesel-consumption")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/daily-diesel-consumption")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Daily Diesel Consumption</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/material-consumption")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/material-consumption")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Material Consumption Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/revenue")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/revenue")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Revenue Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/equipment")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/equipment")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Equipment Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/inventory")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/inventory")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Inventory Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/purchase")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/purchase")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Purchase Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/sales")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/sales")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Sales Report / Revenue</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/expense")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/expense")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Expense Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/reports/profitability")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/reports/profitability")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Profitability Report</span>
+                        )}
+                      </div>
+                    </li>
+                    <li>
+                      <div
+                        onClick={() => handleNavigate("/dashboard")}
+                        className={`flex items-center px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer
+          ${isActive("/dashboard")
+                            ? "bg-white text-black"
+                            : "text-white hover:border-2 hover:border-blue-500"}
+          ${!shouldShowText ? "justify-center" : "justify-start"}`}
+                      >
+                        {shouldShowText && (
+                          <span className="ml-3">Dashboard</span>
+                        )}
+                      </div>
+                    </li>
+                  </>
+                )}
               </div>
             )}
           </ul>
