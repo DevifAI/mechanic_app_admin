@@ -184,6 +184,7 @@ export const EmployeeForm = ({
   ) => {
     const isShift = name === "shiftcode";
     const isOptional = name === "shiftcode" && !required;
+    console.log(isOptional)
 
     return (
       <div className={`${className} px-3 mb-4`}>
