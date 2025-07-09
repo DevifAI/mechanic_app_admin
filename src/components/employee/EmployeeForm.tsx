@@ -5,6 +5,7 @@ import { getAllOrganisations } from "../../apis/organisationApi";
 import { State, City } from "country-state-city";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+
 type Option = { id: string; name: string; shift_code?: string };
 
 type EmployeeFormProps = {
@@ -57,35 +58,6 @@ export const EmployeeForm = ({
   const [states] = useState(State.getStatesOfCountry("IN"));
   const [cities, setCities] = useState<any[]>([]);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const [rolesData, shiftsData, orgsData] = await Promise.all([
-  //         fetchRoles(),
-  //         fetchShifts(),
-  //         getAllOrganisations(),
-  //       ]);
-
-  //       setRoles(rolesData);
-  //       setShifts(shiftsData.map((s) => ({ id: s.id, name: s.shift_code })));
-  //       setOrganisations(orgsData.map((o) => ({ id: o.id, name: o.org_name })));
-
-  //       if (initialData) {
-  //         setFormData(initialData);
-  //         const stateMatch = states.find((s) => s.name === initialData.state);
-  //         if (stateMatch) {
-  //           const cityData = City.getCitiesOfState("IN", stateMatch.isoCode);
-  //           setCities(cityData);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.error("Error loading form data:", error);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [initialData]);
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -95,10 +67,7 @@ export const EmployeeForm = ({
           getAllOrganisations(),
         ]);
 
-        // Make sure roles have UUIDs
         setRoles(rolesData.map((r) => ({ id: r.id, name: r.name })));
-
-        // Handle shifts with shift_code
         setShifts(
           shiftsData.map((s) => ({
             id: s.id,
@@ -106,11 +75,15 @@ export const EmployeeForm = ({
             shift_code: s.shift_code,
           }))
         );
-
         setOrganisations(orgsData.map((o) => ({ id: o.id, name: o.org_name })));
 
         if (initialData) {
-          setFormData(initialData);
+          const formattedData = {
+            ...initialData,
+            dob: initialData.dob ? new Date(initialData.dob) : null
+          };
+          setFormData(formattedData);
+          
           const stateMatch = states.find((s) => s.name === initialData.state);
           if (stateMatch) {
             const cityData = City.getCitiesOfState("IN", stateMatch.isoCode);
@@ -160,12 +133,24 @@ export const EmployeeForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
+    
     if (parseInt(formData.age) < 0 || parseInt(formData.age) > 100) {
       alert("Age must be between 0 and 100");
       return;
     }
-    onSubmit(formData);
+
+    if (formData.aadhar_number && formData.aadhar_number.length !== 12) {
+      alert("Aadhar number must be exactly 12 digits");
+      return;
+    }
+
+    // Prepare the data to submit
+    const submitData = {
+      ...formData,
+      shiftcode: formData.shiftcode || "", // Ensure empty string if not selected
+    };
+
+    onSubmit(submitData);
   };
 
   const inputField = (
@@ -182,7 +167,7 @@ export const EmployeeForm = ({
       <input
         type={type}
         name={name}
-        value={(formData as any)[name]}
+        value={(formData as any)[name] || ""}
         onChange={handleChange}
         required={required}
         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -198,6 +183,7 @@ export const EmployeeForm = ({
     className: string = "w-full"
   ) => {
     const isShift = name === "shiftcode";
+    const isOptional = name === "shiftcode" && !required;
 
     return (
       <div className={`${className} px-3 mb-4`}>
@@ -206,7 +192,7 @@ export const EmployeeForm = ({
         </label>
         <select
           name={name}
-          value={(formData as any)[name]}
+          value={(formData as any)[name] || ""}
           onChange={handleChange}
           required={required}
           className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -269,7 +255,7 @@ export const EmployeeForm = ({
           "Shift Code",
           "shiftcode",
           shifts,
-          true,
+          false, // Made this not required
           "w-full sm:w-1/2 lg:w-1/3"
         )}
         {selectField(
@@ -402,7 +388,7 @@ export const EmployeeForm = ({
           </div>
         </div>
 
-        {/* Bank Details Section */}
+        {/* Personal Information Section */}
         <div className="w-full px-3 mb-6">
           <h3 className="text-md font-semibold text-gray-700 dark:text-gray-200 mb-3">
             Personal Information
@@ -452,8 +438,6 @@ export const EmployeeForm = ({
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
               />
             </div>
-
-
           </div>
         </div>
 
@@ -478,8 +462,9 @@ export const EmployeeForm = ({
         <button
           type="submit"
           disabled={loading}
-          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 ${loading ? "opacity-70 cursor-not-allowed" : ""
-            }`}
+          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:focus:ring-offset-gray-800 ${
+            loading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
         >
           {loading ? (
             <>
